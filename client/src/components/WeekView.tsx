@@ -2,8 +2,8 @@ import React, { Fragment, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { range } from "ramda";
 
-import ViewEventInterval from "./ViewEventInterval";
-import ViewEvents from "./ViewEvents";
+import EventInterval from "./EventInterval";
+import Events from "./Events";
 import ViewHeader from "./ViewHeader";
 import { useStore } from "../store";
 import {
@@ -122,12 +122,9 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
             </tr>
             {eachDay.map((d, i) => (
                 <Fragment>
-                    <ViewEvents viewDate={d} cellInfo={cellInfo[i]} />
+                    <Events viewDate={d} cellInfo={cellInfo[i]} />
                     {evtIntvlActive && (
-                        <ViewEventInterval
-                            viewDate={d}
-                            cellInfo={cellInfo[i]}
-                        />
+                        <EventInterval viewDate={d} cellInfo={cellInfo[i]} />
                     )}
                 </Fragment>
             ))}

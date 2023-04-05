@@ -1,13 +1,13 @@
 import React from "react";
 
-import DateSelection from "../DateSelection";
+import NewEvent from "../NewEvent";
 
 import "./Sidebar.css";
 
 export default function Sidebar() {
     return (
         <div className="sidebar">
-            <DateSelection />
+            <NewEvent />
         </div>
     );
 }

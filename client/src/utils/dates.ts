@@ -99,7 +99,15 @@ export function getDayIntvl(date: Date): CalInterval {
     return { start, end };
 }
 
-export function intvlBelongsToDayBlock(intvl: CalInterval, date: Date) {
+export function clampToDayIntvl(intvl: CalInterval, date: Date): CalInterval {
+    const dayIntvl = getDayIntvl(date);
+    return {
+        start: intvl.start < dayIntvl.start ? dayIntvl.start : intvl.start,
+        end: intvl.end > dayIntvl.end ? dayIntvl.end : intvl.end,
+    };
+}
+
+export function intvlBelongsToDayIntvl(intvl: CalInterval, date: Date) {
     return df.areIntervalsOverlapping(intvl, getDayIntvl(date));
 }
 

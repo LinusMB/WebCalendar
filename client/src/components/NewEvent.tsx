@@ -6,9 +6,9 @@ import { useModal } from "../context/modal";
 import { useStore } from "../store";
 import { isWholeDayIntvl } from "../utils/dates";
 
-import "./DateSelection.css";
+import "./NewEvent.css";
 
-export default function DateSelection() {
+export default function NewEvent() {
     const { evtIntvl, updateEvtIntvl } = useStore();
     const { setModalActive } = useModal();
 
@@ -21,21 +21,21 @@ export default function DateSelection() {
     }
 
     return (
-        <div className="date-selection">
+        <div className="new-event">
             <button
                 onClick={() => setModalActive(true)}
-                className="date-selection__btn-new-event"
+                className="new-event__btn"
             >
                 New Event
             </button>
             <FromField
-                className="date-selection__from"
+                className="new-event__from"
                 date={evtIntvl.start}
                 updateDate={updateEvtIntvlStart}
                 isWholeDay={isWholeDayIntvl(evtIntvl)}
             />
             <ToField
-                className="date-selection__to"
+                className="new-event__to"
                 date={evtIntvl.end}
                 updateDate={updateEvtIntvlEnd}
                 isWholeDay={isWholeDayIntvl(evtIntvl)}

@@ -1,8 +1,8 @@
 import React, { Fragment, useState, useRef, useEffect } from "react";
 import { range } from "ramda";
 
-import ViewEventInterval from "./ViewEventInterval";
-import ViewEvents from "./ViewEvents";
+import EventInterval from "./EventInterval";
+import ViewEvents from "./Events";
 import ViewHeader from "./ViewHeader";
 import { useStore } from "../store";
 import {
@@ -85,7 +85,7 @@ function DayViewWholeDayRow() {
             </tr>
             <ViewEvents viewDate={viewDate} cellInfo={cellInfo} />
             {evtIntvlActive && (
-                <ViewEventInterval viewDate={viewDate} cellInfo={cellInfo} />
+                <EventInterval viewDate={viewDate} cellInfo={cellInfo} />
             )}
         </Fragment>
     );

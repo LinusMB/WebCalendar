@@ -24,7 +24,7 @@ type updateFn<
         | "evts"]
 > = (arg: T) => T;
 
-interface Store {
+export interface Store {
     viewDate: Date;
     evtIntvl: CalInterval;
     evtIntvlActive: boolean;
@@ -99,6 +99,18 @@ export const useStore = create<Store>((set) => ({
     updateStore: (update) => set((state) => update(state)),
 }));
 
+export const useIsResizeStartActive = () =>
+    useStore((state) => [
+        state.evtIntvlResize.start,
+        state.setEvtIntvlResizeStart,
+    ]) as [boolean, (resize: boolean) => void];
+
+export const useIsResizeEndActive = () =>
+    useStore((state) => [
+        state.evtIntvlResize.end,
+        state.setEvtIntvlResizeEnd,
+    ]) as [boolean, (resize: boolean) => void];
+
 export function useEvtsForDay(date: Date) {
     const { evts } = useStore();
     const evtsForDay = useDeepCompareMemo(() => {
@@ -170,7 +182,10 @@ export function useEvtIntvlDecStart(
     };
 }
 
-export function useEvtIntvlIncEnd(restrictIntvl: CalInterval, evts: CalEvent[]) {
+export function useEvtIntvlIncEnd(
+    restrictIntvl: CalInterval,
+    evts: CalEvent[]
+) {
     const { adjustToIntvl, adjustNoEvtOverlap } = incEndAdjustFns;
     const { updateStore } = useStore();
 
