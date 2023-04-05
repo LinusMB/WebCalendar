@@ -1,0 +1,30 @@
+.month-view {
+    table-layout: fixed;
+    border-collapse: collapse;
+    overflow: scroll;
+    height: 100%;
+    width: 100%;
+}
+
+.month-view__day-cell {
+    border-right: 1px solid var(--light-border-color);
+    text-align: center;
+}
+
+.month-view__day-cell:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.month-view__row {
+    border-bottom: 1px solid var(--light-border-color);
+}
+
+.month-view__day-col {
+    text-align: center;
+    border-right: 1px solid var(--light-border-color);
+}
+
+.month-view__header {
+    height: 3rem;
+}

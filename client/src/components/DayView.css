@@ -1,0 +1,20 @@
+.day-view {
+    border-collapse: collapse;
+    overflow: scroll;
+    height: 100%;
+    width: 100%;
+}
+
+.day-view__row {
+    border-bottom: var(--table-border-size) solid var(--light-border-color);
+}
+
+.day-view__time {
+    border-right: var(--table-border-size) solid var(--light-border-color);
+    text-align: center;
+    width: 6em;
+}
+
+.day-view__header {
+    height: 3rem;
+}

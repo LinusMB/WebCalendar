@@ -1,0 +1,43 @@
+.view-header {
+    display: flex;
+    align-items: center;
+    padding: 0 .7em;
+}
+
+.view-header__today {
+    margin-right: .7em;
+    padding: .4em;
+}
+
+.view-header__date {
+    display: inline-block;
+    text-align: center;
+    width: var(--view-header-date-width);
+    margin-right: auto;
+}
+
+.view-header__link:not(:last-child) {
+    border-right: none;
+}
+
+.view-header__link {
+    border: 1px solid black;
+    margin: 0;
+    padding: .4em;
+}
+
+.view-header__link:first-child {
+    border-radius: .4em 0 0 .4em;
+}
+
+.view-header__link:last-child {
+    border-radius: 0 .4em .4em 0;
+}
+
+.view-header__dec {
+    margin-right: .5em;
+}
+
+.view-header__dec, .view-header__inc {
+    cursor: pointer;
+}

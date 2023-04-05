@@ -1,0 +1,14 @@
+.interval-field {
+    background-color: white;
+    border: 1px solid darkgray;
+    font-size: .9em;
+    margin-top: 5px;
+}
+
+.interval-field__selection:hover {
+    background-color: var(--bg-color-dark);
+}
+
+.interval-field__selection {
+    position: relative;
+}

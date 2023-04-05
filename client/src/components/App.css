@@ -1,0 +1,84 @@
+@font-face {
+    font-family: 'PTSans';
+    src: local('PTSans'), url(../assets/fonts/PTSans/PTSans-Regular.ttf) format('truetype');
+}
+
+*, *:after, *:before {
+    box-sizing: border-box;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+}
+
+:root {
+    --bg-color-light: #f9f9f9;
+    --bg-color-dark: #f2f2f2;
+    --bg-color-darker: #dcdcdc;
+
+    --warning-color: #f0ad4e;
+    --danger-color: #d9534f;
+    --success-color: #5cb85c;
+    --info-color: #5bc0de;
+    --link-default: #337ab7;
+    --link-hover: #23527c;
+    --link-active: #cc8548;
+
+    --highlight-bg-color: #6082B6;
+    --highlight-bg-color-light: #708EBD;
+    --highlight-text-color: #EEE;
+
+    --default-bg-color: #EEE;
+    --default-text-color: #333;
+
+    --muted-text-color: #888;
+    --input-border-color: #8B8A8B;
+    --light-border-color: rgba(0,0,0,0.2);
+
+    --view-header-date-width: 15ch;
+
+    --table-border-size: 1px;
+
+    --event-interval-bg-color: #6082B6;
+    --event-interval-text-color: #EEE;
+    --event-interval-bar-size: 2em;
+    --event-interval-z-index: 1;
+
+    --modal-z-index: 2;
+
+    --tooltip-bg-color: #000;
+    --tooltip-text-color: #FFF;
+    --tooltip-width: 4em;
+    --tooltip-font-size: .8em;
+    --tooltip-z-index: 1;
+}
+
+button, input {
+    font-family: inherit;
+}
+
+ol, ul, li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+body {
+    font-family: "PTSans", sans-serif;
+    font-size: 18px;
+    color: var(--default-text-color);
+    background: var(--default-bg-color);
+}
+
+.app {
+    display: grid;
+    height: 100vh;
+    width: 100vw;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: minmax(40px, 4%) 96%;
+    grid-template-areas:
+	"header  header header header header header"
+	"sidebar main   main   main   main   main";
+}

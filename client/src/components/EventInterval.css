@@ -1,0 +1,30 @@
+.event-interval {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    z-index: var(--event-interval-z-index);
+    background: var(--event-interval-bg-color);
+    color: var(--event-interval-text-color);
+    opacity: 1;
+}
+
+.event-interval__bar-top {
+    width: 100%;
+    height: var(--event-interval-bar-size);
+    margin-bottom: auto;
+}
+
+.event-interval__bar-top:hover {
+    cursor: row-resize;
+}
+
+.event-interval__bar-bottom {
+    width: 100%;
+    height: var(--event-interval-bar-size);
+    margin-top: auto;
+}
+
+.event-interval__bar-bottom:hover {
+    cursor: row-resize;
+}
+

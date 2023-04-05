@@ -1,0 +1,38 @@
+.week-view {
+    table-layout: fixed;
+    border-collapse: collapse;
+    overflow: scroll;
+    height: 100%;
+    width: 100%;
+}
+
+.week-view__row {
+    border-bottom: var(--table-border-size) solid var(--light-border-color);
+}
+
+.week-view__time {
+    border-right: var(--table-border-size) solid var(--light-border-color);
+    text-align: center;
+}
+
+.week-view__events {
+    border-right: var(--table-border-size) solid var(--light-border-color);
+}
+
+.week-view__day-col {
+    text-align: center;
+    border-right: var(--table-border-size) solid var(--light-border-color);
+}
+
+.week-view__define-col:first-child {
+    width: 6em;
+}
+
+.week-view__day-col:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.week-view__header {
+    height: 3rem;
+}

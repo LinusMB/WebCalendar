@@ -1,0 +1,14 @@
+.date-selection {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    gap: .4em;
+}
+
+.date-selection__from, .date-selection__to {
+    grid-column: 1 / 3;
+}
+
+.date-selection__btn-new-event {
+    grid-column: 1 / 2;
+}
