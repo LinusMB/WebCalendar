@@ -6,7 +6,7 @@ import { DayViewLink, WeekViewLink, MonthViewLink } from "./ChangeView";
 import { useStore } from "../store";
 import "./CalendarHeader.css";
 
-interface CalendarHeaderProps {
+export interface CalendarHeaderProps {
     dateStr: string;
     onClickLeftChv: () => void;
     onClickRightChv: () => void;

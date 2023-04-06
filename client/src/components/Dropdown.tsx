@@ -2,7 +2,7 @@ import React, { useRef, useLayoutEffect } from "react";
 
 import "./Dropdown.css";
 
-interface DropdownProps {
+export interface DropdownProps {
     items: string[];
     topIndex: number;
     onClickItem?: (arg: number) => void;

@@ -23,7 +23,7 @@ import {
 } from "../utils/dates";
 import { CellInfo } from "../types";
 
-interface EventIntervalProps {
+export interface EventIntervalProps {
     viewDate: Date;
     cellInfo: CellInfo | null;
 }

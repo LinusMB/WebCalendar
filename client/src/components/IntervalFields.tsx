@@ -37,7 +37,7 @@ import {
 
 import "./IntervalFields.css";
 
-interface FieldProps {
+export interface ToFieldProps {
     date: Date;
     isWholeDay: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
@@ -49,7 +49,7 @@ export function ToField({
     updateDate = () => {},
     isWholeDay,
     className = "",
-}: FieldProps) {
+}: ToFieldProps) {
     return (
         <div className={`interval-field ${className}`}>
             {"to "}
@@ -62,12 +62,19 @@ export function ToField({
     );
 }
 
+export interface FromFieldProps {
+    date: Date;
+    isWholeDay: boolean;
+    updateDate?: (arg: (arg: Date) => Date) => void;
+    className?: string;
+}
+
 export function FromField({
     date,
     updateDate = () => {},
     isWholeDay,
     className = "",
-}: FieldProps) {
+}: FromFieldProps) {
     return (
         <div className={`interval-field ${className}`}>
             {"from "}

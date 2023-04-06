@@ -7,7 +7,7 @@ import { clampToDayIntvl } from "../utils/dates";
 import { useEvtsForDay } from "../store";
 import { CellInfo } from "../types";
 
-interface EventsProps {
+export interface EventsProps {
     viewDate: Date;
     cellInfo: CellInfo | null;
 }
