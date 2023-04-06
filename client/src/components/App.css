@@ -41,10 +41,10 @@
 
     --table-border-size: 1px;
 
-    --event-interval-bg-color: #6082b6;
-    --event-interval-text-color: #eee;
-    --event-interval-bar-size: 2em;
-    --event-interval-z-index: 1;
+    --window-bg-color: #6082b6;
+    --window-text-color: #eee;
+    --window-bar-size: 2em;
+    --window-z-index: 1;
 
     --modal-z-index: 2;
 

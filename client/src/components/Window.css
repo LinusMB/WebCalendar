@@ -2,15 +2,15 @@
     display: flex;
     flex-direction: column;
     position: fixed;
-    z-index: var(--event-interval-z-index);
-    background: var(--event-interval-bg-color);
-    color: var(--event-interval-text-color);
+    z-index: var(--window-z-index);
+    background: var(--window-bg-color);
+    color: var(--window-text-color);
     opacity: 1;
 }
 
 .window__bar-top {
     width: 100%;
-    height: var(--event-interval-bar-size);
+    height: var(--window-bar-size);
     margin-bottom: auto;
 }
 
@@ -20,7 +20,7 @@
 
 .window__bar-bottom {
     width: 100%;
-    height: var(--event-interval-bar-size);
+    height: var(--window-bar-size);
     margin-top: auto;
 }
 
