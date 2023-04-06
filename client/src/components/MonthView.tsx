@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useStore } from "../store";
-import ViewHeader from "./ViewHeader";
+import CalendarHeader from "./CalendarHeader";
 import {
     getMonth,
     getYear,
@@ -30,7 +30,7 @@ function MonthViewHeader() {
     return (
         <tr className="month-view__row">
             <td className="month-view__header" colSpan={7}>
-                <ViewHeader
+                <CalendarHeader
                     dateStr={dateStr}
                     onClickLeftChv={onClickLeftChv}
                     onClickRightChv={onClickRightChv}

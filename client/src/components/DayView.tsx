@@ -3,7 +3,7 @@ import { range } from "ramda";
 
 import EventInterval from "./EventInterval";
 import ViewEvents from "./Events";
-import ViewHeader from "./ViewHeader";
+import CalendarHeader from "./CalendarHeader";
 import { useStore } from "../store";
 import {
     weekdayMap,
@@ -33,7 +33,7 @@ function DayViewHeader() {
     return (
         <tr className="day-view__row">
             <td className="day-view__header" colSpan={2}>
-                <ViewHeader
+                <CalendarHeader
                     dateStr={dateStr}
                     onClickLeftChv={onClickLeftChv}
                     onClickRightChv={onClickRightChv}

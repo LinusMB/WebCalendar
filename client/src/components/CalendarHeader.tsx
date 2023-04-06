@@ -4,46 +4,46 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import { DayViewLink, WeekViewLink, MonthViewLink } from "./ChangeView";
 import { useStore } from "../store";
-import "./ViewHeader.css";
+import "./CalendarHeader.css";
 
-interface ViewHeaderProps {
+interface CalendarHeaderProps {
     dateStr: string;
     onClickLeftChv: () => void;
     onClickRightChv: () => void;
 }
 
-export default function ViewHeader({
+export default function CalendarHeader({
     dateStr,
     onClickLeftChv,
     onClickRightChv,
-}: ViewHeaderProps) {
+}: CalendarHeaderProps) {
     const { setViewDate } = useStore();
 
     return (
-        <div className="view-header">
+        <div className="calendar-header">
             <button
                 onClick={() => setViewDate(now())}
-                className="view-header__today"
+                className="calendar-header__today"
             >
                 Today
             </button>
             <i
                 onClick={onClickLeftChv}
-                className="view-header__dec fas fa-angle-left"
+                className="calendar-header__dec fas fa-angle-left"
             ></i>
             <i
                 onClick={onClickRightChv}
-                className="view-header__inc fas fa-angle-right"
+                className="calendar-header__inc fas fa-angle-right"
             ></i>
-            <span className="view-header__date">{dateStr}</span>
-            <div className="view-header__link-group">
-                <button className="view-header__link">
+            <span className="calendar-header__date">{dateStr}</span>
+            <div className="calendar-header__link-group">
+                <button className="calendar-header__link">
                     <DayViewLink />
                 </button>
-                <button className="view-header__link">
+                <button className="calendar-header__link">
                     <WeekViewLink />
                 </button>
-                <button className="view-header__link">
+                <button className="calendar-header__link">
                     <MonthViewLink />
                 </button>
             </div>

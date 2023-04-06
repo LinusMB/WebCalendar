@@ -1,0 +1,44 @@
+.calendar-header {
+    display: flex;
+    align-items: center;
+    padding: 0 0.7em;
+}
+
+.calendar-header__today {
+    margin-right: 0.7em;
+    padding: 0.4em;
+}
+
+.calendar-header__date {
+    display: inline-block;
+    text-align: center;
+    width: var(--calendar-header-date-width);
+    margin-right: auto;
+}
+
+.calendar-header__link:not(:last-child) {
+    border-right: none;
+}
+
+.calendar-header__link {
+    border: 1px solid black;
+    margin: 0;
+    padding: 0.4em;
+}
+
+.calendar-header__link:first-child {
+    border-radius: 0.4em 0 0 0.4em;
+}
+
+.calendar-header__link:last-child {
+    border-radius: 0 0.4em 0.4em 0;
+}
+
+.calendar-header__dec {
+    margin-right: 0.5em;
+}
+
+.calendar-header__dec,
+.calendar-header__inc {
+    cursor: pointer;
+}

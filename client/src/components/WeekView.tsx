@@ -4,7 +4,7 @@ import { range } from "ramda";
 
 import EventInterval from "./EventInterval";
 import Events from "./Events";
-import ViewHeader from "./ViewHeader";
+import CalendarHeader from "./CalendarHeader";
 import { useStore } from "../store";
 import {
     getDay,
@@ -37,7 +37,7 @@ function WeekViewHeader() {
     return (
         <tr className="week-view__row">
             <td className="week-view__header" colSpan={8}>
-                <ViewHeader
+                <CalendarHeader
                     dateStr={dateStr}
                     onClickLeftChv={onClickLeftChv}
                     onClickRightChv={onClickRightChv}
