@@ -48,10 +48,10 @@ function DayViewWholeDayRow() {
         useStore();
 
     const [cellInfo, setCellInfo] = useState<CellInfo | null>(null);
-    const ref = useRef<HTMLTableCellElement>(null);
+    const $td = useRef<HTMLTableCellElement>(null);
     function updateCellInfo() {
-        if (ref.current) {
-            const rect = ref.current.getBoundingClientRect();
+        if ($td.current) {
+            const rect = $td.current.getBoundingClientRect();
             setCellInfo({
                 height: rect.height,
                 width: rect.width,
@@ -80,7 +80,7 @@ function DayViewWholeDayRow() {
                         setEvtIntvlActive(true);
                     }}
                     className="day-view__events"
-                    ref={ref}
+                    ref={$td}
                 ></td>
             </tr>
             <ViewEvents viewDate={viewDate} cellInfo={cellInfo} />

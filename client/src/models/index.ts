@@ -4,7 +4,6 @@ import {
     addMinutes,
     subMinutes,
     differenceInMinutes,
-    isWithinInterval,
     areIntervalsOverlapping,
 } from "../utils/dates";
 import { CalEvent, CalInterval } from "../types";

@@ -80,9 +80,9 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
     const { setEvtIntvl, evtIntvlActive, setEvtIntvlActive } = useStore();
 
     const [cellInfo, setCellInfo] = useState<CellInfo[]>([]);
-    const ref = useRef<HTMLTableCellElement[]>([]);
+    const $tdList = useRef<HTMLTableCellElement[]>([]);
     function updateCellInfo() {
-        const rects = ref.current.map((e) => e.getBoundingClientRect());
+        const rects = $tdList.current.map((e) => e.getBoundingClientRect());
         setCellInfo(
             rects.map((r) => ({
                 height: r.height,
@@ -115,7 +115,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                         }}
                         className="week-view__events"
                         ref={(el) => {
-                            if (el) ref.current[i] = el;
+                            if (el) $tdList.current[i] = el;
                         }}
                     ></td>
                 ))}
