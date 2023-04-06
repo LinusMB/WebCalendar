@@ -5,6 +5,7 @@ import {
     subMinutes,
     differenceInMinutes,
     isWithinInterval,
+    areIntervalsOverlapping,
 } from "../utils/dates";
 import { CalEvent, CalInterval } from "../types";
 
@@ -81,7 +82,11 @@ export const decStartAdjustFns = {
     adjustNoEvtOverlap(evts: CalEvent[]) {
         return function ({ start, end }: CalInterval): CalInterval | undefined {
             const evt = find(
-                (evt) => isWithinInterval(start, pick(["start", "end"], evt)),
+                (evt) =>
+                    areIntervalsOverlapping(pick(["start", "end"], evt), {
+                        start,
+                        end,
+                    }),
                 evts
             );
             if (evt) {
@@ -108,7 +113,11 @@ export const incEndAdjustFns = {
     adjustNoEvtOverlap(evts: CalEvent[]) {
         return function ({ start, end }: CalInterval): CalInterval | undefined {
             const evt = find(
-                (evt) => isWithinInterval(end, pick(["start", "end"], evt)),
+                (evt) =>
+                    areIntervalsOverlapping(pick(["start", "end"], evt), {
+                        start,
+                        end,
+                    }),
                 evts
             );
             if (evt) {
