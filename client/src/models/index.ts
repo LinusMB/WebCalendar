@@ -1,4 +1,4 @@
-import { partial, pick, modify, find } from "ramda";
+import { partial, pick, modify, find, assoc } from "ramda";
 
 import {
     addMinutes,
@@ -6,6 +6,7 @@ import {
     differenceInMinutes,
     areIntervalsOverlapping,
 } from "../utils/dates";
+import { findLatestEventOverlap, findEarliestEventOverlap } from "./event";
 import { CalEvent, CalInterval } from "../types";
 
 function incStart(evtIntvl: CalInterval, minutes: number) {
@@ -24,11 +25,19 @@ function decEnd(evtIntvl: CalInterval, minutes: number) {
     return modify("end", (end) => subMinutes(end, minutes), evtIntvl);
 }
 
-type updateFn = (evtIntvl: CalInterval, minutes: number) => CalInterval;
-type adjustFn = (evtIntvl: CalInterval) => CalInterval | undefined;
+function updateStart(evtIntvl: CalInterval, update: (start: Date) => Date) {
+    return modify("start", update, evtIntvl);
+}
 
-function updateWithAdjust(updateFn: updateFn, adjustFns: adjustFn[]) {
-    return function (...args: Parameters<updateFn>): [CalInterval, boolean] {
+function updateEnd(evtIntvl: CalInterval, update: (end: Date) => Date) {
+    return modify("end", update, evtIntvl);
+}
+
+function updateWithAdjust<T extends Array<any>>(
+    updateFn: (...args: T) => CalInterval,
+    adjustFns: ((arg: CalInterval) => CalInterval | undefined)[]
+) {
+    return function (...args: T): [CalInterval, boolean] {
         const initial = updateFn(...args);
         for (const adjust of adjustFns) {
             const next = adjust(initial);
@@ -38,10 +47,78 @@ function updateWithAdjust(updateFn: updateFn, adjustFns: adjustFn[]) {
     };
 }
 
-export const incStartWithAdjust = partial(updateWithAdjust, [incStart]);
-export const decStartWithAdjust = partial(updateWithAdjust, [decStart]);
-export const incEndWithAdjust = partial(updateWithAdjust, [incEnd]);
-export const decEndWithAdjust = partial(updateWithAdjust, [decEnd]);
+export const updateStartWithAdjust = partial(
+    updateWithAdjust<Parameters<typeof updateStart>>,
+    [updateStart]
+);
+
+export const updateEndWithAdjust = partial(
+    updateWithAdjust<Parameters<typeof updateEnd>>,
+    [updateEnd]
+);
+
+export const incStartWithAdjust = partial(
+    updateWithAdjust<Parameters<typeof incStart>>,
+    [incStart]
+);
+export const decStartWithAdjust = partial(
+    updateWithAdjust<Parameters<typeof decStart>>,
+    [decStart]
+);
+export const incEndWithAdjust = partial(
+    updateWithAdjust<Parameters<typeof incEnd>>,
+    [incEnd]
+);
+export const decEndWithAdjust = partial(
+    updateWithAdjust<Parameters<typeof decEnd>>,
+    [decEnd]
+);
+
+export const updateStartAdjustFns = {
+    adjustIntvlGap(gapInMinutes: number) {
+        return function (evtIntvl: CalInterval): CalInterval | undefined {
+            const diff = differenceInMinutes(evtIntvl.end, evtIntvl.start);
+            if (diff < gapInMinutes) {
+                return assoc(
+                    "start",
+                    subMinutes(evtIntvl.end, gapInMinutes),
+                    evtIntvl
+                );
+            }
+        };
+    },
+    adjustNoEvtOverlap(evts: CalEvent[]) {
+        return function (evtIntvl: CalInterval): CalInterval | undefined {
+            const evt = findLatestEventOverlap(evts, evtIntvl);
+            if (evt) {
+                return assoc("start", evt.end, evtIntvl);
+            }
+        };
+    },
+};
+
+export const updateEndAdjustFns = {
+    adjustIntvlGap(gapInMinutes: number) {
+        return function (evtIntvl: CalInterval): CalInterval | undefined {
+            const diff = differenceInMinutes(evtIntvl.end, evtIntvl.start);
+            if (diff < gapInMinutes) {
+                return assoc(
+                    "end",
+                    addMinutes(evtIntvl.start, gapInMinutes),
+                    evtIntvl
+                );
+            }
+        };
+    },
+    adjustNoEvtOverlap(evts: CalEvent[]) {
+        return function (evtIntvl: CalInterval): CalInterval | undefined {
+            const evt = findEarliestEventOverlap(evts, evtIntvl);
+            if (evt) {
+                return assoc("end", evt.start, evtIntvl);
+            }
+        };
+    },
+};
 
 export const incStartAdjustFns = {
     adjustIntvlGap(gapInMinutes: number) {

@@ -4,6 +4,10 @@ import { assoc, assocPath, modify, append, mergeRight } from "ramda";
 import { useDeepCompareMemo } from "../hooks";
 import { todayWholeDayIntvl, startOfDay, endOfDay, now } from "../utils/dates";
 import {
+    updateStartWithAdjust,
+    updateEndWithAdjust,
+    updateStartAdjustFns,
+    updateEndAdjustFns,
     incStartWithAdjust,
     decStartWithAdjust,
     incEndWithAdjust,
@@ -121,6 +125,42 @@ export function useEvtsForDay(date: Date) {
     return evtsForDay;
 }
 
+export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
+    const { adjustIntvlGap, adjustNoEvtOverlap } = updateStartAdjustFns;
+    const { updateStore } = useStore();
+
+    const updateStart = updateStartWithAdjust([
+        adjustIntvlGap(restrictGap),
+        adjustNoEvtOverlap(evts),
+    ]);
+
+    return function (update: (start: Date) => Date) {
+        function updateStoreFn({ evtIntvl }: { evtIntvl: CalInterval }) {
+            const [newEvtIntvl] = updateStart(evtIntvl, update);
+            return { evtIntvl: newEvtIntvl };
+        }
+        updateStore(updateStoreFn);
+    };
+}
+
+export function useEvtIntvlUpdateEnd(restrictGap: number, evts: CalEvent[]) {
+    const { adjustIntvlGap, adjustNoEvtOverlap } = updateEndAdjustFns;
+    const { updateStore } = useStore();
+
+    const updateEnd = updateEndWithAdjust([
+        adjustIntvlGap(restrictGap),
+        adjustNoEvtOverlap(evts),
+    ]);
+
+    return function (update: (start: Date) => Date) {
+        function updateStoreFn({ evtIntvl }: { evtIntvl: CalInterval }) {
+            const [newEvtIntvl] = updateEnd(evtIntvl, update);
+            return { evtIntvl: newEvtIntvl };
+        }
+        updateStore(updateStoreFn);
+    };
+}
+
 export function useEvtIntvlIncStart(
     restrictGap: number,
     restrictIntvl: CalInterval
@@ -135,7 +175,7 @@ export function useEvtIntvlIncStart(
 
     // TODO: wrap in useCallback
     return function (minutes: number) {
-        function update({
+        function updateStoreFn({
             evtIntvl,
             evtIntvlResize,
         }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
@@ -148,7 +188,7 @@ export function useEvtIntvlIncStart(
             }
             return { evtIntvl: newEvtIntvl };
         }
-        updateStore(update);
+        updateStore(updateStoreFn);
     };
 }
 
@@ -165,7 +205,7 @@ export function useEvtIntvlDecStart(
     ]);
 
     return function (minutes: number) {
-        function update({
+        function updateStoreFn({
             evtIntvl,
             evtIntvlResize,
         }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
@@ -178,7 +218,7 @@ export function useEvtIntvlDecStart(
             }
             return { evtIntvl: newEvtIntvl };
         }
-        updateStore(update);
+        updateStore(updateStoreFn);
     };
 }
 
@@ -195,7 +235,7 @@ export function useEvtIntvlIncEnd(
     ]);
 
     return function (minutes: number) {
-        function update({
+        function updateStoreFn({
             evtIntvl,
             evtIntvlResize,
         }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
@@ -208,7 +248,7 @@ export function useEvtIntvlIncEnd(
             }
             return { evtIntvl: newEvtIntvl };
         }
-        updateStore(update);
+        updateStore(updateStoreFn);
     };
 }
 
@@ -225,7 +265,7 @@ export function useEvtIntvlDecEnd(
     ]);
 
     return function (minutes: number) {
-        function update({
+        function updateStoreFn({
             evtIntvl,
             evtIntvlResize,
         }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
@@ -238,6 +278,6 @@ export function useEvtIntvlDecEnd(
             }
             return { evtIntvl: newEvtIntvl };
         }
-        updateStore(update);
+        updateStore(updateStoreFn);
     };
 }

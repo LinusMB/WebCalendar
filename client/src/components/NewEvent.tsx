@@ -1,24 +1,25 @@
 import React from "react";
-import { modify } from "ramda";
 
+import { INTVL_RESIZE_MIN_MULT } from "../constants";
 import { FromField, ToField } from "./IntervalFields";
 import { useModal } from "../context/modal";
-import { useStore } from "../store";
+import {
+    useStore,
+    useEvtIntvlUpdateStart,
+    useEvtIntvlUpdateEnd,
+} from "../store";
 import { isWholeDayIntvl } from "../utils/dates";
 
 import "./NewEvent.css";
 
 export default function NewEvent() {
-    const { evtIntvl, updateEvtIntvl } = useStore();
+    const { evts, evtIntvl } = useStore();
     const { setModalActive } = useModal();
-
-    function updateEvtIntvlStart(update: (arg: Date) => Date) {
-        updateEvtIntvl((intvl) => modify("start", update, intvl));
-    }
-
-    function updateEvtIntvlEnd(update: (arg: Date) => Date) {
-        updateEvtIntvl((intvl) => modify("end", update, intvl));
-    }
+    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
+        INTVL_RESIZE_MIN_MULT,
+        evts
+    );
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_RESIZE_MIN_MULT, evts);
 
     return (
         <div className="new-event">
