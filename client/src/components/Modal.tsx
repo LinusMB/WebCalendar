@@ -1,10 +1,15 @@
 import React from "react";
 
+import { INTVL_RESIZE_MIN_MULT } from "../constants";
 import { FromField, ToField } from "./IntervalFields";
 import { useModal } from "../context/modal";
 import { useInput } from "../hooks";
 import { isWholeDayIntvl } from "../utils/dates";
-import { useStore } from "../store";
+import {
+    useStore,
+    useEvtIntvlUpdateStart,
+    useEvtIntvlUpdateEnd,
+} from "../store";
 
 import "./Modal.css";
 
@@ -13,7 +18,13 @@ export default function Modal() {
     const [title, onTitleChange, resetTitle] = useInput("");
     const [description, onDescriptionChange, resetDescription] = useInput("");
 
-    const { evtIntvl, addEvt, setEvtIntvlActive } = useStore();
+    const { evts, evtIntvl, addEvt, setEvtIntvlActive } = useStore();
+
+    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
+        INTVL_RESIZE_MIN_MULT,
+        evts
+    );
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_RESIZE_MIN_MULT, evts);
 
     function onClickHandler() {
         addEvt(title, description);
@@ -39,10 +50,12 @@ export default function Modal() {
                     <input type="text" onChange={onTitleChange} value={title} />
                     <FromField
                         date={evtIntvl.start}
+                        updateDate={updateEvtIntvlStart}
                         isWholeDay={isWholeDayIntvl(evtIntvl)}
                     />
                     <ToField
                         date={evtIntvl.end}
+                        updateDate={updateEvtIntvlEnd}
                         isWholeDay={isWholeDayIntvl(evtIntvl)}
                     />
                     <textarea
