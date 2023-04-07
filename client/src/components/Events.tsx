@@ -1,10 +1,14 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { pick } from "ramda";
 
 import Window from "./Window";
+import Popover from "./Popover";
 import { WindowHelper } from "../utils/windowHelper";
 import { clampToDayIntvl } from "../utils/dates";
 import { useEvtsForDay } from "../store";
+import { CalEvent } from "../types";
+
+import "./Events.css";
 
 export interface EventsProps {
     viewDate: Date;
@@ -18,14 +22,38 @@ export default function Events({ viewDate, windowHelper }: EventsProps) {
     return (
         <Fragment>
             {evts.map((e) => (
-                <Window
-                    dimensions={windowHelper.getDimensions(
-                        clampToDayIntvl(pick(["start", "end"], e), viewDate)
-                    )}
-                >
-                    {e.title}
-                </Window>
+                <Event
+                    evt={e}
+                    viewDate={viewDate}
+                    windowHelper={windowHelper}
+                />
             ))}
         </Fragment>
+    );
+}
+
+interface EventProps {
+    evt: CalEvent;
+    viewDate: Date;
+    windowHelper: WindowHelper;
+}
+
+function Event({ evt, viewDate, windowHelper }: EventProps) {
+    const [isPopoverActive, setIsPopoverActive] = useState(false);
+
+    return (
+        <Window
+            dimensions={windowHelper.getDimensions(
+                clampToDayIntvl(pick(["start", "end"], evt), viewDate)
+            )}
+        >
+            <span
+                className="event__title"
+                onClick={() => setIsPopoverActive((isActive) => !isActive)}
+            >
+                {evt.title}
+                {isPopoverActive && <Popover />}
+            </span>
+        </Window>
     );
 }

@@ -1,0 +1,14 @@
+.popover {
+    position: absolute;
+    background-color: #FEFEFE;
+    color: var(--default-text-color);
+    z-index: calc(var(--window-z-index) + 1);
+}
+
+.popover--top {
+    bottom: 100%;
+}
+
+.popover--bottom {
+    top: 100%;
+}
