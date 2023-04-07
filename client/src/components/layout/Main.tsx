@@ -1,12 +1,12 @@
 import React from "react";
 
 import "./Main.css";
-import CalendarView from "../CalendarView";
+import CalendarRoutes from "../CalendarRoutes";
 
 export default function Main() {
     return (
         <main className="main">
-            <CalendarView />
+            <CalendarRoutes />
         </main>
     );
 }

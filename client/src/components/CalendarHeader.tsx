@@ -2,7 +2,7 @@ import React from "react";
 import { now } from "../utils/dates";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
-import { DayViewLink, WeekViewLink, MonthViewLink } from "./ChangeView";
+import { DayViewLink, WeekViewLink, MonthViewLink } from "./CalendarRouteLinks";
 import { useStore } from "../store";
 import "./CalendarHeader.css";
 

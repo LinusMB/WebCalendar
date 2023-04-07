@@ -3,17 +3,6 @@ import { Link } from "react-router-dom";
 
 import { useStore } from "../store";
 import { dateToFmt } from "../utils/dates";
-import "./ChangeView.css";
-
-export default function ChangeView() {
-    return (
-        <nav className="change-view">
-            <DayViewLink />
-            <WeekViewLink />
-            <MonthViewLink />
-        </nav>
-    );
-}
 
 export function DayViewLink() {
     const { viewDate } = useStore();
