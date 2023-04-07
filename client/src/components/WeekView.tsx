@@ -83,19 +83,19 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
         []
     );
     const $tdList = useRef<HTMLTableCellElement[]>([]);
-    function updateCellInfo() {
+    function updateWindowHelperList() {
         const rects = $tdList.current.map((e) => e.getBoundingClientRect());
         setWindowHelperList(
             rects.map((r) => new WindowHelper(r.height, r.width, r.left, r.top))
         );
     }
     useEffect(() => {
-        updateCellInfo();
-        window.addEventListener("resize", updateCellInfo);
-        window.addEventListener("scroll", updateCellInfo);
+        updateWindowHelperList();
+        window.addEventListener("resize", updateWindowHelperList);
+        window.addEventListener("scroll", updateWindowHelperList);
         return () => {
-            window.removeEventListener("resize", updateCellInfo);
-            window.removeEventListener("scroll", updateCellInfo);
+            window.removeEventListener("resize", updateWindowHelperList);
+            window.removeEventListener("scroll", updateWindowHelperList);
         };
     }, []);
 

@@ -49,7 +49,7 @@ function DayViewWholeDayRow() {
 
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
     const $td = useRef<HTMLTableCellElement>(null);
-    function updateCellInfo() {
+    function updateWindowHelper() {
         if ($td.current) {
             const rect = $td.current.getBoundingClientRect();
             setWindowHelper(
@@ -58,12 +58,12 @@ function DayViewWholeDayRow() {
         }
     }
     useEffect(() => {
-        updateCellInfo();
-        window.addEventListener("resize", updateCellInfo);
-        window.addEventListener("scroll", updateCellInfo);
+        updateWindowHelper();
+        window.addEventListener("resize", updateWindowHelper);
+        window.addEventListener("scroll", updateWindowHelper);
         return () => {
-            window.removeEventListener("resize", updateCellInfo);
-            window.removeEventListener("scroll", updateCellInfo);
+            window.removeEventListener("resize", updateWindowHelper);
+            window.removeEventListener("scroll", updateWindowHelper);
         };
     }, []);
 
