@@ -18,7 +18,8 @@ export default function Modal() {
     const [title, onTitleChange, resetTitle] = useInput("");
     const [description, onDescriptionChange, resetDescription] = useInput("");
 
-    const { evts, evtIntvl, addEvt, setEvtIntvlActive } = useStore();
+    const { evts, evtIntvl, addEvt, evtIntvlActive, setEvtIntvlActive } =
+        useStore();
 
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
         INTVL_RESIZE_MIN_MULT,
@@ -52,11 +53,13 @@ export default function Modal() {
                         date={evtIntvl.start}
                         updateDate={updateEvtIntvlStart}
                         isWholeDay={isWholeDayIntvl(evtIntvl)}
+                        isEvtIntvlActive={evtIntvlActive}
                     />
                     <ToField
                         date={evtIntvl.end}
                         updateDate={updateEvtIntvlEnd}
                         isWholeDay={isWholeDayIntvl(evtIntvl)}
+                        isEvtIntvlActive={evtIntvlActive}
                     />
                     <textarea
                         onChange={onDescriptionChange}
@@ -65,7 +68,9 @@ export default function Modal() {
                     />
                 </div>
                 <div className="modal__footer">
-                    <button onClick={onClickHandler}>Save changes</button>
+                    <button onClick={onClickHandler} disabled={!evtIntvlActive}>
+                        Save changes
+                    </button>
                 </div>
             </div>
         </div>

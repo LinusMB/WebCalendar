@@ -40,6 +40,7 @@ import "./IntervalFields.css";
 export interface ToFieldProps {
     date: Date;
     isWholeDay: boolean;
+    isEvtIntvlActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
 }
@@ -48,16 +49,21 @@ export function ToField({
     date,
     updateDate = () => {},
     isWholeDay,
+    isEvtIntvlActive,
     className = "",
 }: ToFieldProps) {
     return (
         <div className={`interval-field ${className}`}>
             {"to "}
-            <DateDisplay
-                date={date}
-                updateDate={updateDate}
-                isWholeDay={isWholeDay}
-            />
+            {isEvtIntvlActive ? (
+                <DateDisplay
+                    date={date}
+                    updateDate={updateDate}
+                    isWholeDay={isWholeDay}
+                />
+            ) : (
+                <Fragment>--</Fragment>
+            )}
         </div>
     );
 }
@@ -65,6 +71,7 @@ export function ToField({
 export interface FromFieldProps {
     date: Date;
     isWholeDay: boolean;
+    isEvtIntvlActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
 }
@@ -73,16 +80,21 @@ export function FromField({
     date,
     updateDate = () => {},
     isWholeDay,
+    isEvtIntvlActive,
     className = "",
 }: FromFieldProps) {
     return (
         <div className={`interval-field ${className}`}>
             {"from "}
-            <DateDisplay
-                date={date}
-                updateDate={updateDate}
-                isWholeDay={isWholeDay}
-            />
+            {isEvtIntvlActive ? (
+                <DateDisplay
+                    date={date}
+                    updateDate={updateDate}
+                    isWholeDay={isWholeDay}
+                />
+            ) : (
+                <Fragment>--</Fragment>
+            )}
         </div>
     );
 }
