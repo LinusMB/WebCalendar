@@ -48,7 +48,7 @@ function Event({ evt, viewDate, windowHelper }: EventProps) {
             )}
         >
             <span
-                className="event__title"
+                className="event-title"
                 onClick={() => setIsPopoverActive((isActive) => !isActive)}
             >
                 {evt.title}
