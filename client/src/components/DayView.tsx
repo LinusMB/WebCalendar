@@ -4,6 +4,7 @@ import { range } from "ramda";
 import EventInterval from "./EventInterval";
 import ViewEvents from "./Events";
 import CalendarHeader from "./CalendarHeader";
+import { WindowHelper } from "../utils/windowHelper";
 import { useStore } from "../store";
 import {
     weekdayMap,
@@ -15,7 +16,6 @@ import {
     dateToHourIntvl,
     setHours,
 } from "../utils/dates";
-import { CellInfo } from "../types";
 
 import "./DayView.css";
 
@@ -47,17 +47,14 @@ function DayViewWholeDayRow() {
     const { viewDate, setEvtIntvl, evtIntvlActive, setEvtIntvlActive } =
         useStore();
 
-    const [cellInfo, setCellInfo] = useState<CellInfo | null>(null);
+    const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
     const $td = useRef<HTMLTableCellElement>(null);
     function updateCellInfo() {
         if ($td.current) {
             const rect = $td.current.getBoundingClientRect();
-            setCellInfo({
-                height: rect.height,
-                width: rect.width,
-                left: rect.left,
-                top: rect.top,
-            });
+            setWindowHelper(
+                new WindowHelper(rect.height, rect.width, rect.left, rect.top)
+            );
         }
     }
     useEffect(() => {
@@ -83,9 +80,12 @@ function DayViewWholeDayRow() {
                     ref={$td}
                 ></td>
             </tr>
-            <ViewEvents viewDate={viewDate} cellInfo={cellInfo} />
+            <ViewEvents viewDate={viewDate} windowHelper={windowHelper} />
             {evtIntvlActive && (
-                <EventInterval viewDate={viewDate} cellInfo={cellInfo} />
+                <EventInterval
+                    viewDate={viewDate}
+                    windowHelper={windowHelper}
+                />
             )}
         </Fragment>
     );

@@ -1,12 +1,27 @@
 import { startOfDay, differenceInMinutes } from "../utils/dates";
-import { CellInfo, CalInterval } from "../types";
+import { CalInterval } from "../types";
+
+interface CellInfo {
+    height: number;
+    width: number;
+    left: number;
+    top: number;
+}
 
 export class WindowHelper {
     private cellInfo: CellInfo;
     private minInPixel: number;
-    constructor(cellInfo: CellInfo) {
-        this.cellInfo = cellInfo;
-        this.minInPixel = cellInfo.height / 60;
+    constructor(height: number, width: number, left: number, top: number) {
+        this.cellInfo = {
+            height,
+            width,
+            left,
+            top,
+        };
+        this.minInPixel = height / 60;
+    }
+    getDimensionsWholeDay() {
+        return this.cellInfo;
     }
     getDimensions(intvl: CalInterval) {
         const minHeight = this.cellInfo.height / 60;
@@ -24,6 +39,6 @@ export class WindowHelper {
         };
     }
     pixelDiffToMins(pixelDiff: number) {
-        return pixelDiff / this.minInPixel; 
+        return pixelDiff / this.minInPixel;
     }
 }

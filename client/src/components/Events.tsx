@@ -5,17 +5,14 @@ import Window from "./Window";
 import { WindowHelper } from "../utils/windowHelper";
 import { clampToDayIntvl } from "../utils/dates";
 import { useEvtsForDay } from "../store";
-import { CellInfo } from "../types";
 
 export interface EventsProps {
     viewDate: Date;
-    cellInfo: CellInfo | null;
+    windowHelper: WindowHelper | null;
 }
 
-export default function Events({ viewDate, cellInfo }: EventsProps) {
-    if (!cellInfo) return null;
-
-    const windowHelper = new WindowHelper(cellInfo);
+export default function Events({ viewDate, windowHelper }: EventsProps) {
+    if (!windowHelper) return null;
 
     const evts = useEvtsForDay(viewDate);
     return (

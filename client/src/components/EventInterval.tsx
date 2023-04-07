@@ -21,20 +21,17 @@ import {
     getDayIntvl,
     isWithinInterval,
 } from "../utils/dates";
-import { CellInfo } from "../types";
 
 export interface EventIntervalProps {
     viewDate: Date;
-    cellInfo: CellInfo | null;
+    windowHelper: WindowHelper | null;
 }
 
 export default function EventInterval({
     viewDate,
-    cellInfo,
+    windowHelper,
 }: EventIntervalProps) {
-    if (!cellInfo) return null;
-
-    const windowHelper = new WindowHelper(cellInfo);
+    if (!windowHelper) return null;
 
     const { evtIntvl } = useStore();
 
@@ -82,7 +79,7 @@ export default function EventInterval({
     }
 
     if (isSameDay(viewDate, evtIntvl.start) && isWholeDayIntvl(evtIntvl)) {
-        return <Window dimensions={cellInfo} />;
+        return <Window dimensions={windowHelper.getDimensionsWholeDay()} />;
     }
     if (!intvlBelongsToDayIntvl(evtIntvl, viewDate)) return null;
 

@@ -5,6 +5,7 @@ import { range } from "ramda";
 import EventInterval from "./EventInterval";
 import Events from "./Events";
 import CalendarHeader from "./CalendarHeader";
+import { WindowHelper } from "../utils/windowHelper";
 import { useStore } from "../store";
 import {
     getDay,
@@ -19,7 +20,6 @@ import {
     decWeek,
     dateToHourIntvl,
 } from "../utils/dates";
-import { CellInfo } from "../types";
 
 import "./WeekView.css";
 
@@ -79,17 +79,14 @@ function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
 function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
     const { setEvtIntvl, evtIntvlActive, setEvtIntvlActive } = useStore();
 
-    const [cellInfo, setCellInfo] = useState<CellInfo[]>([]);
+    const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
+        []
+    );
     const $tdList = useRef<HTMLTableCellElement[]>([]);
     function updateCellInfo() {
         const rects = $tdList.current.map((e) => e.getBoundingClientRect());
-        setCellInfo(
-            rects.map((r) => ({
-                height: r.height,
-                width: r.width,
-                left: r.left,
-                top: r.top,
-            }))
+        setWindowHelperList(
+            rects.map((r) => new WindowHelper(r.height, r.width, r.left, r.top))
         );
     }
     useEffect(() => {
@@ -122,9 +119,12 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
             </tr>
             {eachDay.map((d, i) => (
                 <Fragment>
-                    <Events viewDate={d} cellInfo={cellInfo[i]} />
+                    <Events viewDate={d} windowHelper={windowHelperList[i]} />
                     {evtIntvlActive && (
-                        <EventInterval viewDate={d} cellInfo={cellInfo[i]} />
+                        <EventInterval
+                            viewDate={d}
+                            windowHelper={windowHelperList[i]}
+                        />
                     )}
                 </Fragment>
             ))}
