@@ -34,11 +34,12 @@ export default function EventInterval({
 }: EventIntervalProps) {
     const { evtIntvl } = useStore();
 
-    if (!intvlBelongsToDayIntvl(evtIntvl, viewDate)) return null;
-
     if (isSameDay(viewDate, evtIntvl.start) && isWholeDayIntvl(evtIntvl)) {
         return <EventIntervalWholeDay windowHelper={windowHelper} />;
     }
+
+    if (!intvlBelongsToDayIntvl(evtIntvl, viewDate)) return null;
+
     return (
         <EventIntervalResizable
             viewDate={viewDate}

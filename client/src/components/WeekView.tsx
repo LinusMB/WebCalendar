@@ -85,9 +85,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
     const $tdList = useRef<HTMLTableCellElement[]>([]);
     function updateWindowHelperList() {
         const rects = $tdList.current.map((e) => e.getBoundingClientRect());
-        setWindowHelperList(
-            rects.map((r) => new WindowHelper(r.height, r.width, r.left, r.top))
-        );
+        setWindowHelperList(rects.map((r) => new WindowHelper(r.height)));
     }
     useEffect(() => {
         updateWindowHelperList();
@@ -110,30 +108,28 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                             setEvtIntvl(wholeDayIntvl(d));
                             setEvtIntvlActive(true);
                         }}
-                        className="week-view__events"
+                        className="week-view__events week-view__events--whole-day"
                         ref={(el) => {
                             if (el) $tdList.current[i] = el;
                         }}
-                    ></td>
-                ))}
-            </tr>
-            {eachDay.map(
-                (d, i) =>
-                    windowHelperList[i] && (
-                        <Fragment>
-                            <Events
-                                viewDate={d}
-                                windowHelper={windowHelperList[i]}
-                            />
-                            {evtIntvlActive && (
-                                <EventInterval
+                    >
+                        {windowHelperList[i] && (
+                            <Fragment>
+                                <Events
                                     viewDate={d}
                                     windowHelper={windowHelperList[i]}
                                 />
-                            )}
-                        </Fragment>
-                    )
-            )}
+                                {evtIntvlActive && (
+                                    <EventInterval
+                                        viewDate={d}
+                                        windowHelper={windowHelperList[i]}
+                                    />
+                                )}
+                            </Fragment>
+                        )}
+                    </td>
+                ))}
+            </tr>
         </Fragment>
     );
 }

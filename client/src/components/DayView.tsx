@@ -2,7 +2,7 @@ import React, { Fragment, useState, useRef, useEffect } from "react";
 import { range } from "ramda";
 
 import EventInterval from "./EventInterval";
-import ViewEvents from "./Events";
+import Events from "./Events";
 import CalendarHeader from "./CalendarHeader";
 import { WindowHelper } from "../utils/windowHelper";
 import { useStore } from "../store";
@@ -52,9 +52,7 @@ function DayViewWholeDayRow() {
     function updateWindowHelper() {
         if ($td.current) {
             const rect = $td.current.getBoundingClientRect();
-            setWindowHelper(
-                new WindowHelper(rect.height, rect.width, rect.left, rect.top)
-            );
+            setWindowHelper(new WindowHelper(rect.height));
         }
     }
     useEffect(() => {
@@ -76,21 +74,25 @@ function DayViewWholeDayRow() {
                         setEvtIntvl(wholeDayIntvl(viewDate));
                         setEvtIntvlActive(true);
                     }}
-                    className="day-view__events"
+                    className="day-view__events day-view__events--whole-day"
                     ref={$td}
-                ></td>
-            </tr>
-            {windowHelper &&
-                <Fragment>
-                    <ViewEvents viewDate={viewDate} windowHelper={windowHelper} />
-                    {evtIntvlActive && (
-                        <EventInterval
-                            viewDate={viewDate}
-                            windowHelper={windowHelper}
-                        />
+                >
+                    {windowHelper && (
+                        <Fragment>
+                            <Events
+                                viewDate={viewDate}
+                                windowHelper={windowHelper}
+                            />
+                            {evtIntvlActive && (
+                                <EventInterval
+                                    viewDate={viewDate}
+                                    windowHelper={windowHelper}
+                                />
+                            )}
+                        </Fragment>
                     )}
-                </Fragment>
-            }
+                </td>
+            </tr>
         </Fragment>
     );
 }

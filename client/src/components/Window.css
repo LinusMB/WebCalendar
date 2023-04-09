@@ -1,8 +1,9 @@
 .window {
     display: flex;
     flex-direction: column;
-    position: fixed;
-    z-index: var(--window-z-index);
+    width: 100%;
+    position: absolute;
+    /* z-index: var(--window-z-index); */
     background: var(--window-bg-color);
     color: var(--window-text-color);
     opacity: 1;

@@ -29,8 +29,8 @@ export default function Popover() {
 
     return (
         <div className={`popover popover--${direction}`} ref={$div}>
-            <div className="popover__header">Popover Header</div>
-            <div className="popover__body">Popover Body</div>
+            <div className="popover__header">This is the Popover Header</div>
+            <div className="popover__body">This is the Popover Body</div>
         </div>
     );
 }

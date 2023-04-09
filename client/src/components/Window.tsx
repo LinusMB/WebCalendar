@@ -5,8 +5,6 @@ import "./Window.css";
 export interface Dimensions {
     top: number;
     height: number;
-    width: number;
-    left: number;
 }
 
 export interface WindowProps {
@@ -31,7 +29,11 @@ export default function Window({
     children,
 }: WindowProps) {
     return (
-        <td style={dimensions} className="window">
+        <td
+            onClick={(e) => e.stopPropagation()}
+            style={dimensions}
+            className="window"
+        >
             {isTopResizable && onDragTopBar && useIsResizeTopActive && (
                 <Bar
                     className="window__bar-top"

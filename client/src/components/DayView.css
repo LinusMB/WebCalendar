@@ -18,3 +18,7 @@
 .day-view__header {
     height: 3rem;
 }
+
+.day-view__events--whole-day {
+    position: relative;
+}

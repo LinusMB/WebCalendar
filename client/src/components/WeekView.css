@@ -19,6 +19,10 @@
     border-right: var(--table-border-size) solid var(--light-border-color);
 }
 
+.week-view__events--whole-day {
+    position: relative;
+}
+
 .week-view__day-col {
     text-align: center;
     border-right: var(--table-border-size) solid var(--light-border-color);
