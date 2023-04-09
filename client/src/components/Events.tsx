@@ -4,7 +4,7 @@ import { pick } from "ramda";
 import Window from "./Window";
 import Popover from "./Popover";
 import { WindowHelper } from "../utils/windowHelper";
-import { clampToDayIntvl } from "../utils/dates";
+import { clampToDayIntvl, isWholeDayIntvl } from "../utils/dates";
 import { useEvtsForDay } from "../store";
 import { CalEvent } from "../types";
 
@@ -39,12 +39,13 @@ interface EventProps {
 function Event({ evt, viewDate, windowHelper }: EventProps) {
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
+    const intvl = pick(["start", "end"], evt);
+    const dimensions = isWholeDayIntvl(intvl)
+        ? windowHelper.getDimensionsWholeDay()
+        : windowHelper.getDimensions(clampToDayIntvl(intvl, viewDate));
+
     return (
-        <Window
-            dimensions={windowHelper.getDimensions(
-                clampToDayIntvl(pick(["start", "end"], evt), viewDate)
-            )}
-        >
+        <Window dimensions={dimensions}>
             <span
                 className="event-title"
                 onClick={() => setIsPopoverActive((isActive) => !isActive)}

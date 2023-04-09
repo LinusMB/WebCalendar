@@ -119,7 +119,7 @@ export function useEvtsForDay(date: Date) {
     const { evts } = useStore();
     const evtsForDay = useDeepCompareMemo(() => {
         return evts.filter(
-            (e) => e.end > startOfDay(date) && e.start < endOfDay(date)
+            (e) => e.end >= startOfDay(date) && e.start <= endOfDay(date)
         );
     }, [evts, date]);
     return evtsForDay;
