@@ -80,13 +80,17 @@ function DayViewWholeDayRow() {
                     ref={$td}
                 ></td>
             </tr>
-            <ViewEvents viewDate={viewDate} windowHelper={windowHelper} />
-            {evtIntvlActive && (
-                <EventInterval
-                    viewDate={viewDate}
-                    windowHelper={windowHelper}
-                />
-            )}
+            {windowHelper &&
+                <Fragment>
+                    <ViewEvents viewDate={viewDate} windowHelper={windowHelper} />
+                    {evtIntvlActive && (
+                        <EventInterval
+                            viewDate={viewDate}
+                            windowHelper={windowHelper}
+                        />
+                    )}
+                </Fragment>
+            }
         </Fragment>
     );
 }

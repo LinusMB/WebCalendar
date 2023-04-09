@@ -12,12 +12,10 @@ import "./Events.css";
 
 export interface EventsProps {
     viewDate: Date;
-    windowHelper: WindowHelper | null;
+    windowHelper: WindowHelper;
 }
 
 export default function Events({ viewDate, windowHelper }: EventsProps) {
-    if (!windowHelper) return null;
-
     const evts = useEvtsForDay(viewDate);
     return (
         <Fragment>

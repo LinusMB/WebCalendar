@@ -24,15 +24,13 @@ import {
 
 export interface EventIntervalProps {
     viewDate: Date;
-    windowHelper: WindowHelper | null;
+    windowHelper: WindowHelper;
 }
 
 export default function EventInterval({
     viewDate,
     windowHelper,
 }: EventIntervalProps) {
-    if (!windowHelper) return null;
-
     const { evtIntvl } = useStore();
 
     const evts = useEvtsForDay(viewDate);

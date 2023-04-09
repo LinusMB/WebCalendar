@@ -117,17 +117,23 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                     ></td>
                 ))}
             </tr>
-            {eachDay.map((d, i) => (
-                <Fragment>
-                    <Events viewDate={d} windowHelper={windowHelperList[i]} />
-                    {evtIntvlActive && (
-                        <EventInterval
-                            viewDate={d}
-                            windowHelper={windowHelperList[i]}
-                        />
-                    )}
-                </Fragment>
-            ))}
+            {eachDay.map(
+                (d, i) =>
+                    windowHelperList[i] && (
+                        <Fragment>
+                            <Events
+                                viewDate={d}
+                                windowHelper={windowHelperList[i]}
+                            />
+                            {evtIntvlActive && (
+                                <EventInterval
+                                    viewDate={d}
+                                    windowHelper={windowHelperList[i]}
+                                />
+                            )}
+                        </Fragment>
+                    )
+            )}
         </Fragment>
     );
 }
