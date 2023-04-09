@@ -70,9 +70,19 @@ function DayViewWholeDayRow() {
             <tr className="day-view__row">
                 <td className="day-view__time">Whole Day</td>
                 <td
-                    onClick={function () {
-                        setEvtIntvl(wholeDayIntvl(viewDate));
-                        setEvtIntvlActive(true);
+                    onClick={function (e) {
+                        if (!$td.current) return;
+                        const { top, right, bottom, left } =
+                            $td.current.getBoundingClientRect();
+                        if (
+                            e.clientX >= left &&
+                            e.clientX <= right &&
+                            e.clientY >= top &&
+                            e.clientY <= bottom
+                        ) {
+                            setEvtIntvl(wholeDayIntvl(viewDate));
+                            setEvtIntvlActive(true);
+                        }
                     }}
                     className="day-view__events day-view__events--whole-day"
                     ref={$td}

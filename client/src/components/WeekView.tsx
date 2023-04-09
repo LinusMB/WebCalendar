@@ -104,9 +104,19 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                 {eachDay.map((d, i) => (
                     <td
                         key={i}
-                        onClick={function () {
-                            setEvtIntvl(wholeDayIntvl(d));
-                            setEvtIntvlActive(true);
+                        onClick={function (e) {
+                            if (!$tdList.current[i]) return;
+                            const { top, right, bottom, left } =
+                                $tdList.current[i].getBoundingClientRect();
+                            if (
+                                e.clientX >= left &&
+                                e.clientX <= right &&
+                                e.clientY >= top &&
+                                e.clientY <= bottom
+                            ) {
+                                setEvtIntvl(wholeDayIntvl(d));
+                                setEvtIntvlActive(true);
+                            }
                         }}
                         className="week-view__events week-view__events--whole-day"
                         ref={(el) => {
