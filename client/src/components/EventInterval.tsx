@@ -21,6 +21,7 @@ import {
     getDayIntvl,
     isWithinInterval,
 } from "../utils/dates";
+import { CalInterval } from "../types";
 
 export interface EventIntervalProps {
     viewDate: Date;
@@ -33,6 +34,37 @@ export default function EventInterval({
 }: EventIntervalProps) {
     const { evtIntvl } = useStore();
 
+    if (!intvlBelongsToDayIntvl(evtIntvl, viewDate)) return null;
+
+    if (isSameDay(viewDate, evtIntvl.start) && isWholeDayIntvl(evtIntvl)) {
+        return <EventIntervalWholeDay windowHelper={windowHelper} />;
+    }
+    return (
+        <EventIntervalResizable
+            viewDate={viewDate}
+            windowHelper={windowHelper}
+            evtIntvl={evtIntvl}
+        />
+    );
+}
+
+function EventIntervalWholeDay({
+    windowHelper,
+}: {
+    windowHelper: WindowHelper;
+}) {
+    return <Window dimensions={windowHelper.getDimensionsWholeDay()} />;
+}
+
+interface EventIntervalResizableProps extends EventIntervalProps {
+    evtIntvl: CalInterval;
+}
+
+function EventIntervalResizable({
+    viewDate,
+    windowHelper,
+    evtIntvl,
+}: EventIntervalResizableProps) {
     const evts = useEvtsForDay(viewDate);
 
     const incStart = useEvtIntvlIncStart(
@@ -75,11 +107,6 @@ export default function EventInterval({
             }
         };
     }
-
-    if (isSameDay(viewDate, evtIntvl.start) && isWholeDayIntvl(evtIntvl)) {
-        return <Window dimensions={windowHelper.getDimensionsWholeDay()} />;
-    }
-    if (!intvlBelongsToDayIntvl(evtIntvl, viewDate)) return null;
 
     return (
         <Window
