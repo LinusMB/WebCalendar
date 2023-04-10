@@ -51,7 +51,12 @@ function Event({ evt, viewDate, windowHelper }: EventProps) {
                 onClick={() => setIsPopoverActive((isActive) => !isActive)}
             >
                 {evt.title}
-                {isPopoverActive && <Popover />}
+                {isPopoverActive && (
+                    <Popover>
+                        <Popover.Head>{evt.title}</Popover.Head>
+                        <Popover.Body>{evt.description}</Popover.Body>
+                    </Popover>
+                )}
             </span>
         </Window>
     );

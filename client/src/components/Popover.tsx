@@ -4,7 +4,11 @@ import "./Popover.css";
 
 type Direction = "top" | "bottom";
 
-export default function Popover() {
+export interface PopoverProps {
+    children?: React.ReactNode;
+}
+
+const Popover = ({ children }: PopoverProps) => {
     const [direction, setDirection] = useState<Direction>("bottom");
     const $div = useRef<HTMLDivElement>(null);
     function updateDirection() {
@@ -29,8 +33,25 @@ export default function Popover() {
 
     return (
         <div className={`popover popover--${direction}`} ref={$div}>
-            <div className="popover__header">This is the Popover Header</div>
-            <div className="popover__body">This is the Popover Body</div>
+            {children}
         </div>
     );
+};
+
+export interface PopoverHeadProps {
+    children?: React.ReactNode;
 }
+
+Popover.Head = ({ children }: PopoverHeadProps) => {
+    return <div className="popover__header">{children}</div>;
+};
+
+export interface PopoverBodyProps {
+    children?: React.ReactNode;
+}
+
+Popover.Body = ({ children }: PopoverBodyProps) => {
+    return <div className="popover__body">{children}</div>;
+};
+
+export default Popover;
