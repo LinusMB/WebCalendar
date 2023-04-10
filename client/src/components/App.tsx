@@ -4,8 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import Header from "./layout/Header";
 import Sidebar from "./layout/Sidebar";
 import Main from "./layout/Main";
-import Modal from "./Modal";
-import { ModalProvider, useModal } from "../context/modal";
+import { ModalProvider } from "../context/modal";
 
 import "./App.css";
 
@@ -18,10 +17,8 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-    const { modalActive } = useModal();
     return (
         <div className="app">
-            {modalActive && <Modal />}
             <Header />
             <Sidebar />
             <Main />

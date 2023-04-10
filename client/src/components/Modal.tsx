@@ -1,78 +1,53 @@
 import React from "react";
 
-import { INTVL_RESIZE_MIN_MULT } from "../constants";
-import { FromField, ToField } from "./IntervalFields";
-import { useModal } from "../context/modal";
-import { useInput } from "../hooks";
-import { isWholeDayIntvl } from "../utils/dates";
-import {
-    useStore,
-    useEvtIntvlUpdateStart,
-    useEvtIntvlUpdateEnd,
-} from "../store";
-
 import "./Modal.css";
 
-export default function Modal() {
-    const { setModalActive } = useModal();
-    const [title, onTitleChange, resetTitle] = useInput("");
-    const [description, onDescriptionChange, resetDescription] = useInput("");
+export interface ModalProps {
+    children?: React.ReactNode;
+}
 
-    const { evts, evtIntvl, addEvt, evtIntvlActive, setEvtIntvlActive } =
-        useStore();
-
-    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_RESIZE_MIN_MULT,
-        evts
-    );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_RESIZE_MIN_MULT, evts);
-
-    function onClickHandler() {
-        addEvt(title, description);
-        resetTitle();
-        resetDescription();
-        setEvtIntvlActive(false);
-        setModalActive(false);
-    }
-
+const Modal = ({ children }: ModalProps) => {
     return (
         <div className="modal">
-            <div className="modal__content">
-                <div className="modal__header">
-                    Event
-                    <span
-                        onClick={() => setModalActive(false)}
-                        className="modal__close"
-                    >
-                        &times;
-                    </span>
-                </div>
-                <div className="modal__body">
-                    <input type="text" onChange={onTitleChange} value={title} />
-                    <FromField
-                        date={evtIntvl.start}
-                        updateDate={updateEvtIntvlStart}
-                        isWholeDay={isWholeDayIntvl(evtIntvl)}
-                        isEvtIntvlActive={evtIntvlActive}
-                    />
-                    <ToField
-                        date={evtIntvl.end}
-                        updateDate={updateEvtIntvlEnd}
-                        isWholeDay={isWholeDayIntvl(evtIntvl)}
-                        isEvtIntvlActive={evtIntvlActive}
-                    />
-                    <textarea
-                        onChange={onDescriptionChange}
-                        className="modal__textbox"
-                        value={description}
-                    />
-                </div>
-                <div className="modal__footer">
-                    <button onClick={onClickHandler} disabled={!evtIntvlActive}>
-                        Save changes
-                    </button>
-                </div>
-            </div>
+            <div className="modal__content">{children}</div>
         </div>
     );
+};
+
+export interface ModalHeaderProps {
+    children?: React.ReactNode;
 }
+
+Modal.Header = ({ children }: ModalHeaderProps) => {
+    return <div className="modal__header">{children}</div>;
+};
+
+export interface ModalCloseButtonProps {
+    onClick: () => void;
+}
+
+Modal.CloseButton = ({ onClick }: ModalCloseButtonProps) => {
+    return (
+        <span onClick={onClick} className="modal__close">
+            &times;
+        </span>
+    );
+};
+
+export interface ModalBodyProps {
+    children?: React.ReactNode;
+}
+
+Modal.Body = ({ children }: ModalBodyProps) => {
+    return <div className="modal__body">{children}</div>;
+};
+
+export interface ModalFooterProps {
+    children?: React.ReactNode;
+}
+
+Modal.Footer = ({ children }: ModalFooterProps) => {
+    return <div className="modal__footer">{children}</div>;
+};
+
+export default Modal;
