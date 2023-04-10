@@ -6,4 +6,5 @@ export interface CalInterval {
 export interface CalEvent extends CalInterval {
     title: string;
     description: string;
+    uuid: string;
 }

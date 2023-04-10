@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { assoc, assocPath, modify, append, mergeRight } from "ramda";
+import * as uuid from "uuid";
 
 import { useDeepCompareMemo } from "../hooks";
 import { todayWholeDayIntvl, startOfDay, endOfDay, now } from "../utils/dates";
@@ -54,24 +55,28 @@ const evtsSample = [
         end: new Date(2023, 1, 15, 19),
         title: "Neighbor",
         description: "Help my neighbor bake a cake",
+        uuid: uuid.v4(),
     },
     {
         start: new Date(2023, 1, 14, 16),
         end: new Date(2023, 1, 14, 17),
         title: "Fishing",
         description: "Go Fly Fishing",
+        uuid: uuid.v4(),
     },
     {
         start: new Date(2023, 1, 14, 22),
         end: new Date(2023, 1, 15, 2),
         title: "Singing",
         description: "Sing along contest",
+        uuid: uuid.v4(),
     },
     {
         start: new Date(2023, 1, 1),
         end: new Date(2023, 1, 1),
         title: "Marathon",
         description: "Run marathon which will take all day",
+        uuid: uuid.v4(),
     },
 ];
 
@@ -95,7 +100,12 @@ export const useStore = create<Store>((set) => ({
         set((state) =>
             modify(
                 "evts",
-                append(mergeRight({ title, description }, state.evtIntvl)),
+                append(
+                    mergeRight(
+                        { title, description, uuid: uuid.v4() },
+                        state.evtIntvl
+                    )
+                ),
                 state
             )
         ),
