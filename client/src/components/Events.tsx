@@ -5,7 +5,7 @@ import Window from "./Window";
 import Popover from "./Popover";
 import { WindowHelper } from "../utils/windowHelper";
 import { clampToDayIntvl, isWholeDayIntvl } from "../utils/dates";
-import { useEvtsForDay } from "../store";
+import { useEvtsForDay, useStore } from "../store";
 import { CalEvent } from "../types";
 
 import "./Events.css";
@@ -21,6 +21,7 @@ export default function Events({ viewDate, windowHelper }: EventsProps) {
         <Fragment>
             {evts.map((e) => (
                 <Event
+                    key={e.uuid}
                     evt={e}
                     viewDate={viewDate}
                     windowHelper={windowHelper}
@@ -37,6 +38,8 @@ interface EventProps {
 }
 
 function Event({ evt, viewDate, windowHelper }: EventProps) {
+    const { deleteEvt } = useStore();
+
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
     const intvl = pick(["start", "end"], evt);
@@ -53,7 +56,17 @@ function Event({ evt, viewDate, windowHelper }: EventProps) {
                 {evt.title}
                 {isPopoverActive && (
                     <Popover>
-                        <Popover.Head>{evt.title}</Popover.Head>
+                        <Popover.Head>
+                            {evt.title}
+                            <button
+                                onClick={() => {
+                                    deleteEvt(evt.uuid);
+                                    setIsPopoverActive(false);
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </Popover.Head>
                         <Popover.Body>{evt.description}</Popover.Body>
                     </Popover>
                 )}

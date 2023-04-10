@@ -45,6 +45,7 @@ export interface Store {
         title: CalEvent["title"],
         description: CalEvent["description"]
     ) => void;
+    deleteEvt: (uuid: string) => void;
     setEvtIntvlActive: (active: boolean) => void;
     updateStore: (update: (arg: Store) => Partial<Store>) => void;
 }
@@ -109,6 +110,8 @@ export const useStore = create<Store>((set) => ({
                 state
             )
         ),
+    deleteEvt: (uuid: string) =>
+        set((state) => ({ evts: state.evts.filter((e) => e.uuid !== uuid) })),
     setEvtIntvlActive: (active) => set(() => ({ evtIntvlActive: active })),
     updateStore: (update) => set((state) => update(state)),
 }));
