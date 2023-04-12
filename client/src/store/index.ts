@@ -39,7 +39,8 @@ export interface Store {
     }) => void;
     addEvt: (
         title: CalEvent["title"],
-        description: CalEvent["description"]
+        description: CalEvent["description"],
+        intvl: CalInterval
     ) => void;
     deleteEvt: (uuid: string) => void;
     setIsEvtIntvlVisible: (active: boolean) => void;
@@ -93,16 +94,11 @@ export const useStore = create<Store>((set) => ({
         set((state) =>
             modify("isEvtIntvlResizable", mergeLeft(isEvtIntvlResizable), state)
         ),
-    addEvt: (title, description) =>
+    addEvt: (title, description, intvl) =>
         set((state) =>
             modify(
                 "evts",
-                append(
-                    mergeRight(
-                        { title, description, uuid: uuid.v4() },
-                        state.evtIntvl
-                    )
-                ),
+                append({ title, description, uuid: uuid.v4(), ...intvl }),
                 state
             )
         ),

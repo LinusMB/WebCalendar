@@ -66,7 +66,7 @@ function NewEventModal() {
     const [description, onDescriptionChange, resetDescription] = useInput("");
 
     function onClick() {
-        addEvt(title, description);
+        addEvt(title, description, evtIntvl);
         resetTitle();
         resetDescription();
         setIsEvtIntvlVisible(false);
