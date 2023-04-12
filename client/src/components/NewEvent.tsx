@@ -1,6 +1,6 @@
 import React from "react";
 
-import { INTVL_RESIZE_MIN_MULT } from "../constants";
+import { INTVL_MIN_RESIZE_STEP } from "../constants";
 import { FromField, ToField } from "./IntervalFields";
 import Modal from "./Modal";
 import { useModal } from "../context/modal";
@@ -18,10 +18,10 @@ export default function NewEvent() {
     const { evts, evtIntvl, isEvtIntvlVisible } = useStore();
     const { isModalOpen, setIsModalOpen } = useModal();
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_RESIZE_MIN_MULT,
+        INTVL_MIN_RESIZE_STEP,
         evts
     );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_RESIZE_MIN_MULT, evts);
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_MIN_RESIZE_STEP, evts);
 
     return (
         <div className="new-event">
@@ -56,10 +56,10 @@ function NewEventModal() {
         useStore();
 
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_RESIZE_MIN_MULT,
+        INTVL_MIN_RESIZE_STEP,
         evts
     );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_RESIZE_MIN_MULT, evts);
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_MIN_RESIZE_STEP, evts);
 
     const { setIsModalOpen } = useModal();
     const [title, onTitleChange, resetTitle] = useInput("");

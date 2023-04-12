@@ -1,6 +1,6 @@
 const REST_API = "http://localhost:5000/v1";
 
-export const INTVL_RESIZE_MIN_MULT = 10;
+export const INTVL_MIN_RESIZE_STEP = 10;
 
 // export const api = {
 //     ROUTES: {

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { INTVL_RESIZE_MIN_MULT } from "../constants";
+import { INTVL_MIN_RESIZE_STEP } from "../constants";
 import Window from "./Window";
 import { WindowHelper } from "../utils/windowHelper";
 import {
@@ -69,13 +69,13 @@ function EventIntervalResizable({
     const evts = useEvtsForDay(viewDate);
 
     const incStart = useEvtIntvlIncStart(
-        INTVL_RESIZE_MIN_MULT,
+        INTVL_MIN_RESIZE_STEP,
         getDayIntvl(viewDate)
     );
     const decStart = useEvtIntvlDecStart(getDayIntvl(viewDate), evts);
     const incEnd = useEvtIntvlIncEnd(getDayIntvl(viewDate), evts);
     const decEnd = useEvtIntvlDecEnd(
-        INTVL_RESIZE_MIN_MULT,
+        INTVL_MIN_RESIZE_STEP,
         getDayIntvl(viewDate)
     );
 
@@ -84,7 +84,7 @@ function EventIntervalResizable({
         let remainder = 0;
         onDragTopBar = function (pixelDiff: number) {
             const mins = windowHelper.pixelDiffToMins(pixelDiff) + remainder;
-            remainder = mins % INTVL_RESIZE_MIN_MULT;
+            remainder = mins % INTVL_MIN_RESIZE_STEP;
             const minsRounded = mins - remainder;
             if (mins < 0) {
                 decStart(Math.abs(minsRounded));
@@ -99,7 +99,7 @@ function EventIntervalResizable({
         let remainder = 0;
         onDragBottomBar = function (pixelDiff: number) {
             const mins = windowHelper.pixelDiffToMins(pixelDiff) + remainder;
-            remainder = mins % INTVL_RESIZE_MIN_MULT;
+            remainder = mins % INTVL_MIN_RESIZE_STEP;
             const minsRounded = mins - remainder;
             if (mins < 0) {
                 decEnd(Math.abs(minsRounded));
