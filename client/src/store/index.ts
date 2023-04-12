@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { assoc, assocPath, modify, append, mergeRight } from "ramda";
+import { assoc, modify, append, mergeLeft, mergeRight } from "ramda";
 import * as uuid from "uuid";
 
 import { useDeepCompareMemo } from "../hooks";
@@ -20,33 +20,29 @@ import {
 } from "../models";
 import { CalEvent, CalInterval } from "../types";
 
-type updateFn<
-    T extends Store[
-        | "viewDate"
-        | "evtIntvl"
-        | "evtIntvlActive"
-        | "evtIntvlResize"
-        | "evts"]
-> = (arg: T) => T;
-
 export interface Store {
     viewDate: Date;
     evtIntvl: CalInterval;
-    evtIntvlActive: boolean;
-    evtIntvlResize: { start: boolean; end: boolean };
+    isEvtIntvlVisible: boolean;
+    isEvtIntvlResizable: { start: boolean; end: boolean };
     evts: CalEvent[];
     setViewDate: (date: Date) => void;
-    updateViewDate: (update: updateFn<Date>) => void;
+    updateViewDate: (update: (arg: Date) => Date) => void;
     setEvtIntvl: (intvl: CalInterval) => void;
-    updateEvtIntvl: (update: updateFn<CalInterval>) => void;
-    setEvtIntvlResizeStart: (resize: boolean) => void;
-    setEvtIntvlResizeEnd: (resize: boolean) => void;
+    updateEvtIntvl: (update: (arg: CalInterval) => CalInterval) => void;
+    setIsEvtIntvlResizable: ({
+        start,
+        end,
+    }: {
+        start?: boolean;
+        end?: boolean;
+    }) => void;
     addEvt: (
         title: CalEvent["title"],
         description: CalEvent["description"]
     ) => void;
     deleteEvt: (uuid: string) => void;
-    setEvtIntvlActive: (active: boolean) => void;
+    setIsEvtIntvlVisible: (active: boolean) => void;
     updateStore: (update: (arg: Store) => Partial<Store>) => void;
 }
 
@@ -84,8 +80,8 @@ const evtsSample = [
 export const useStore = create<Store>((set) => ({
     viewDate: now(),
     evtIntvl: todayWholeDayIntvl(),
-    evtIntvlActive: false,
-    evtIntvlResize: { start: false, end: false },
+    isEvtIntvlVisible: false,
+    isEvtIntvlResizable: { start: false, end: false },
     evts: evtsSample,
     setViewDate: (date) => set(() => ({ viewDate: date })),
     updateViewDate: (update) =>
@@ -93,10 +89,10 @@ export const useStore = create<Store>((set) => ({
     setEvtIntvl: (intvl) => set(() => ({ evtIntvl: intvl })),
     updateEvtIntvl: (update) =>
         set((state) => ({ evtIntvl: update(state.evtIntvl) })),
-    setEvtIntvlResizeStart: (resize) =>
-        set((state) => assocPath(["evtIntvlResize", "start"], resize, state)),
-    setEvtIntvlResizeEnd: (resize) =>
-        set((state) => assocPath(["evtIntvlResize", "end"], resize, state)),
+    setIsEvtIntvlResizable: (isEvtIntvlResizable) =>
+        set((state) =>
+            modify("isEvtIntvlResizable", mergeLeft(isEvtIntvlResizable), state)
+        ),
     addEvt: (title, description) =>
         set((state) =>
             modify(
@@ -112,20 +108,23 @@ export const useStore = create<Store>((set) => ({
         ),
     deleteEvt: (uuid: string) =>
         set((state) => ({ evts: state.evts.filter((e) => e.uuid !== uuid) })),
-    setEvtIntvlActive: (active) => set(() => ({ evtIntvlActive: active })),
+    setIsEvtIntvlVisible: (active) =>
+        set(() => ({ isEvtIntvlVisible: active })),
     updateStore: (update) => set((state) => update(state)),
 }));
 
-export const useIsResizeStartActive = () =>
+export const useIsEvtIntvlStartResizable = () =>
     useStore((state) => [
-        state.evtIntvlResize.start,
-        state.setEvtIntvlResizeStart,
+        state.isEvtIntvlResizable.start,
+        (isStartResizable) =>
+            state.setIsEvtIntvlResizable({ start: isStartResizable }),
     ]) as [boolean, (resize: boolean) => void];
 
-export const useIsResizeEndActive = () =>
+export const useIsEvtIntvlEndResizable = () =>
     useStore((state) => [
-        state.evtIntvlResize.end,
-        state.setEvtIntvlResizeEnd,
+        state.isEvtIntvlResizable.end,
+        (isEndResizable) =>
+            state.setIsEvtIntvlResizable({ end: isEndResizable }),
     ]) as [boolean, (resize: boolean) => void];
 
 export function useEvtsForDay(date: Date) {
@@ -190,13 +189,17 @@ export function useEvtIntvlIncStart(
     return function (minutes: number) {
         function updateStoreFn({
             evtIntvl,
-            evtIntvlResize,
-        }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
+            isEvtIntvlResizable,
+        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
             const [newEvtIntvl, isAdjusted] = incStart(evtIntvl, minutes);
             if (isAdjusted) {
                 return {
                     evtIntvl: newEvtIntvl,
-                    evtIntvlResize: assoc("start", false, evtIntvlResize),
+                    isEvtIntvlResizable: assoc(
+                        "start",
+                        false,
+                        isEvtIntvlResizable
+                    ),
                 };
             }
             return { evtIntvl: newEvtIntvl };
@@ -220,13 +223,17 @@ export function useEvtIntvlDecStart(
     return function (minutes: number) {
         function updateStoreFn({
             evtIntvl,
-            evtIntvlResize,
-        }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
+            isEvtIntvlResizable,
+        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
             const [newEvtIntvl, isAdjusted] = decStart(evtIntvl, minutes);
             if (isAdjusted) {
                 return {
                     evtIntvl: newEvtIntvl,
-                    evtIntvlResize: assoc("start", false, evtIntvlResize),
+                    isEvtIntvlResizable: assoc(
+                        "start",
+                        false,
+                        isEvtIntvlResizable
+                    ),
                 };
             }
             return { evtIntvl: newEvtIntvl };
@@ -250,13 +257,17 @@ export function useEvtIntvlIncEnd(
     return function (minutes: number) {
         function updateStoreFn({
             evtIntvl,
-            evtIntvlResize,
-        }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
+            isEvtIntvlResizable,
+        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
             const [newEvtIntvl, isAdjusted] = incEnd(evtIntvl, minutes);
             if (isAdjusted) {
                 return {
                     evtIntvl: newEvtIntvl,
-                    evtIntvlResize: assoc("end", false, evtIntvlResize),
+                    isEvtIntvlResizable: assoc(
+                        "end",
+                        false,
+                        isEvtIntvlResizable
+                    ),
                 };
             }
             return { evtIntvl: newEvtIntvl };
@@ -280,13 +291,17 @@ export function useEvtIntvlDecEnd(
     return function (minutes: number) {
         function updateStoreFn({
             evtIntvl,
-            evtIntvlResize,
-        }: Pick<Store, "evtIntvl" | "evtIntvlResize">) {
+            isEvtIntvlResizable,
+        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
             const [newEvtIntvl, isAdjusted] = decEnd(evtIntvl, minutes);
             if (isAdjusted) {
                 return {
                     evtIntvl: newEvtIntvl,
-                    evtIntvlResize: assoc("end", false, evtIntvlResize),
+                    isEvtIntvlResizable: assoc(
+                        "end",
+                        false,
+                        isEvtIntvlResizable
+                    ),
                 };
             }
             return { evtIntvl: newEvtIntvl };

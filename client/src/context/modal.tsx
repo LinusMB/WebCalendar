@@ -1,8 +1,8 @@
 import React, { createContext, useState, useContext } from "react";
 
 interface ModalContextType {
-    modalActive: boolean;
-    setModalActive: React.Dispatch<React.SetStateAction<boolean>>;
+    isModalOpen: boolean;
+    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ModalContext = createContext<ModalContextType | null>(null);
@@ -16,13 +16,13 @@ export function useModal() {
 }
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-    const [modalActive, setModalActive] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <ModalContext.Provider
             value={{
-                modalActive,
-                setModalActive,
+                isModalOpen: isModalOpen,
+                setIsModalOpen: setIsModalOpen,
             }}
         >
             {children}

@@ -44,7 +44,7 @@ function DayViewHeader() {
 }
 
 function DayViewWholeDayRow() {
-    const { viewDate, setEvtIntvl, evtIntvlActive, setEvtIntvlActive } =
+    const { viewDate, setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } =
         useStore();
 
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
@@ -81,7 +81,7 @@ function DayViewWholeDayRow() {
                             e.clientY <= bottom
                         ) {
                             setEvtIntvl(wholeDayIntvl(viewDate));
-                            setEvtIntvlActive(true);
+                            setIsEvtIntvlVisible(true);
                         }
                     }}
                     className="day-view__events day-view__events--whole-day"
@@ -93,7 +93,7 @@ function DayViewWholeDayRow() {
                                 viewDate={viewDate}
                                 windowHelper={windowHelper}
                             />
-                            {evtIntvlActive && (
+                            {isEvtIntvlVisible && (
                                 <EventInterval
                                     viewDate={viewDate}
                                     windowHelper={windowHelper}
@@ -108,7 +108,7 @@ function DayViewWholeDayRow() {
 }
 
 function DayViewHourRow({ hour }: { hour: number }) {
-    const { viewDate, setEvtIntvl, setEvtIntvlActive } = useStore();
+    const { viewDate, setEvtIntvl, setIsEvtIntvlVisible } = useStore();
 
     return (
         <tr className="day-view__row">
@@ -118,7 +118,7 @@ function DayViewHourRow({ hour }: { hour: number }) {
             <td
                 onClick={function () {
                     setEvtIntvl(dateToHourIntvl(setHours(viewDate, hour)));
-                    setEvtIntvlActive(true);
+                    setIsEvtIntvlVisible(true);
                 }}
                 className="day-view__events"
             ></td>

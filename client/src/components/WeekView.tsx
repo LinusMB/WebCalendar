@@ -77,7 +77,7 @@ function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
-    const { setEvtIntvl, evtIntvlActive, setEvtIntvlActive } = useStore();
+    const { setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } = useStore();
 
     const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
         []
@@ -115,7 +115,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                                 e.clientY <= bottom
                             ) {
                                 setEvtIntvl(wholeDayIntvl(d));
-                                setEvtIntvlActive(true);
+                                setIsEvtIntvlVisible(true);
                             }
                         }}
                         className="week-view__events week-view__events--whole-day"
@@ -129,7 +129,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                                     viewDate={d}
                                     windowHelper={windowHelperList[i]}
                                 />
-                                {evtIntvlActive && (
+                                {isEvtIntvlVisible && (
                                     <EventInterval
                                         viewDate={d}
                                         windowHelper={windowHelperList[i]}
@@ -145,7 +145,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
-    const { setEvtIntvl, setEvtIntvlActive } = useStore();
+    const { setEvtIntvl, setIsEvtIntvlVisible } = useStore();
 
     return (
         <tr className="week-view__row">
@@ -157,7 +157,7 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
                     key={i}
                     onClick={function () {
                         setEvtIntvl(dateToHourIntvl(setHours(d, hour)));
-                        setEvtIntvlActive(true);
+                        setIsEvtIntvlVisible(true);
                     }}
                     className="week-view__events"
                 ></td>

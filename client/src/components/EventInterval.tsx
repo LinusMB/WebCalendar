@@ -5,8 +5,8 @@ import Window from "./Window";
 import { WindowHelper } from "../utils/windowHelper";
 import {
     useStore,
-    useIsResizeStartActive,
-    useIsResizeEndActive,
+    useIsEvtIntvlStartResizable,
+    useIsEvtIntvlEndResizable,
     useEvtsForDay,
     useEvtIntvlIncStart,
     useEvtIntvlDecStart,
@@ -116,8 +116,8 @@ function EventIntervalResizable({
             )}
             onDragTopBar={onDragTopBar}
             onDragBottomBar={onDragBottomBar}
-            useIsResizeTopActive={useIsResizeStartActive}
-            useIsResizeBottomActive={useIsResizeEndActive}
+            useIsResizeTopActive={useIsEvtIntvlStartResizable}
+            useIsResizeBottomActive={useIsEvtIntvlEndResizable}
             isTopResizable={isWithinInterval(
                 evtIntvl.start,
                 getDayIntvl(viewDate)
