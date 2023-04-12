@@ -4,7 +4,7 @@ import { INTVL_MIN_RESIZE_STEP } from "../constants";
 import Window from "./Window";
 import { WindowHelper } from "../utils/windowHelper";
 import {
-    useStore,
+    useStorePick,
     useIsEvtIntvlStartResizable,
     useIsEvtIntvlEndResizable,
     useEvtsForDay,
@@ -32,7 +32,7 @@ export default function EventInterval({
     viewDate,
     windowHelper,
 }: EventIntervalProps) {
-    const { evtIntvl } = useStore();
+    const { evtIntvl } = useStorePick("evtIntvl");
 
     if (isSameDay(viewDate, evtIntvl.start) && isWholeDayIntvl(evtIntvl)) {
         return <EventIntervalWholeDay windowHelper={windowHelper} />;

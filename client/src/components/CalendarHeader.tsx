@@ -3,7 +3,7 @@ import { now } from "../utils/dates";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import { DayViewLink, WeekViewLink, MonthViewLink } from "./CalendarRouteLinks";
-import { useStore } from "../store";
+import { useStorePick } from "../store";
 import "./CalendarHeader.css";
 
 export interface CalendarHeaderProps {
@@ -17,7 +17,7 @@ export default function CalendarHeader({
     onClickLeftChv,
     onClickRightChv,
 }: CalendarHeaderProps) {
-    const { setViewDate } = useStore();
+    const { setViewDate } = useStorePick("setViewDate");
 
     return (
         <div className="calendar-header">

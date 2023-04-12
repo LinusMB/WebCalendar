@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useStore } from "../store";
+import { useStorePick } from "../store";
 import CalendarHeader from "./CalendarHeader";
 import {
     getMonth,
@@ -17,7 +17,10 @@ import {
 import "./MonthView.css";
 
 function MonthViewHeader() {
-    const { viewDate, updateViewDate } = useStore();
+    const { viewDate, updateViewDate } = useStorePick(
+        "viewDate",
+        "updateViewDate"
+    );
 
     const dateStr = `${monthMap[getMonth(viewDate)]} ${getYear(viewDate)}`;
     function onClickLeftChv() {
@@ -42,7 +45,7 @@ function MonthViewHeader() {
 
 function MonthViewDayCell({ date }: { date: Date }) {
     const navigate = useNavigate();
-    const { setViewDate } = useStore();
+    const { setViewDate } = useStorePick("setViewDate");
 
     function onClickHandler() {
         setViewDate(date);
@@ -59,7 +62,7 @@ function MonthViewDayCell({ date }: { date: Date }) {
 }
 
 function MonthViewGrid() {
-    const { viewDate } = useStore();
+    const { viewDate } = useStorePick("viewDate");
     const eachWeek = eachWeekInMonth(viewDate);
 
     return (

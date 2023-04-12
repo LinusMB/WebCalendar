@@ -2,11 +2,9 @@ import React from "react";
 
 import { INTVL_MIN_RESIZE_STEP } from "../constants";
 import { FromField, ToField } from "./IntervalFields";
-import Modal from "./Modal";
 import { useModal } from "../context/modal";
-import { useInput } from "../hooks";
 import {
-    useStore,
+    useStorePick,
     useEvtIntvlUpdateStart,
     useEvtIntvlUpdateEnd,
 } from "../store";
@@ -15,8 +13,8 @@ import { isWholeDayIntvl } from "../utils/dates";
 import "./NewEvent.css";
 
 export default function NewEvent() {
-    const { evts, evtIntvl, isEvtIntvlVisible } = useStore();
-    const { isModalOpen, setIsModalOpen } = useModal();
+    const { evts, evtIntvl, isEvtIntvlVisible } = useStorePick("evts", "evtIntvl", "isEvtIntvlVisible");
+    const { setIsModalOpen, setModalDataMode } = useModal();
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
         INTVL_MIN_RESIZE_STEP,
         evts
@@ -25,9 +23,11 @@ export default function NewEvent() {
 
     return (
         <div className="new-event">
-            {isModalOpen && <NewEventModal />}
             <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                    setModalDataMode("add");
+                    setIsModalOpen(true);
+                }}
                 className="new-event__btn"
                 disabled={!isEvtIntvlVisible}
             >
@@ -48,58 +48,5 @@ export default function NewEvent() {
                 isEvtIntvlActive={isEvtIntvlVisible}
             />
         </div>
-    );
-}
-
-function NewEventModal() {
-    const { evts, evtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible, addEvt } =
-        useStore();
-
-    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_MIN_RESIZE_STEP,
-        evts
-    );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_MIN_RESIZE_STEP, evts);
-
-    const { setIsModalOpen } = useModal();
-    const [title, onTitleChange, resetTitle] = useInput("");
-    const [description, onDescriptionChange, resetDescription] = useInput("");
-
-    function onClick() {
-        addEvt(title, description, evtIntvl);
-        resetTitle();
-        resetDescription();
-        setIsEvtIntvlVisible(false);
-        setIsModalOpen(false);
-    }
-
-    return (
-        <Modal>
-            <Modal.Header>
-                Event
-                <Modal.CloseButton onClick={() => setIsModalOpen(false)} />
-            </Modal.Header>
-            <Modal.Body>
-                <input type="text" onChange={onTitleChange} value={title} />
-                <FromField
-                    date={evtIntvl.start}
-                    updateDate={updateEvtIntvlStart}
-                    isWholeDay={isWholeDayIntvl(evtIntvl)}
-                    isEvtIntvlActive={isEvtIntvlVisible}
-                />
-                <ToField
-                    date={evtIntvl.end}
-                    updateDate={updateEvtIntvlEnd}
-                    isWholeDay={isWholeDayIntvl(evtIntvl)}
-                    isEvtIntvlActive={isEvtIntvlVisible}
-                />
-                <textarea onChange={onDescriptionChange} value={description} />
-            </Modal.Body>
-            <Modal.Footer>
-                <button onClick={onClick} disabled={!isEvtIntvlVisible}>
-                    Save changes
-                </button>
-            </Modal.Footer>
-        </Modal>
     );
 }

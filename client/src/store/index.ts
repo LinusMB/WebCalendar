@@ -1,5 +1,16 @@
 import { create } from "zustand";
-import { assoc, modify, append, mergeLeft, mergeRight } from "ramda";
+import {
+    assoc,
+    modify,
+    append,
+    mergeLeft,
+    mergeRight,
+    map,
+    pick,
+    filter,
+    where,
+    always,
+} from "ramda";
 import * as uuid from "uuid";
 
 import { useDeepCompareMemo } from "../hooks";
@@ -26,10 +37,12 @@ export interface Store {
     isEvtIntvlVisible: boolean;
     isEvtIntvlResizable: { start: boolean; end: boolean };
     evts: CalEvent[];
+    evtFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean };
     setViewDate: (date: Date) => void;
     updateViewDate: (update: (arg: Date) => Date) => void;
     setEvtIntvl: (intvl: CalInterval) => void;
     updateEvtIntvl: (update: (arg: CalInterval) => CalInterval) => void;
+    setIsEvtIntvlVisible: (active: boolean) => void;
     setIsEvtIntvlResizable: ({
         start,
         end,
@@ -42,8 +55,15 @@ export interface Store {
         description: CalEvent["description"],
         intvl: CalInterval
     ) => void;
+    editEvt: (
+        uuid: CalEvent["uuid"],
+        title: CalEvent["title"],
+        description: CalEvent["description"],
+        intvl: CalInterval
+    ) => void;
     deleteEvt: (uuid: string) => void;
-    setIsEvtIntvlVisible: (active: boolean) => void;
+    setEvtFilter: (filter: Partial<Store["evtFilter"]>) => void;
+    resetEvtFilter: () => void;
     updateStore: (update: (arg: Store) => Partial<Store>) => void;
 }
 
@@ -78,18 +98,29 @@ const evtsSample = [
     },
 ];
 
+const evtFilterInitial = {
+    start: always(true),
+    end: always(true),
+    title: always(true),
+    description: always(true),
+    uuid: always(true),
+};
+
 export const useStore = create<Store>((set) => ({
     viewDate: now(),
     evtIntvl: todayWholeDayIntvl(),
     isEvtIntvlVisible: false,
     isEvtIntvlResizable: { start: false, end: false },
     evts: evtsSample,
+    evtFilter: evtFilterInitial,
     setViewDate: (date) => set(() => ({ viewDate: date })),
     updateViewDate: (update) =>
         set((state) => ({ viewDate: update(state.viewDate) })),
     setEvtIntvl: (intvl) => set(() => ({ evtIntvl: intvl })),
     updateEvtIntvl: (update) =>
         set((state) => ({ evtIntvl: update(state.evtIntvl) })),
+    setIsEvtIntvlVisible: (active) =>
+        set(() => ({ isEvtIntvlVisible: active })),
     setIsEvtIntvlResizable: (isEvtIntvlResizable) =>
         set((state) =>
             modify("isEvtIntvlResizable", mergeLeft(isEvtIntvlResizable), state)
@@ -102,12 +133,32 @@ export const useStore = create<Store>((set) => ({
                 state
             )
         ),
-    deleteEvt: (uuid: string) =>
+    editEvt: (uuid, title, description, intvl) =>
+        set((state) =>
+            modify(
+                "evts",
+                map((e) =>
+                    e.uuid === uuid
+                        ? mergeRight(e, { title, description, ...intvl })
+                        : e
+                ),
+                state
+            )
+        ),
+    deleteEvt: (uuid) =>
         set((state) => ({ evts: state.evts.filter((e) => e.uuid !== uuid) })),
-    setIsEvtIntvlVisible: (active) =>
-        set(() => ({ isEvtIntvlVisible: active })),
+    setEvtFilter: (evtFilter) =>
+        set((state) => modify("evtFilter", mergeLeft(evtFilter), state)),
+    resetEvtFilter: () =>
+        set(() => ({
+            evtFilter: evtFilterInitial,
+        })),
     updateStore: (update) => set((state) => update(state)),
 }));
+
+export function useStorePick<T extends keyof Store>(...keys: T[]) {
+    return useStore((state) => pick(keys, state));
+}
 
 export const useIsEvtIntvlStartResizable = () =>
     useStore((state) => [
@@ -123,8 +174,13 @@ export const useIsEvtIntvlEndResizable = () =>
             state.setIsEvtIntvlResizable({ end: isEndResizable }),
     ]) as [boolean, (resize: boolean) => void];
 
+export function useEvts() {
+    const { evts, evtFilter } = useStorePick("evts", "evtFilter");
+    return filter(where(evtFilter), evts);
+}
+
 export function useEvtsForDay(date: Date) {
-    const { evts } = useStore();
+    const evts = useEvts();
     const evtsForDay = useDeepCompareMemo(() => {
         return evts.filter(
             (e) => e.end >= startOfDay(date) && e.start <= endOfDay(date)
@@ -135,7 +191,7 @@ export function useEvtsForDay(date: Date) {
 
 export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
     const { adjustIntvlGap, adjustNoEvtOverlap } = updateStartAdjustFns;
-    const { updateStore } = useStore();
+    const { updateStore } = useStorePick("updateStore");
 
     const updateStart = updateStartWithAdjust([
         adjustIntvlGap(restrictGap),
@@ -153,7 +209,7 @@ export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
 
 export function useEvtIntvlUpdateEnd(restrictGap: number, evts: CalEvent[]) {
     const { adjustIntvlGap, adjustNoEvtOverlap } = updateEndAdjustFns;
-    const { updateStore } = useStore();
+    const { updateStore } = useStorePick("updateStore");
 
     const updateEnd = updateEndWithAdjust([
         adjustIntvlGap(restrictGap),
@@ -174,7 +230,7 @@ export function useEvtIntvlIncStart(
     restrictIntvl: CalInterval
 ) {
     const { adjustIntvlGap, adjustToIntvl } = incStartAdjustFns;
-    const { updateStore } = useStore();
+    const { updateStore } = useStorePick("updateStore");
 
     const incStart = incStartWithAdjust([
         adjustIntvlGap(restrictGap),
@@ -209,7 +265,7 @@ export function useEvtIntvlDecStart(
     evts: CalEvent[]
 ) {
     const { adjustToIntvl, adjustNoEvtOverlap } = decStartAdjustFns;
-    const { updateStore } = useStore();
+    const { updateStore } = useStorePick("updateStore");
 
     const decStart = decStartWithAdjust([
         adjustToIntvl(restrictIntvl),
@@ -243,7 +299,7 @@ export function useEvtIntvlIncEnd(
     evts: CalEvent[]
 ) {
     const { adjustToIntvl, adjustNoEvtOverlap } = incEndAdjustFns;
-    const { updateStore } = useStore();
+    const { updateStore } = useStorePick("updateStore");
 
     const incEnd = incEndWithAdjust([
         adjustToIntvl(restrictIntvl),
@@ -277,7 +333,7 @@ export function useEvtIntvlDecEnd(
     restrictIntvl: CalInterval
 ) {
     const { adjustIntvlGap, adjustToIntvl } = decEndAdjustFns;
-    const { updateStore } = useStore();
+    const { updateStore } = useStorePick("updateStore");
 
     const decEnd = decEndWithAdjust([
         adjustIntvlGap(restrictGap),

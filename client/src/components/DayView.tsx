@@ -5,7 +5,7 @@ import EventInterval from "./EventInterval";
 import Events from "./Events";
 import CalendarHeader from "./CalendarHeader";
 import { WindowHelper } from "../utils/windowHelper";
-import { useStore } from "../store";
+import { useStorePick } from "../store";
 import {
     weekdayMap,
     wholeDayIntvl,
@@ -20,7 +20,7 @@ import {
 import "./DayView.css";
 
 function DayViewHeader() {
-    const { viewDate, updateViewDate } = useStore();
+    const { viewDate, updateViewDate } = useStorePick("viewDate", "updateViewDate");
 
     const dateStr = `${weekdayMap[getDay(viewDate)]} ${dateToFmt(viewDate)}`;
     function onClickLeftChv() {
@@ -45,7 +45,7 @@ function DayViewHeader() {
 
 function DayViewWholeDayRow() {
     const { viewDate, setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } =
-        useStore();
+        useStorePick( "viewDate", "setEvtIntvl", "isEvtIntvlVisible", "setIsEvtIntvlVisible" );
 
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
     const $td = useRef<HTMLTableCellElement>(null);
@@ -108,7 +108,7 @@ function DayViewWholeDayRow() {
 }
 
 function DayViewHourRow({ hour }: { hour: number }) {
-    const { viewDate, setEvtIntvl, setIsEvtIntvlVisible } = useStore();
+    const { viewDate, setEvtIntvl, setIsEvtIntvlVisible } = useStorePick( "viewDate", "setEvtIntvl", "setIsEvtIntvlVisible" );
 
     return (
         <tr className="day-view__row">

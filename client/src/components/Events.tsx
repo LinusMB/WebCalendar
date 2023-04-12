@@ -5,7 +5,8 @@ import Window from "./Window";
 import Popover from "./Popover";
 import { WindowHelper } from "../utils/windowHelper";
 import { clampToDayIntvl, isWholeDayIntvl } from "../utils/dates";
-import { useEvtsForDay, useStore } from "../store";
+import { useEvtsForDay, useStorePick } from "../store";
+import { useModal } from "../context/modal";
 import { CalEvent } from "../types";
 
 import "./Events.css";
@@ -38,7 +39,9 @@ interface EventProps {
 }
 
 function Event({ evt, viewDate, windowHelper }: EventProps) {
-    const { deleteEvt } = useStore();
+    const { deleteEvt } = useStorePick("deleteEvt");
+
+    const { setIsModalOpen, setModalDataMode, setModalEditEvt } = useModal();
 
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
@@ -65,6 +68,16 @@ function Event({ evt, viewDate, windowHelper }: EventProps) {
                                 }}
                             >
                                 Delete
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setModalDataMode("edit");
+                                    setModalEditEvt(evt);
+                                    setIsModalOpen(true);
+                                    setIsPopoverActive(false);
+                                }}
+                            >
+                                Edit
                             </button>
                         </Popover.Head>
                         <Popover.Body>{evt.description}</Popover.Body>

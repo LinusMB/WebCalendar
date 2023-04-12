@@ -6,7 +6,7 @@ import EventInterval from "./EventInterval";
 import Events from "./Events";
 import CalendarHeader from "./CalendarHeader";
 import { WindowHelper } from "../utils/windowHelper";
-import { useStore } from "../store";
+import { useStorePick } from "../store";
 import {
     getDay,
     getWeek,
@@ -24,7 +24,7 @@ import {
 import "./WeekView.css";
 
 function WeekViewHeader() {
-    const { viewDate, updateViewDate } = useStore();
+    const { viewDate, updateViewDate } = useStorePick("viewDate", "updateViewDate");
 
     const dateStr = `Week ${getWeek(viewDate)}, ${getYear(viewDate)}`;
     function onClickLeftChv() {
@@ -49,7 +49,7 @@ function WeekViewHeader() {
 
 function WeekViewDayCell({ date }: { date: Date }) {
     const navigate = useNavigate();
-    const { setViewDate } = useStore();
+    const { setViewDate } = useStorePick("setViewDate");
 
     function onClickHandler() {
         setViewDate(date);
@@ -77,7 +77,7 @@ function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
-    const { setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } = useStore();
+    const { setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } = useStorePick( "setEvtIntvl", "isEvtIntvlVisible", "setIsEvtIntvlVisible" );
 
     const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
         []
@@ -145,7 +145,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
-    const { setEvtIntvl, setIsEvtIntvlVisible } = useStore();
+    const { setEvtIntvl, setIsEvtIntvlVisible } = useStorePick( "setEvtIntvl", "setIsEvtIntvlVisible" );
 
     return (
         <tr className="week-view__row">
@@ -167,7 +167,7 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
 }
 
 function WeekViewGrid() {
-    const { viewDate } = useStore();
+    const { viewDate } = useStorePick("viewDate");
     const eachDay = eachDayInWeek(viewDate);
 
     return (
