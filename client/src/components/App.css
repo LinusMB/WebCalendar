@@ -32,9 +32,8 @@
 
     --default-bg-color: #eee;
     --default-text-color: #333;
+    --default-border-color: #8b8a8b;
 
-    --muted-text-color: #888;
-    --input-border-color: #8b8a8b;
     --light-border-color: rgba(0, 0, 0, 0.2);
 
     --calendar-header-date-width: 15ch;
@@ -43,8 +42,8 @@
 
     --window-bg-color: #6082b6;
     --window-text-color: #eee;
-    --window-bar-size: 2em;
-    --window-z-index: 1;
+    --window-bar-size: 1em;
+    --window-border-color: var(--default-border-color);
 
     --modal-z-index: 2;
 
@@ -53,10 +52,48 @@
     --tooltip-width: 4em;
     --tooltip-font-size: 0.8em;
     --tooltip-z-index: 1;
+
+    --button-bg-color: var(--bg-color-dark);
+    --button-bg-color--hover: var(--bg-color-darker);
+    --button-bg-color--active: #eee;
+    --button-border-color: var(--default-border-color);
+    --button-border-radius: 0.3em;
+}
+
+input[type="submit"],
+button {
+    background-color: var(--button-bg-color);
+    border: 1px solid var(--button-border-color);
+    border-radius: var(--button-border-radius);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    padding: 0.5em 1em;
+    outline: 0;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: var(--button-bg-color--hover);
+}
+
+input[type="submit"]:active,
+button:active {
+    background-color: var(--button-bg-color--active);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+textarea {
+    resize: none;
 }
 
 button,
-input {
+input,
+textarea {
     font-family: inherit;
 }
 

@@ -3,10 +3,11 @@
     flex-direction: column;
     width: 100%;
     position: absolute;
-    /* z-index: var(--window-z-index); */
     background: var(--window-bg-color);
     color: var(--window-text-color);
-    opacity: 1;
+    border: 1px solid var(--window-border-color);
+    border-radius: 0.1em;
+    opacity: 0.9;
 }
 
 .window__bar-top {

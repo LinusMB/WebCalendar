@@ -2,52 +2,70 @@ import React from "react";
 
 import "./Modal.css";
 
-export interface ModalProps {
+export interface ModalProps extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
 }
 
-const Modal = ({ children }: ModalProps) => {
+const Modal = ({ children, ...props }: ModalProps) => {
     return (
         <div className="modal">
-            <div className="modal__content">{children}</div>
+            <div className="modal__content" {...props}>
+                {children}
+            </div>
         </div>
     );
 };
 
-export interface ModalHeaderProps {
+export interface ModalHeaderProps
+    extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
 }
 
-Modal.Header = ({ children }: ModalHeaderProps) => {
-    return <div className="modal__header">{children}</div>;
+Modal.Header = ({ children, ...props }: ModalHeaderProps) => {
+    return (
+        <div className="modal__header" {...props}>
+            {children}
+        </div>
+    );
 };
 
-export interface ModalCloseButtonProps {
+export interface ModalCloseButtonProps
+    extends React.ComponentPropsWithoutRef<"span"> {
     onClick: () => void;
 }
 
-Modal.CloseButton = ({ onClick }: ModalCloseButtonProps) => {
+Modal.CloseButton = ({ onClick, ...props }: ModalCloseButtonProps) => {
     return (
-        <span onClick={onClick} className="modal__close">
+        <span onClick={onClick} className="modal__close" {...props}>
             &times;
         </span>
     );
 };
 
-export interface ModalBodyProps {
+export interface ModalBodyProps extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
+    className?: string;
 }
 
-Modal.Body = ({ children }: ModalBodyProps) => {
-    return <div className="modal__body">{children}</div>;
+Modal.Body = ({ children, className, ...props }: ModalBodyProps) => {
+    return (
+        <div className={`modal__body ${className}`} {...props}>
+            {children}
+        </div>
+    );
 };
 
-export interface ModalFooterProps {
+export interface ModalFooterProps
+    extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
 }
 
-Modal.Footer = ({ children }: ModalFooterProps) => {
-    return <div className="modal__footer">{children}</div>;
+Modal.Footer = ({ children, ...props }: ModalFooterProps) => {
+    return (
+        <div className="modal__footer" {...props}>
+            {children}
+        </div>
+    );
 };
 
 export default Modal;

@@ -1,0 +1,25 @@
+.event-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.event-modal__title {
+    align-self: flex-start;
+    font-size: 0.9em;
+    width: 20%;
+    padding: 0.3em;
+}
+
+.event-modal__description {
+    font-size: 0.9em;
+    width: 100%;
+    height: 7em;
+    border: 1px solid var(--light-border-color);
+    box-shadow: none;
+    padding: 0.3em;
+}
+
+.event-modal__description:hover {
+    border-color: 1px solid var(--highlight-bg-color);
+}

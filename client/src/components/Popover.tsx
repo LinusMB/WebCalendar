@@ -4,11 +4,11 @@ import "./Popover.css";
 
 type Direction = "top" | "bottom";
 
-export interface PopoverProps {
+export interface PopoverProps extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
 }
 
-const Popover = ({ children }: PopoverProps) => {
+const Popover = ({ children, ...props }: PopoverProps) => {
     const [direction, setDirection] = useState<Direction>("bottom");
     const $div = useRef<HTMLDivElement>(null);
     function updateDirection() {
@@ -32,26 +32,36 @@ const Popover = ({ children }: PopoverProps) => {
     }, []);
 
     return (
-        <div className={`popover popover--${direction}`} ref={$div}>
+        <div className={`popover popover--${direction}`} ref={$div} {...props}>
             {children}
         </div>
     );
 };
 
-export interface PopoverHeadProps {
+export interface PopoverHeadProps
+    extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
 }
 
-Popover.Head = ({ children }: PopoverHeadProps) => {
-    return <div className="popover__header">{children}</div>;
+Popover.Head = ({ children, ...props }: PopoverHeadProps) => {
+    return (
+        <div className="popover__header" {...props}>
+            {children}
+        </div>
+    );
 };
 
-export interface PopoverBodyProps {
+export interface PopoverBodyProps
+    extends React.ComponentPropsWithoutRef<"div"> {
     children?: React.ReactNode;
 }
 
-Popover.Body = ({ children }: PopoverBodyProps) => {
-    return <div className="popover__body">{children}</div>;
+Popover.Body = ({ children, ...props }: PopoverBodyProps) => {
+    return (
+        <div className="popover__body" {...props}>
+            {children}
+        </div>
+    );
 };
 
 export default Popover;

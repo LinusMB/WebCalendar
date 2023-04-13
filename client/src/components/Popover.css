@@ -6,6 +6,8 @@
     width: auto;
     background-color: #fefefe;
     color: var(--default-text-color);
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.26);
+    border-radius: 0.3em;
     padding: 0.7em;
     z-index: 1;
 }

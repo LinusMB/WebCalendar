@@ -13,6 +13,7 @@ import {
     useEvtIntvlUpdateEnd,
 } from "../store";
 import { isWholeDayIntvl } from "../utils/dates";
+import "./EventModal.css";
 
 export default function EventModal() {
     const {
@@ -72,16 +73,21 @@ export default function EventModal() {
         }
     }, []);
 
-    let initialTitle: string, initialDescription: string, onClick: () => void;
+    let initialTitle: string,
+        initialDescription: string,
+        headerText: string,
+        onClick: () => void;
     switch (modalDataMode) {
         case "edit":
             initialTitle = modalEditEvt!.title;
             initialDescription = modalEditEvt!.description;
+            headerText = "Edit Event";
             onClick = onEditEvent;
             break;
         case "add":
             initialTitle = "";
             initialDescription = "";
+            headerText = "Add Event";
             onClick = onAddEvent;
             break;
     }
@@ -99,11 +105,17 @@ export default function EventModal() {
     return (
         <Modal>
             <Modal.Header>
-                Event
+                {headerText}
                 <Modal.CloseButton onClick={() => setIsModalOpen(false)} />
             </Modal.Header>
-            <Modal.Body>
-                <input type="text" onChange={onTitleChange} value={title} />
+            <Modal.Body className="event-modal__body">
+                <input
+                    type="text"
+                    className="event-modal__title"
+                    onChange={onTitleChange}
+                    placeholder="Enter Title"
+                    value={title}
+                />
                 <FromField
                     date={evtIntvl.start}
                     updateDate={updateEvtIntvlStart}
@@ -116,7 +128,12 @@ export default function EventModal() {
                     isWholeDay={isWholeDayIntvl(evtIntvl)}
                     isEvtIntvlActive={isEvtIntvlVisible}
                 />
-                <textarea onChange={onDescriptionChange} value={description} />
+                <textarea
+                    className="event-modal__description"
+                    onChange={onDescriptionChange}
+                    placeholder="Enter Description"
+                    value={description}
+                />
             </Modal.Body>
             <Modal.Footer>
                 <button onClick={onClick} disabled={!isEvtIntvlVisible}>

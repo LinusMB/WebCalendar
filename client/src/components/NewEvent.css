@@ -1,15 +1,9 @@
 .new-event {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 1fr;
-    gap: 0.4em;
-}
-
-.new-event__from,
-.new-event__to {
-    grid-column: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
 }
 
 .new-event__btn {
-    grid-column: 1 / 2;
+    align-self: flex-start;
 }

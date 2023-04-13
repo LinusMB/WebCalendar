@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { pick } from "ramda";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import Window from "./Window";
 import Popover from "./Popover";
@@ -39,10 +40,6 @@ interface EventProps {
 }
 
 function Event({ evt, viewDate, windowHelper }: EventProps) {
-    const { deleteEvt } = useStorePick("deleteEvt");
-
-    const { setIsModalOpen, setModalDataMode, setModalEditEvt } = useModal();
-
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
     const intvl = pick(["start", "end"], evt);
@@ -58,32 +55,53 @@ function Event({ evt, viewDate, windowHelper }: EventProps) {
             >
                 {evt.title}
                 {isPopoverActive && (
-                    <Popover>
-                        <Popover.Head>
-                            {evt.title}
-                            <button
-                                onClick={() => {
-                                    deleteEvt(evt.uuid);
-                                    setIsPopoverActive(false);
-                                }}
-                            >
-                                Delete
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setModalDataMode("edit");
-                                    setModalEditEvt(evt);
-                                    setIsModalOpen(true);
-                                    setIsPopoverActive(false);
-                                }}
-                            >
-                                Edit
-                            </button>
-                        </Popover.Head>
-                        <Popover.Body>{evt.description}</Popover.Body>
-                    </Popover>
+                    <EventPopover
+                        evt={evt}
+                        setIsPopoverActive={setIsPopoverActive}
+                    />
                 )}
             </span>
         </Window>
+    );
+}
+
+interface EventPopoverProps {
+    evt: CalEvent;
+    setIsPopoverActive: (arg: boolean) => void;
+}
+
+function EventPopover({ evt, setIsPopoverActive }: EventPopoverProps) {
+    const { deleteEvt } = useStorePick("deleteEvt");
+    const { setIsModalOpen, setModalDataMode, setModalEditEvt } = useModal();
+
+    return (
+        <Popover>
+            <Popover.Head>
+                <div className="event-popover__buttons">
+                    <span
+                        className="event-popover__delete"
+                        onClick={() => {
+                            deleteEvt(evt.uuid);
+                            setIsPopoverActive(false);
+                        }}
+                    >
+                        <i className="fa-regular fa-trash-can"></i>
+                    </span>
+                    <span
+                        className="event-popover__edit"
+                        onClick={() => {
+                            setModalDataMode("edit");
+                            setModalEditEvt(evt);
+                            setIsModalOpen(true);
+                            setIsPopoverActive(false);
+                        }}
+                    >
+                        <i className="fa-regular fa-pen-to-square"></i>
+                    </span>
+                </div>
+                <div className="event-popover__title">{evt.title}</div>
+            </Popover.Head>
+            <Popover.Body>{evt.description}</Popover.Body>
+        </Popover>
     );
 }

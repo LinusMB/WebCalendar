@@ -9,41 +9,31 @@
 }
 
 .modal__content {
-    display: grid;
-    grid-template-rows: 1fr 4fr 1fr;
     background-color: #fefefe;
     margin: 10% auto;
     padding: 1em 2em;
     border: 1px solid black;
-    border-radius: 4px;
+    border-radius: 0.3em;
     width: 70%;
 }
 
 .modal__header {
     display: flex;
     font-size: 1.5em;
+    padding: 0.3rem 0;
+}
+
+.modal__body {
+    padding: 0.3rem 0;
+}
+
+.modal__footer {
+    padding: 0.3rem 0;
 }
 
 .modal__close {
     margin-left: auto;
 }
-
-/* .modal__textbox { */
-/*     font-size: .9em; */
-/*     resize: none; */
-/*     width: 100%; */
-/*     border: 1px solid var(--light-border-color); */
-/*     box-shadow: none; */
-/*     padding: 1em; */
-/* } */
-
-/* .modal__textbox:focus { */
-/*     border-color: 1px solid var(--highlight-bg-color); */
-/* } */
-
-/* .modal__close { */
-/*     margin-left: auto; */
-/* } */
 
 .modal__close:hover {
     cursor: pointer;

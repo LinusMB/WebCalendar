@@ -2,7 +2,7 @@
     background-color: white;
     border: 1px solid darkgray;
     font-size: 0.9em;
-    margin-top: 5px;
+    padding: 0.1em;
 }
 
 .interval-field__selection:hover {
