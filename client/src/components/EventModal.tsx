@@ -46,6 +46,16 @@ export default function EventModal() {
         );
     }
 
+    useEffect(() => {
+        if (modalDataMode === "edit") {
+            setEvtFilter({
+                uuid: (uuid: string) => uuid !== modalEditEvt!.uuid,
+            });
+            setEvtIntvl(pick(["start", "end"], modalEditEvt!));
+            setIsEvtIntvlVisible(true);
+        }
+    }, []);
+
     function onAddEvent() {
         addEvt(title, description, evtIntvl);
         resetTitle();
@@ -63,15 +73,15 @@ export default function EventModal() {
         resetEvtFilter();
     }
 
-    useEffect(() => {
+    function onClose() {
+        resetTitle();
+        resetDescription();
         if (modalDataMode === "edit") {
-            setEvtFilter({
-                uuid: (uuid: string) => uuid !== modalEditEvt!.uuid,
-            });
-            setEvtIntvl(pick(["start", "end"], modalEditEvt!));
-            setIsEvtIntvlVisible(true);
+            setIsEvtIntvlVisible(false);
+            resetEvtFilter();
         }
-    }, []);
+        setIsModalOpen(false);
+    }
 
     let initialTitle: string,
         initialDescription: string,
@@ -106,7 +116,7 @@ export default function EventModal() {
         <Modal>
             <Modal.Header>
                 {headerText}
-                <Modal.CloseButton onClick={() => setIsModalOpen(false)} />
+                <Modal.CloseButton onClick={onClose} />
             </Modal.Header>
             <Modal.Body className="event-modal__body">
                 <input
