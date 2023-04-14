@@ -1,5 +1,6 @@
 .event-title {
     position: relative;
+    cursor: pointer;
 }
 
 .event-popover__delete {
