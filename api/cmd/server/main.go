@@ -18,15 +18,15 @@ func failIf(err error, msg string) {
 func main() {
 	config, err := config.New()
 	failIf(err, "parse configuration")
-	host := "localhost"
-	port := 5432
-	user := "postgres"
-	password := "password"
-	dbname := "calendar"
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	dsn := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		config.GetString("postgres.host"),
+		config.GetInt("postgres.port"),
+		config.GetString("postgres.user"),
+		config.GetString("postgres.password"),
+		config.GetString("postgres.dbname"),
+	)
 	db, err := sql.Open("postgres", dsn)
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
+	failIf(err, "open database connection")
+	_ = db
 }
