@@ -11,6 +11,7 @@ import (
 func New(controller *controller.Controller, config *viper.Viper) http.Handler {
 	r := mux.NewRouter()
 
+	r.HandleFunc("/api/events", controller.GetEventsByDate).Methods(http.MethodGet).Queries("start", "{start:.*}", "end", "{end:.*}")
 	r.HandleFunc("/api/events", controller.GetAllEvents).Methods(http.MethodGet)
 	r.HandleFunc("/api/events", controller.CreateEvent).Methods(http.MethodPost)
 	r.HandleFunc("/api/events/{uuid}", controller.GetEvent).Methods(http.MethodGet)

@@ -7,15 +7,36 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
 func (c *Controller) GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	evts, err := c.storage.Event.GetAll()
-	_ = evts
 	if err != nil {
 		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
+		return
+	}
+	writeJSON(w, http.StatusOK, evts)
+}
+
+func (c *Controller) GetEventsByDate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	start, err := time.Parse(time.RFC3339, vars["start"])
+	if err != nil {
+		writeMsg(w, http.StatusBadRequest, "message", err.Error())
+		return
+	}
+	end, err := time.Parse(time.RFC3339, vars["end"])
+	if err != nil {
+		writeMsg(w, http.StatusBadRequest, "message", err.Error())
+		return
+	}
+	evts, err := c.storage.Event.GetByDate(start, end)
+	if err != nil {
+		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
+		return
 	}
 	writeJSON(w, http.StatusOK, evts)
 }

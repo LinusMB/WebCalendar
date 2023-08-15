@@ -41,7 +41,7 @@ func (ea *eventAccess) GetByDate(start, end time.Time) ([]models.Event, error) {
 	query := `
 SELECT id, uuid, title, description, date_from, date_to, created_at
 FROM events
-WHERE date_from >= $1 AND date_to <= $2;`
+WHERE (date_from >= $1 AND date_from <= $2) OR (date_to >= $1 AND date_to <= $2);`
 	rows, err := ea.db.Query(query, start, end)
 	if err != nil {
 		return nil, err

@@ -11,8 +11,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$db_name" <<-EOSQL
       uuid        VARCHAR(64) NOT NULL UNIQUE,
       title	      TEXT NOT NULL,
       description TEXT NOT NULL,
-      date_from   DATE NOT NULL,
-      date_to     DATE NOT NULL,
+      date_from   TIMESTAMP NOT NULL,
+      date_to     TIMESTAMP NOT NULL,
       created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 EOSQL
@@ -23,8 +23,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$db_name_test" <<-
       uuid        VARCHAR(64) NOT NULL UNIQUE,
       title	      TEXT NOT NULL,
       description TEXT NOT NULL,
-      date_from   DATE NOT NULL,
-      date_to     DATE NOT NULL,
+      date_from   TIMESTAMP NOT NULL,
+      date_to     TIMESTAMP NOT NULL,
       created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 EOSQL
