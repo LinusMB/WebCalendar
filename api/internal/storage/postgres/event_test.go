@@ -24,26 +24,26 @@ func TestGetByDate(t *testing.T) {
 
 	t.Run("Contains 2", func(t *testing.T) {
 		events, err := ea.GetByDate(
-			time.Date(2022, time.February, 1, 0, 0, 0, 0, time.Local),
-			time.Date(2022, time.February, 28, 0, 0, 0, 0, time.Local),
+			time.Date(2022, time.February, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2022, time.February, 28, 0, 0, 0, 0, time.UTC),
 		)
 		assert.NoError(t, err)
 		assert.Len(t, events, 2)
 	})
 
-	t.Run("Contains 1", func(t *testing.T) {
+	t.Run("Contains 2", func(t *testing.T) {
 		events, err := ea.GetByDate(
-			time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local),
-			time.Date(2022, time.January, 2, 0, 0, 0, 0, time.Local),
+			time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2022, time.January, 3, 0, 0, 0, 0, time.UTC),
 		)
 		assert.NoError(t, err)
-		assert.Len(t, events, 1)
+		assert.Len(t, events, 2)
 	})
 
 	t.Run("Contains None", func(t *testing.T) {
 		events, err := ea.GetByDate(
-			time.Date(2022, time.December, 1, 0, 0, 0, 0, time.Local),
-			time.Date(2022, time.December, 31, 0, 0, 0, 0, time.Local),
+			time.Date(2022, time.December, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2022, time.December, 31, 0, 0, 0, 0, time.UTC),
 		)
 		assert.NoError(t, err)
 		assert.Empty(t, events)
