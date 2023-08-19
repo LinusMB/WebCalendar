@@ -8,10 +8,10 @@ import { useModal } from "../context/modal";
 import { useInput } from "../hooks";
 import {
     useStorePick,
-    useEvts,
     useEvtIntvlUpdateStart,
     useEvtIntvlUpdateEnd,
 } from "../store";
+import { useEvts } from "../hooks/useEvents";
 import { isWholeDayIntvl } from "../utils/dates";
 import "./EventModal.css";
 
@@ -23,6 +23,7 @@ export default function EventModal() {
         setIsEvtIntvlVisible,
         addEvt,
         editEvt,
+        evtFilter,
         setEvtFilter,
         resetEvtFilter,
     } = useStorePick(
@@ -32,11 +33,12 @@ export default function EventModal() {
         "setIsEvtIntvlVisible",
         "addEvt",
         "editEvt",
+        "evtFilter",
         "setEvtFilter",
         "resetEvtFilter"
     );
 
-    const evts = useEvts();
+    const { evts } = useEvts(evtFilter);
 
     const { setIsModalOpen, modalDataMode, modalEditEvt } = useModal();
 

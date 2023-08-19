@@ -24,7 +24,10 @@ import {
 import "./WeekView.css";
 
 function WeekViewHeader() {
-    const { viewDate, updateViewDate } = useStorePick("viewDate", "updateViewDate");
+    const { viewDate, updateViewDate } = useStorePick(
+        "viewDate",
+        "updateViewDate"
+    );
 
     const dateStr = `Week ${getWeek(viewDate)}, ${getYear(viewDate)}`;
     function onClickLeftChv() {
@@ -77,7 +80,12 @@ function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
-    const { setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } = useStorePick( "setEvtIntvl", "isEvtIntvlVisible", "setIsEvtIntvlVisible" );
+    const { setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } =
+        useStorePick(
+            "setEvtIntvl",
+            "isEvtIntvlVisible",
+            "setIsEvtIntvlVisible"
+        );
 
     const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
         []
@@ -145,7 +153,10 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
-    const { setEvtIntvl, setIsEvtIntvlVisible } = useStorePick( "setEvtIntvl", "setIsEvtIntvlVisible" );
+    const { setEvtIntvl, setIsEvtIntvlVisible } = useStorePick(
+        "setEvtIntvl",
+        "setIsEvtIntvlVisible"
+    );
 
     return (
         <tr className="week-view__row">

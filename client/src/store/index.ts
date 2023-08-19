@@ -174,20 +174,20 @@ export const useIsEvtIntvlEndResizable = () =>
             state.setIsEvtIntvlResizable({ end: isEndResizable }),
     ]) as [boolean, (resize: boolean) => void];
 
-export function useEvts() {
-    const { evts, evtFilter } = useStorePick("evts", "evtFilter");
-    return filter(where(evtFilter), evts);
-}
+// export function useEvts() {
+//     const { evts, evtFilter } = useStorePick("evts", "evtFilter");
+//     return filter(where(evtFilter), evts);
+// }
 
-export function useEvtsForDay(date: Date) {
-    const evts = useEvts();
-    const evtsForDay = useDeepCompareMemo(() => {
-        return evts.filter(
-            (e) => e.end >= startOfDay(date) && e.start <= endOfDay(date)
-        );
-    }, [evts, date]);
-    return evtsForDay;
-}
+// export function useEvtsForDay(date: Date) {
+//     const evts = useEvts();
+//     const evtsForDay = useDeepCompareMemo(() => {
+//         return evts.filter(
+//             (e) => e.end >= startOfDay(date) && e.start <= endOfDay(date)
+//         );
+//     }, [evts, date]);
+//     return evtsForDay;
+// }
 
 export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
     const { adjustIntvlGap, adjustNoEvtOverlap } = updateStartAdjustFns;

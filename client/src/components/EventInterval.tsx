@@ -7,12 +7,12 @@ import {
     useStorePick,
     useIsEvtIntvlStartResizable,
     useIsEvtIntvlEndResizable,
-    useEvtsForDay,
     useEvtIntvlIncStart,
     useEvtIntvlDecStart,
     useEvtIntvlIncEnd,
     useEvtIntvlDecEnd,
 } from "../store";
+import { useEvtsForDay } from "../hooks/useEvents";
 import {
     intvlBelongsToDayIntvl,
     isSameDay,
@@ -66,7 +66,8 @@ function EventIntervalResizable({
     windowHelper,
     evtIntvl,
 }: EventIntervalResizableProps) {
-    const evts = useEvtsForDay(viewDate);
+    const { evtFilter } = useStorePick("evtFilter");
+    const { evts } = useEvtsForDay(viewDate, evtFilter);
 
     const incStart = useEvtIntvlIncStart(
         INTVL_MIN_RESIZE_STEP,

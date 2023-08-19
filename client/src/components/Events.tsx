@@ -6,7 +6,8 @@ import Window from "./Window";
 import Popover from "./Popover";
 import { WindowHelper } from "../utils/windowHelper";
 import { clampToDayIntvl, isWholeDayIntvl } from "../utils/dates";
-import { useEvtsForDay, useStorePick } from "../store";
+import { useStorePick } from "../store";
+import { useEvtsForDay } from "../hooks/useEvents";
 import { useModal } from "../context/modal";
 import { CalEvent } from "../types";
 
@@ -18,7 +19,7 @@ export interface EventsProps {
 }
 
 export default function Events({ viewDate, windowHelper }: EventsProps) {
-    const evts = useEvtsForDay(viewDate);
+    const { evts } = useEvtsForDay(viewDate);
     return (
         <Fragment>
             {evts.map((e) => (
