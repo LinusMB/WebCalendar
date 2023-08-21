@@ -12,7 +12,6 @@ import {
     useEvtIntvlIncEnd,
     useEvtIntvlDecEnd,
 } from "../store";
-import { useEvtsForDay } from "../hooks/useEvents";
 import {
     intvlBelongsToDayIntvl,
     isSameDay,
@@ -21,6 +20,8 @@ import {
     getDayIntvl,
     isWithinInterval,
 } from "../utils/dates";
+import { useEvts } from "../context/events";
+import { orFilterEvents } from "../models/event";
 import { CalInterval } from "../types";
 
 export interface EventIntervalProps {
@@ -67,7 +68,8 @@ function EventIntervalResizable({
     evtIntvl,
 }: EventIntervalResizableProps) {
     const { evtFilter } = useStorePick("evtFilter");
-    const { evts } = useEvtsForDay(viewDate, evtFilter);
+    let { evts } = useEvts();
+    evts = orFilterEvents(evts, evtFilter);
 
     const incStart = useEvtIntvlIncStart(
         INTVL_MIN_RESIZE_STEP,

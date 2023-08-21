@@ -2,6 +2,7 @@ import React, { Fragment, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { range } from "ramda";
 
+import { EventsProvider } from "../context/events";
 import EventInterval from "./EventInterval";
 import Events from "./Events";
 import CalendarHeader from "./CalendarHeader";
@@ -29,7 +30,11 @@ function WeekViewHeader() {
         "updateViewDate"
     );
 
-    const dateStr = `Week ${getWeek(viewDate)}, ${getYear(viewDate)}`;
+    const dateStr = `Week ${getWeek(viewDate, {
+        weekStartsOn: 1,
+        firstWeekContainsDate: 7,
+    })}, ${getYear(viewDate)}`;
+
     function onClickLeftChv() {
         updateViewDate(decWeek);
     }
@@ -210,13 +215,17 @@ function WeekViewDefineCols() {
 }
 
 export default function WeekView() {
+    const { viewDate } = useStorePick("viewDate");
+
     return (
-        <table className="week-view">
-            <WeekViewDefineCols />
-            <tbody>
-                <WeekViewHeader />
-                <WeekViewGrid />
-            </tbody>
-        </table>
+        <EventsProvider view="Week" viewDate={viewDate}>
+            <table className="week-view">
+                <WeekViewDefineCols />
+                <tbody>
+                    <WeekViewHeader />
+                    <WeekViewGrid />
+                </tbody>
+            </table>
+        </EventsProvider>
     );
 }

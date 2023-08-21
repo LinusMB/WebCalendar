@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useRef, useEffect } from "react";
 import { range } from "ramda";
 
+import { EventsProvider } from "../context/events";
 import EventInterval from "./EventInterval";
 import Events from "./Events";
 import CalendarHeader from "./CalendarHeader";
@@ -20,7 +21,10 @@ import {
 import "./DayView.css";
 
 function DayViewHeader() {
-    const { viewDate, updateViewDate } = useStorePick("viewDate", "updateViewDate");
+    const { viewDate, updateViewDate } = useStorePick(
+        "viewDate",
+        "updateViewDate"
+    );
 
     const dateStr = `${weekdayMap[getDay(viewDate)]} ${dateToFmt(viewDate)}`;
     function onClickLeftChv() {
@@ -45,7 +49,12 @@ function DayViewHeader() {
 
 function DayViewWholeDayRow() {
     const { viewDate, setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } =
-        useStorePick( "viewDate", "setEvtIntvl", "isEvtIntvlVisible", "setIsEvtIntvlVisible" );
+        useStorePick(
+            "viewDate",
+            "setEvtIntvl",
+            "isEvtIntvlVisible",
+            "setIsEvtIntvlVisible"
+        );
 
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
     const $td = useRef<HTMLTableCellElement>(null);
@@ -108,7 +117,11 @@ function DayViewWholeDayRow() {
 }
 
 function DayViewHourRow({ hour }: { hour: number }) {
-    const { viewDate, setEvtIntvl, setIsEvtIntvlVisible } = useStorePick( "viewDate", "setEvtIntvl", "setIsEvtIntvlVisible" );
+    const { viewDate, setEvtIntvl, setIsEvtIntvlVisible } = useStorePick(
+        "viewDate",
+        "setEvtIntvl",
+        "setIsEvtIntvlVisible"
+    );
 
     return (
         <tr className="day-view__row">
@@ -138,12 +151,16 @@ function DayViewGrid() {
 }
 
 export default function DayView() {
+    const { viewDate } = useStorePick("viewDate");
+
     return (
-        <table className="day-view">
-            <tbody>
-                <DayViewHeader />
-                <DayViewGrid />
-            </tbody>
-        </table>
+        <EventsProvider view="Day" viewDate={viewDate}>
+            <table className="day-view">
+                <tbody>
+                    <DayViewHeader />
+                    <DayViewGrid />
+                </tbody>
+            </table>
+        </EventsProvider>
     );
 }

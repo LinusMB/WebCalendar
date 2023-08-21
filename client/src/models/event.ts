@@ -1,9 +1,10 @@
-import { sort, find, pick } from "ramda";
+import { always, sort, find, pick, filter, where, whereAny } from "ramda";
 
 import {
     compareAsc,
     compareDesc,
     areIntervalsOverlapping,
+    getDayIntvl,
 } from "../utils/dates";
 import { CalEvent, CalInterval } from "../types";
 
@@ -35,4 +36,30 @@ export function findEarliestEventOverlap(
         (evt) => areIntervalsOverlapping(pick(["start", "end"], evt), intvl),
         evtsAsc
     );
+}
+export function orFilterEvents(
+    evts: CalEvent[],
+    evtFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean }
+): CalEvent[] {
+    return filter<CalEvent, CalEvent[]>(whereAny(evtFilter), evts);
+}
+
+export function andFilterEvents(
+    evts: CalEvent[],
+    evtFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean }
+): CalEvent[] {
+    return filter<CalEvent, CalEvent[]>(where(evtFilter), evts);
+}
+
+export function viewDateFilter(viewDate: Date): {
+    [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean;
+} {
+    const intvl = getDayIntvl(viewDate);
+    return {
+        start: (start) => start >= intvl.start && start <= intvl.end,
+        end: (end) => end >= intvl.start && end <= intvl.end,
+        title: always(false),
+        description: always(false),
+        uuid: always(false),
+    };
 }
