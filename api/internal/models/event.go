@@ -15,6 +15,8 @@ type Event struct {
 type EventAccess interface {
 	GetAll() ([]Event, error)
 	GetByDate(start, end time.Time) ([]Event, error)
+	GetClosestPrevious(date time.Time) ([]Event, error)
+	GetClosestNext(date time.Time) ([]Event, error)
 	Create(evt *Event) (string, error)
 	GetByUUID(uuid string) (*Event, error)
 	Update(evt *Event) error

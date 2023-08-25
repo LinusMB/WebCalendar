@@ -9,17 +9,36 @@ import {
     useEvtIntvlUpdateEnd,
 } from "../store";
 import { isWholeDayIntvl } from "../utils/dates";
+import {
+    useGetClosestPreviousEvt,
+    useGetClosestNextEvt,
+} from "../hooks/events";
+import { CalEvent } from "../types";
 
 import "./NewEvent.css";
 
 export default function NewEvent() {
-    const { evts, evtIntvl, isEvtIntvlVisible } = useStorePick("evts", "evtIntvl", "isEvtIntvlVisible");
+    const { evtIntvl, isEvtIntvlVisible } = useStorePick(
+        "evtIntvl",
+        "isEvtIntvlVisible"
+    );
+
+    const { data: nextEvts = [] } = useGetClosestNextEvt<CalEvent[], Error>(
+        evtIntvl
+    );
+    const { data: prevEvts = [] } = useGetClosestPreviousEvt<CalEvent[], Error>(
+        evtIntvl
+    );
+
     const { setIsModalOpen, setModalDataMode } = useModal();
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
         INTVL_MIN_RESIZE_STEP,
-        evts
+        prevEvts
     );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_MIN_RESIZE_STEP, evts);
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(
+        INTVL_MIN_RESIZE_STEP,
+        nextEvts
+    );
 
     return (
         <div className="new-event">

@@ -24,7 +24,7 @@ func New(controller *controller.Controller, config *viper.Viper) http.Handler {
 
 	corsMiddleware := handlers.CORS(
 		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
 	)
 
 	logMiddleware := func(h http.Handler) http.Handler {
@@ -35,6 +35,8 @@ func New(controller *controller.Controller, config *viper.Viper) http.Handler {
 	r.HandleFunc("/api/events/day", controller.GetEventsByDay).Methods(http.MethodGet).Queries("date", "{date:.*}", "tz", "{tz:.*}")
 	r.HandleFunc("/api/events/week", controller.GetEventsByWeek).Methods(http.MethodGet).Queries("year", "{year:.*}", "week", "{week:.*}", "tz", "{tz:.*}")
 	r.HandleFunc("/api/events/month", controller.GetEventsByMonth).Methods(http.MethodGet).Queries("year", "{year:.*}", "month", "{month:.*}", "tz", "{tz:.*}")
+	r.HandleFunc("/api/events/previous", controller.GetClosestPreviousEvent).Methods(http.MethodGet).Queries("date", "{date:.*}")
+	r.HandleFunc("/api/events/next", controller.GetClosestNextEvent).Methods(http.MethodGet).Queries("date", "{date:.*}")
 	r.HandleFunc("/api/events", controller.GetAllEvents).Methods(http.MethodGet)
 	r.HandleFunc("/api/events", controller.CreateEvent).Methods(http.MethodPost)
 	r.HandleFunc("/api/events/{uuid}", controller.GetEvent).Methods(http.MethodGet)

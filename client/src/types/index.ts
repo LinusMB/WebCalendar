@@ -8,3 +8,5 @@ export interface CalEvent extends CalInterval {
     description: string;
     uuid: string;
 }
+
+export type View = "day" | "week" | "month";

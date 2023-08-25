@@ -1,15 +1,17 @@
 import React, { Fragment, useState } from "react";
-import { pick } from "ramda";
+import { pick, where } from "ramda";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import Window from "./Window";
 import Popover from "./Popover";
 import { WindowHelper } from "../utils/windowHelper";
 import { clampToDayIntvl, isWholeDayIntvl } from "../utils/dates";
-import { useStorePick } from "../store";
 import { useModal } from "../context/modal";
 import { useEvts } from "../context/events";
-import { orFilterEvents, viewDateFilter } from "../models/event";
+import { useStorePick } from "../store";
+import { useDeleteEvt } from "../hooks/events";
+import { filterEvents, viewDateFilter } from "../models/event";
+import { invalidateOnEventChange } from "../react-query";
 import { CalEvent } from "../types";
 
 import "./Events.css";
@@ -21,7 +23,9 @@ export interface EventsProps {
 
 export default function Events({ viewDate, windowHelper }: EventsProps) {
     let { evts } = useEvts();
-    evts = orFilterEvents(evts, viewDateFilter(viewDate));
+    const { evtFilter } = useStorePick("evtFilter");
+
+    evts = filterEvents(evts, viewDateFilter(viewDate), where(evtFilter));
 
     return (
         <Fragment>
@@ -75,8 +79,21 @@ interface EventPopoverProps {
 }
 
 function EventPopover({ evt, setIsPopoverActive }: EventPopoverProps) {
-    const { deleteEvt } = useStorePick("deleteEvt");
+    const { mutateAsync: deleteEvt } = useDeleteEvt();
     const { setIsModalOpen, setModalDataMode, setModalEditEvt } = useModal();
+
+    async function onDeleteEvent() {
+        await deleteEvt({ uuid: evt.uuid });
+        invalidateOnEventChange(pick(["start", "end"], evt));
+        setIsPopoverActive(false);
+    }
+
+    function onClickEdit() {
+        setModalDataMode("edit");
+        setModalEditEvt(evt);
+        setIsModalOpen(true);
+        setIsPopoverActive(false);
+    }
 
     return (
         <Popover>
@@ -84,22 +101,11 @@ function EventPopover({ evt, setIsPopoverActive }: EventPopoverProps) {
                 <div className="event-popover__buttons">
                     <span
                         className="event-popover__delete"
-                        onClick={() => {
-                            deleteEvt(evt.uuid);
-                            setIsPopoverActive(false);
-                        }}
+                        onClick={onDeleteEvent}
                     >
                         <i className="fa-regular fa-trash-can"></i>
                     </span>
-                    <span
-                        className="event-popover__edit"
-                        onClick={() => {
-                            setModalDataMode("edit");
-                            setModalEditEvt(evt);
-                            setIsModalOpen(true);
-                            setIsPopoverActive(false);
-                        }}
-                    >
+                    <span className="event-popover__edit" onClick={onClickEdit}>
                         <i className="fa-regular fa-pen-to-square"></i>
                     </span>
                 </div>

@@ -20,9 +20,11 @@ import {
     getDayIntvl,
     isWithinInterval,
 } from "../utils/dates";
-import { useEvts } from "../context/events";
-import { orFilterEvents } from "../models/event";
-import { CalInterval } from "../types";
+import {
+    useGetClosestPreviousEvt,
+    useGetClosestNextEvt,
+} from "../hooks/events";
+import { CalEvent, CalInterval } from "../types";
 
 export interface EventIntervalProps {
     viewDate: Date;
@@ -67,16 +69,19 @@ function EventIntervalResizable({
     windowHelper,
     evtIntvl,
 }: EventIntervalResizableProps) {
-    const { evtFilter } = useStorePick("evtFilter");
-    let { evts } = useEvts();
-    evts = orFilterEvents(evts, evtFilter);
+    const { data: nextEvts = [] } = useGetClosestNextEvt<CalEvent[], Error>(
+        evtIntvl
+    );
+    const { data: prevEvts = [] } = useGetClosestPreviousEvt<CalEvent[], Error>(
+        evtIntvl
+    );
 
     const incStart = useEvtIntvlIncStart(
         INTVL_MIN_RESIZE_STEP,
         getDayIntvl(viewDate)
     );
-    const decStart = useEvtIntvlDecStart(getDayIntvl(viewDate), evts);
-    const incEnd = useEvtIntvlIncEnd(getDayIntvl(viewDate), evts);
+    const decStart = useEvtIntvlDecStart(getDayIntvl(viewDate), prevEvts);
+    const incEnd = useEvtIntvlIncEnd(getDayIntvl(viewDate), nextEvts);
     const decEnd = useEvtIntvlDecEnd(
         INTVL_MIN_RESIZE_STEP,
         getDayIntvl(viewDate)

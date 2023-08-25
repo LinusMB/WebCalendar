@@ -1,20 +1,7 @@
 import { create } from "zustand";
-import {
-    assoc,
-    modify,
-    append,
-    mergeLeft,
-    mergeRight,
-    map,
-    pick,
-    filter,
-    where,
-    always,
-} from "ramda";
-import * as uuid from "uuid";
+import { assoc, modify, mergeLeft, pick, always } from "ramda";
 
-import { useDeepCompareMemo } from "../hooks";
-import { todayWholeDayIntvl, startOfDay, endOfDay, now } from "../utils/dates";
+import { todayWholeDayIntvl, now } from "../utils/dates";
 import {
     updateStartWithAdjust,
     updateEndWithAdjust,
@@ -36,7 +23,6 @@ export interface Store {
     evtIntvl: CalInterval;
     isEvtIntvlVisible: boolean;
     isEvtIntvlResizable: { start: boolean; end: boolean };
-    evts: CalEvent[];
     evtFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean };
     setViewDate: (date: Date) => void;
     updateViewDate: (update: (arg: Date) => Date) => void;
@@ -50,53 +36,10 @@ export interface Store {
         start?: boolean;
         end?: boolean;
     }) => void;
-    addEvt: (
-        title: CalEvent["title"],
-        description: CalEvent["description"],
-        intvl: CalInterval
-    ) => void;
-    editEvt: (
-        uuid: CalEvent["uuid"],
-        title: CalEvent["title"],
-        description: CalEvent["description"],
-        intvl: CalInterval
-    ) => void;
-    deleteEvt: (uuid: string) => void;
     setEvtFilter: (filter: Partial<Store["evtFilter"]>) => void;
     resetEvtFilter: () => void;
     updateStore: (update: (arg: Store) => Partial<Store>) => void;
 }
-
-const evtsSample = [
-    {
-        start: new Date(2023, 1, 15, 10),
-        end: new Date(2023, 1, 15, 19),
-        title: "Neighbor",
-        description: "Help my neighbor bake a cake",
-        uuid: uuid.v4(),
-    },
-    {
-        start: new Date(2023, 1, 14, 16),
-        end: new Date(2023, 1, 14, 17),
-        title: "Fishing",
-        description: "Go Fly Fishing",
-        uuid: uuid.v4(),
-    },
-    {
-        start: new Date(2023, 1, 14, 22),
-        end: new Date(2023, 1, 15, 2),
-        title: "Singing",
-        description: "Sing along contest",
-        uuid: uuid.v4(),
-    },
-    {
-        start: new Date(2023, 1, 1),
-        end: new Date(2023, 1, 1),
-        title: "Marathon",
-        description: "Run marathon which will take all day",
-        uuid: uuid.v4(),
-    },
-];
 
 const evtFilterInitial = {
     start: always(true),
@@ -111,7 +54,6 @@ export const useStore = create<Store>((set) => ({
     evtIntvl: todayWholeDayIntvl(),
     isEvtIntvlVisible: false,
     isEvtIntvlResizable: { start: false, end: false },
-    evts: evtsSample,
     evtFilter: evtFilterInitial,
     setViewDate: (date) => set(() => ({ viewDate: date })),
     updateViewDate: (update) =>
@@ -125,28 +67,6 @@ export const useStore = create<Store>((set) => ({
         set((state) =>
             modify("isEvtIntvlResizable", mergeLeft(isEvtIntvlResizable), state)
         ),
-    addEvt: (title, description, intvl) =>
-        set((state) =>
-            modify(
-                "evts",
-                append({ title, description, uuid: uuid.v4(), ...intvl }),
-                state
-            )
-        ),
-    editEvt: (uuid, title, description, intvl) =>
-        set((state) =>
-            modify(
-                "evts",
-                map((e) =>
-                    e.uuid === uuid
-                        ? mergeRight(e, { title, description, ...intvl })
-                        : e
-                ),
-                state
-            )
-        ),
-    deleteEvt: (uuid) =>
-        set((state) => ({ evts: state.evts.filter((e) => e.uuid !== uuid) })),
     setEvtFilter: (evtFilter) =>
         set((state) => modify("evtFilter", mergeLeft(evtFilter), state)),
     resetEvtFilter: () =>
@@ -173,21 +93,6 @@ export const useIsEvtIntvlEndResizable = () =>
         (isEndResizable) =>
             state.setIsEvtIntvlResizable({ end: isEndResizable }),
     ]) as [boolean, (resize: boolean) => void];
-
-// export function useEvts() {
-//     const { evts, evtFilter } = useStorePick("evts", "evtFilter");
-//     return filter(where(evtFilter), evts);
-// }
-
-// export function useEvtsForDay(date: Date) {
-//     const evts = useEvts();
-//     const evtsForDay = useDeepCompareMemo(() => {
-//         return evts.filter(
-//             (e) => e.end >= startOfDay(date) && e.start <= endOfDay(date)
-//         );
-//     }, [evts, date]);
-//     return evtsForDay;
-// }
 
 export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
     const { adjustIntvlGap, adjustNoEvtOverlap } = updateStartAdjustFns;

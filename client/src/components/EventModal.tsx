@@ -11,8 +11,15 @@ import {
     useEvtIntvlUpdateStart,
     useEvtIntvlUpdateEnd,
 } from "../store";
-import { useEvts } from "../hooks/useEvents";
+import {
+    useAddEvt,
+    useEditEvt,
+    useGetClosestPreviousEvt,
+    useGetClosestNextEvt,
+} from "../hooks/events";
+import { invalidateOnEventChange } from "../react-query";
 import { isWholeDayIntvl } from "../utils/dates";
+import { CalEvent } from "../types";
 import "./EventModal.css";
 
 export default function EventModal() {
@@ -21,9 +28,6 @@ export default function EventModal() {
         setEvtIntvl,
         isEvtIntvlVisible,
         setIsEvtIntvlVisible,
-        addEvt,
-        editEvt,
-        evtFilter,
         setEvtFilter,
         resetEvtFilter,
     } = useStorePick(
@@ -31,14 +35,19 @@ export default function EventModal() {
         "setEvtIntvl",
         "isEvtIntvlVisible",
         "setIsEvtIntvlVisible",
-        "addEvt",
-        "editEvt",
-        "evtFilter",
         "setEvtFilter",
         "resetEvtFilter"
     );
 
-    const { evts } = useEvts(evtFilter);
+    const { data: nextEvts = [] } = useGetClosestNextEvt<CalEvent[], Error>(
+        evtIntvl
+    );
+    const { data: prevEvts = [] } = useGetClosestPreviousEvt<CalEvent[], Error>(
+        evtIntvl
+    );
+
+    const { mutateAsync: addEvt } = useAddEvt();
+    const { mutateAsync: editEvt } = useEditEvt();
 
     const { setIsModalOpen, modalDataMode, modalEditEvt } = useModal();
 
@@ -58,16 +67,23 @@ export default function EventModal() {
         }
     }, []);
 
-    function onAddEvent() {
-        addEvt(title, description, evtIntvl);
+    async function onAddEvent() {
+        await addEvt({ title, description, evtIntvl });
+        invalidateOnEventChange(evtIntvl);
         resetTitle();
         resetDescription();
         setIsEvtIntvlVisible(false);
         setIsModalOpen(false);
     }
 
-    function onEditEvent() {
-        editEvt(modalEditEvt!.uuid, title, description, evtIntvl);
+    async function onEditEvent() {
+        await editEvt({
+            uuid: modalEditEvt!.uuid,
+            title,
+            description,
+            evtIntvl,
+        });
+        invalidateOnEventChange(evtIntvl);
         resetTitle();
         resetDescription();
         setIsEvtIntvlVisible(false);
@@ -106,9 +122,12 @@ export default function EventModal() {
 
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
         INTVL_MIN_RESIZE_STEP,
-        evts
+        prevEvts
     );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(INTVL_MIN_RESIZE_STEP, evts);
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(
+        INTVL_MIN_RESIZE_STEP,
+        nextEvts
+    );
 
     const [title, onTitleChange, resetTitle] = useInput(initialTitle);
     const [description, onDescriptionChange, resetDescription] =

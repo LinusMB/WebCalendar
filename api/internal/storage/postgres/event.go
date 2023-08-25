@@ -41,8 +41,56 @@ func (ea *eventAccess) GetByDate(start, end time.Time) ([]models.Event, error) {
 	query := `
 SELECT id, uuid, title, description, date_from, date_to, created_at
 FROM events
-WHERE (date_from BETWEEN $1 AND $2) OR (date_to BETWEEN $1 AND $2);`
+WHERE ($1, $2) OVERLAPS (date_from, date_to);`
 	rows, err := ea.db.Query(query, start, end)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var evts []models.Event
+	for rows.Next() {
+		var evt models.Event
+		err = rows.Scan(&evt.ID, &evt.UUID, &evt.Title, &evt.Description, &evt.DateFrom, &evt.DateTo, &evt.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		evts = append(evts, evt)
+	}
+	return evts, nil
+}
+
+func (ea *eventAccess) GetClosestPrevious(date time.Time) ([]models.Event, error) {
+	query := `
+SELECT id, uuid, title, description, date_from, date_to, created_at 
+FROM events
+WHERE date_to <= $1
+ORDER BY date_to DESC
+LIMIT 1;`
+	rows, err := ea.db.Query(query, date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var evts []models.Event
+	for rows.Next() {
+		var evt models.Event
+		err = rows.Scan(&evt.ID, &evt.UUID, &evt.Title, &evt.Description, &evt.DateFrom, &evt.DateTo, &evt.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		evts = append(evts, evt)
+	}
+	return evts, nil
+}
+
+func (ea *eventAccess) GetClosestNext(date time.Time) ([]models.Event, error) {
+	query := `
+SELECT id, uuid, title, description, date_from, date_to, created_at 
+FROM events
+WHERE date_from >= $1
+ORDER BY date_from ASC
+LIMIT 1;`
+	rows, err := ea.db.Query(query, date)
 	if err != nil {
 		return nil, err
 	}

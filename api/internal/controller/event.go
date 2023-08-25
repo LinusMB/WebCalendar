@@ -34,7 +34,7 @@ func (c *Controller) GetEventsByDate(w http.ResponseWriter, r *http.Request) {
 		writeMsg(w, http.StatusBadRequest, "message", err.Error())
 		return
 	}
-	evts, err := c.storage.Event.GetByDate(start, end)
+	evts, err := c.storage.Event.GetByDate(start.UTC(), end.UTC())
 	if err != nil {
 		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
 		return
@@ -122,6 +122,36 @@ func (c *Controller) GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, evts)
 }
 
+func (c *Controller) GetClosestPreviousEvent(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	date, err := time.Parse(time.RFC3339, vars["date"])
+	if err != nil {
+		writeMsg(w, http.StatusBadRequest, "message", err.Error())
+		return
+	}
+	evts, err := c.storage.Event.GetClosestPrevious(date.UTC())
+	if err != nil {
+		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
+		return
+	}
+	writeJSON(w, http.StatusOK, evts)
+}
+
+func (c *Controller) GetClosestNextEvent(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	date, err := time.Parse(time.RFC3339, vars["date"])
+	if err != nil {
+		writeMsg(w, http.StatusBadRequest, "message", err.Error())
+		return
+	}
+	evts, err := c.storage.Event.GetClosestNext(date.UTC())
+	if err != nil {
+		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
+		return
+	}
+	writeJSON(w, http.StatusOK, evts)
+}
+
 func (c *Controller) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var evt models.Event
 	err := json.NewDecoder(r.Body).Decode(&evt)
@@ -130,6 +160,8 @@ func (c *Controller) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(os.Stderr, err)
 		return
 	}
+	evt.DateFrom = evt.DateFrom.UTC()
+	evt.DateTo = evt.DateTo.UTC()
 	uuid, err := c.storage.Event.Create(&evt)
 	if err != nil {
 		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
@@ -163,6 +195,8 @@ func (c *Controller) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		writeMsg(w, http.StatusBadRequest, "message", err.Error())
 		return
 	}
+	evt.DateFrom = evt.DateFrom.UTC()
+	evt.DateTo = evt.DateTo.UTC()
 	evt.UUID = uuid
 	err = c.storage.Event.Update(&evt)
 	if err != nil {
@@ -170,6 +204,7 @@ func (c *Controller) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(os.Stderr, err)
 		return
 	}
+	writeMsg(w, http.StatusOK, "message", "success")
 }
 
 func (c *Controller) DeleteEvent(w http.ResponseWriter, r *http.Request) {
@@ -179,6 +214,6 @@ func (c *Controller) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		writeMsg(w, http.StatusInternalServerError, "message", "data access failure")
 		fmt.Fprint(os.Stderr, err)
 		return
-
 	}
+	writeMsg(w, http.StatusOK, "message", "success")
 }

@@ -218,7 +218,7 @@ export default function WeekView() {
     const { viewDate } = useStorePick("viewDate");
 
     return (
-        <EventsProvider view="Week" viewDate={viewDate}>
+        <EventsProvider view="week" viewDate={viewDate}>
             <table className="week-view">
                 <WeekViewDefineCols />
                 <tbody>

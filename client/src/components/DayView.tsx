@@ -154,7 +154,7 @@ export default function DayView() {
     const { viewDate } = useStorePick("viewDate");
 
     return (
-        <EventsProvider view="Day" viewDate={viewDate}>
+        <EventsProvider view="day" viewDate={viewDate}>
             <table className="day-view">
                 <tbody>
                     <DayViewHeader />
