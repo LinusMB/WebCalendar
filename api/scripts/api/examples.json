@@ -1,0 +1,92 @@
+[
+  {
+    "title": "Meeting with John",
+    "description": "Discuss project progress",
+    "date_from": "2023-08-27T10:00:00Z",
+    "date_to": "2023-08-27T11:00:00Z"
+  },
+  {
+    "title": "Lunch with Jane",
+    "description": "Try out new restaurant",
+    "date_from": "2023-08-28T12:00:00Z",
+    "date_to": "2023-08-28T13:00:00Z"
+  },
+  {
+    "title": "Gym workout",
+    "description": "Leg day",
+    "date_from": "2023-08-29T16:00:00Z",
+    "date_to": "2023-08-29T17:00:00Z"
+  },
+  {
+    "title": "Dentist appointment",
+    "description": "Teeth cleaning",
+    "date_from": "2023-08-30T09:00:00Z",
+    "date_to": "2023-08-30T10:00:00Z"
+  },
+  {
+    "title": "Movie night",
+    "description": "Watch new release",
+    "date_from": "2023-08-31T19:00:00Z",
+    "date_to": "2023-08-31T21:00:00Z"
+  },
+  {
+    "title": "Coffee with Sarah",
+    "description": "Catch up on news",
+    "date_from": "2023-09-01T14:00:00Z",
+    "date_to": "2023-09-01T15:00:00Z"
+  },
+  {
+    "title": "Family dinner",
+    "description": "Celebrate mom's birthday",
+    "date_from": "2023-09-02T18:00:00Z",
+    "date_to": "2023-09-02T20:00:00Z"
+  },
+  {
+    "title": "Book club meeting",
+    "description": "Discuss latest novel",
+    "date_from": "2023-09-03T11:00:00Z",
+    "date_to": "2023-09-03T12:00:00Z"
+  },
+  {
+    "title": "Hiking trip",
+    "description": "Explore new trail",
+    "date_from": "2023-09-04T08:00:00Z",
+    "date_to": "2023-09-04T12:00:00Z"
+  },
+  {
+    "title": "Shopping",
+    "description": "Buy new clothes",
+    "date_from": "2023-09-05T15:00:00Z",
+    "date_to": "2023-09-05T16:00:00Z"
+  },
+  {
+    "title": "Volunteering",
+    "description": "Help at local shelter",
+    "date_from": "2023-09-06T13:00:00Z",
+    "date_to": "2023-09-06T15:00:00Z"
+  },
+  {
+    "title": "Music concert",
+    "description": "Listen to favorite band",
+    "date_from": "2023-09-07T20:00:00Z",
+    "date_to": "2023-09-07T22:00:00Z"
+  },
+  {
+    "title": "Cooking class",
+    "description": "Learn new recipe",
+    "date_from": "2023-09-08T17:00:00Z",
+    "date_to": "2023-09-08T19:00:00Z"
+  },
+  {
+    "title": "Business trip",
+    "description": "Attend conference",
+    "date_from": "2023-09-09T08:00:00Z",
+    "date_to": "2023-09-11T17:00:00Z"
+  },
+  {
+    "title": "Birthday party",
+    "description": "Celebrate friend's birthday",
+    "date_from": "2023-09-12T19:00:00Z",
+    "date_to": "2023-09-12T22:00:00Z"
+  }
+]
