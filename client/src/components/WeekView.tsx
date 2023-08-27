@@ -5,6 +5,7 @@ import { range } from "ramda";
 import { EventsProvider } from "../context/events";
 import EventInterval from "./EventInterval";
 import Events from "./Events";
+import Table from "./Table";
 import CalendarHeader from "./CalendarHeader";
 import { WindowHelper } from "../utils/windowHelper";
 import { useStorePick } from "../store";
@@ -43,15 +44,13 @@ function WeekViewHeader() {
     }
 
     return (
-        <tr className="week-view__row">
-            <td className="week-view__header" colSpan={8}>
-                <CalendarHeader
-                    dateStr={dateStr}
-                    onClickLeftChv={onClickLeftChv}
-                    onClickRightChv={onClickRightChv}
-                />
-            </td>
-        </tr>
+        <Table.Row className="week-view__header">
+            <CalendarHeader
+                dateStr={dateStr}
+                onClickLeftChv={onClickLeftChv}
+                onClickRightChv={onClickRightChv}
+            />
+        </Table.Row>
     );
 }
 
@@ -67,20 +66,20 @@ function WeekViewDayCell({ date }: { date: Date }) {
     const dateStr = `${weekdayMap[getDay(date)]} ${dateToFmt(date)}`;
 
     return (
-        <td onClick={onClickHandler} className="week-view__day-col">
+        <Table.Cell onClick={onClickHandler} className="week-view__day">
             {dateStr}
-        </td>
+        </Table.Cell>
     );
 }
 
 function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
     return (
-        <tr className="week-view__row">
-            <td className="week-view__day-col"></td>
+        <Table.Row className="week-view__row">
+            <Table.Cell className="week-view__left week-view__day"></Table.Cell>
             {eachDay.map((d, i) => (
                 <WeekViewDayCell key={i} date={d} />
             ))}
-        </tr>
+        </Table.Row>
     );
 }
 
@@ -95,32 +94,30 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
     const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
         []
     );
-    const $tdList = useRef<HTMLTableCellElement[]>([]);
+    const $cellList = useRef<HTMLDivElement[]>([]);
     function updateWindowHelperList() {
-        const rects = $tdList.current.map((e) => e.getBoundingClientRect());
+        const rects = $cellList.current.map((e) => e.getBoundingClientRect());
         setWindowHelperList(rects.map((r) => new WindowHelper(r.height)));
     }
     useEffect(() => {
         updateWindowHelperList();
         window.addEventListener("resize", updateWindowHelperList);
-        window.addEventListener("scroll", updateWindowHelperList);
         return () => {
             window.removeEventListener("resize", updateWindowHelperList);
-            window.removeEventListener("scroll", updateWindowHelperList);
         };
     }, []);
 
     return (
         <Fragment>
-            <tr className="week-view__row">
-                <td className="week-view__time">Whole Day</td>
+            <Table.Row className="week-view__row">
+                <Table.Cell className="week-view__left">Whole Day</Table.Cell>
                 {eachDay.map((d, i) => (
-                    <td
+                    <Table.Cell
                         key={i}
                         onClick={function (e) {
-                            if (!$tdList.current[i]) return;
+                            if (!$cellList.current[i]) return;
                             const { top, right, bottom, left } =
-                                $tdList.current[i].getBoundingClientRect();
+                                $cellList.current[i].getBoundingClientRect();
                             if (
                                 e.clientX >= left &&
                                 e.clientX <= right &&
@@ -133,7 +130,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                         }}
                         className="week-view__events week-view__events--whole-day"
                         ref={(el) => {
-                            if (el) $tdList.current[i] = el;
+                            if (el) $cellList.current[i] = el;
                         }}
                     >
                         {windowHelperList[i] && (
@@ -150,9 +147,9 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                                 )}
                             </Fragment>
                         )}
-                    </td>
+                    </Table.Cell>
                 ))}
-            </tr>
+            </Table.Row>
         </Fragment>
     );
 }
@@ -164,21 +161,21 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
     );
 
     return (
-        <tr className="week-view__row">
-            <td className="week-view__time">
+        <Table.Row className="week-view__row">
+            <Table.Cell className="week-view__left">
                 {hour.toString().padStart(2, "0")}
-            </td>
+            </Table.Cell>
             {eachDay.map((d, i) => (
-                <td
+                <Table.Cell
                     key={i}
                     onClick={function () {
                         setEvtIntvl(dateToHourIntvl(setHours(d, hour)));
                         setIsEvtIntvlVisible(true);
                     }}
                     className="week-view__events"
-                ></td>
+                ></Table.Cell>
             ))}
-        </tr>
+        </Table.Row>
     );
 }
 
@@ -197,35 +194,15 @@ function WeekViewGrid() {
     );
 }
 
-function WeekViewDefineCols() {
-    return (
-        <thead className="week-view__define-cols">
-            <tr>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-                <th className="week-view__define-col"></th>
-            </tr>
-        </thead>
-    );
-}
-
 export default function WeekView() {
     const { viewDate } = useStorePick("viewDate");
 
     return (
         <EventsProvider view="week" viewDate={viewDate}>
-            <table className="week-view">
-                <WeekViewDefineCols />
-                <tbody>
-                    <WeekViewHeader />
-                    <WeekViewGrid />
-                </tbody>
-            </table>
+            <Table className="week-view">
+                <WeekViewHeader />
+                <WeekViewGrid />
+            </Table>
         </EventsProvider>
     );
 }

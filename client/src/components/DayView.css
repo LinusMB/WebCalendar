@@ -1,24 +1,30 @@
 .day-view {
-    border-collapse: collapse;
-    overflow: scroll;
+    overflow: auto;
     height: 100%;
     width: 100%;
 }
 
 .day-view__row {
+    min-width: 1200px;
+}
+
+.day-view__left,
+.day-view__events {
+    border-right: var(--table-border-size) solid var(--light-border-color);
     border-bottom: var(--table-border-size) solid var(--light-border-color);
 }
 
-.day-view__time {
-    border-right: var(--table-border-size) solid var(--light-border-color);
+.day-view__left {
     text-align: center;
-    width: 6em;
-}
-
-.day-view__header {
-    height: 3rem;
+    flex: 0 0 130px;
 }
 
 .day-view__events--whole-day {
     position: relative;
+}
+
+.day-view__header {
+    border-bottom: var(--table-border-size) solid var(--light-border-color);
+    flex: 0 0 50px;
+    min-width: 450px;
 }

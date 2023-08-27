@@ -4,6 +4,7 @@ import { range } from "ramda";
 import { EventsProvider } from "../context/events";
 import EventInterval from "./EventInterval";
 import Events from "./Events";
+import Table from "./Table";
 import CalendarHeader from "./CalendarHeader";
 import { WindowHelper } from "../utils/windowHelper";
 import { useStorePick } from "../store";
@@ -35,15 +36,13 @@ function DayViewHeader() {
     }
 
     return (
-        <tr className="day-view__row">
-            <td className="day-view__header" colSpan={2}>
-                <CalendarHeader
-                    dateStr={dateStr}
-                    onClickLeftChv={onClickLeftChv}
-                    onClickRightChv={onClickRightChv}
-                />
-            </td>
-        </tr>
+        <Table.Row className="day-view__header">
+            <CalendarHeader
+                dateStr={dateStr}
+                onClickLeftChv={onClickLeftChv}
+                onClickRightChv={onClickRightChv}
+            />
+        </Table.Row>
     );
 }
 
@@ -57,32 +56,30 @@ function DayViewWholeDayRow() {
         );
 
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
-    const $td = useRef<HTMLTableCellElement>(null);
+    const $cell = useRef<HTMLDivElement>(null);
     function updateWindowHelper() {
-        if ($td.current) {
-            const rect = $td.current.getBoundingClientRect();
+        if ($cell.current) {
+            const rect = $cell.current.getBoundingClientRect();
             setWindowHelper(new WindowHelper(rect.height));
         }
     }
     useEffect(() => {
         updateWindowHelper();
         window.addEventListener("resize", updateWindowHelper);
-        window.addEventListener("scroll", updateWindowHelper);
         return () => {
             window.removeEventListener("resize", updateWindowHelper);
-            window.removeEventListener("scroll", updateWindowHelper);
         };
     }, []);
 
     return (
         <Fragment>
-            <tr className="day-view__row">
-                <td className="day-view__time">Whole Day</td>
-                <td
+            <Table.Row className="day-view__row">
+                <Table.Cell className="day-view__left">Whole Day</Table.Cell>
+                <Table.Cell
                     onClick={function (e) {
-                        if (!$td.current) return;
+                        if (!$cell.current) return;
                         const { top, right, bottom, left } =
-                            $td.current.getBoundingClientRect();
+                            $cell.current.getBoundingClientRect();
                         if (
                             e.clientX >= left &&
                             e.clientX <= right &&
@@ -94,7 +91,7 @@ function DayViewWholeDayRow() {
                         }
                     }}
                     className="day-view__events day-view__events--whole-day"
-                    ref={$td}
+                    ref={$cell}
                 >
                     {windowHelper && (
                         <Fragment>
@@ -110,8 +107,8 @@ function DayViewWholeDayRow() {
                             )}
                         </Fragment>
                     )}
-                </td>
-            </tr>
+                </Table.Cell>
+            </Table.Row>
         </Fragment>
     );
 }
@@ -124,18 +121,18 @@ function DayViewHourRow({ hour }: { hour: number }) {
     );
 
     return (
-        <tr className="day-view__row">
-            <td className="day-view__time">
+        <Table.Row className="day-view__row">
+            <Table.Cell className="day-view__left">
                 {hour.toString().padStart(2, "0")}
-            </td>
-            <td
+            </Table.Cell>
+            <Table.Cell
                 onClick={function () {
                     setEvtIntvl(dateToHourIntvl(setHours(viewDate, hour)));
                     setIsEvtIntvlVisible(true);
                 }}
                 className="day-view__events"
-            ></td>
-        </tr>
+            ></Table.Cell>
+        </Table.Row>
     );
 }
 
@@ -155,12 +152,10 @@ export default function DayView() {
 
     return (
         <EventsProvider view="day" viewDate={viewDate}>
-            <table className="day-view">
-                <tbody>
-                    <DayViewHeader />
-                    <DayViewGrid />
-                </tbody>
-            </table>
+            <Table className="day-view">
+                <DayViewHeader />
+                <DayViewGrid />
+            </Table>
         </EventsProvider>
     );
 }
