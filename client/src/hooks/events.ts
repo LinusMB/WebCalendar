@@ -39,7 +39,7 @@ export function useEvtsForDay<TData, TError>(viewDate: Date) {
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_DAY(isoDate));
         const evts = await res.json();
-        return evts?.map(adaptor.event);
+        return evts?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByDay(isoDate);
     return useQuery<TData, TError>(queryKey, queryFn);
@@ -54,7 +54,7 @@ export function useEvtsForWeek<TData, TError>(viewDate: Date) {
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_WEEK(year, week));
         const evts = await res.json();
-        return evts?.map(adaptor.event);
+        return evts?.map(adaptor.event) || [];
     };
 
     const queryKey = queryKeys.events.getByWeek(year, week);
@@ -67,7 +67,7 @@ export function useEvtsForMonth<TData, TError>(viewDate: Date) {
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_MONTH(year, month));
         const evts = await res.json();
-        return evts?.map(adaptor.event);
+        return evts?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByMonth(year, month);
     return useQuery<TData, TError>(queryKey, queryFn);
@@ -86,7 +86,7 @@ export function useGetClosestPreviousEvt<TData, TError>(intvl: CalInterval) {
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_CLOSEST_PREVIOUS(date));
         const evt = await res.json();
-        return evt?.map(adaptor.event);
+        return evt?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getClosestPrevious(date);
     return useQuery<TData, TError>(queryKey, queryFn);
@@ -105,7 +105,7 @@ export function useGetClosestNextEvt<TData, TError>(intvl: CalInterval) {
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_CLOSEST_NEXT(date));
         const evt = await res.json();
-        return evt?.map(adaptor.event);
+        return evt?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getClosestNext(date);
     return useQuery<TData, TError>(queryKey, queryFn);
