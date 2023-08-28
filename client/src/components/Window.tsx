@@ -29,7 +29,7 @@ export default function Window({
     children,
 }: WindowProps) {
     return (
-        <td
+        <div
             onClick={(e) => e.stopPropagation()}
             style={dimensions}
             className="window"
@@ -51,7 +51,7 @@ export default function Window({
                         onDrag={onDragBottomBar}
                     />
                 )}
-        </td>
+        </div>
     );
 }
 
