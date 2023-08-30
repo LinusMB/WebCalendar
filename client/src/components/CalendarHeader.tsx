@@ -37,15 +37,15 @@ export default function CalendarHeader({
             ></i>
             <span className="calendar-header__date">{dateStr}</span>
             <div className="calendar-header__link-group">
-                <button className="calendar-header__link">
-                    <DayViewLink />
-                </button>
-                <button className="calendar-header__link">
-                    <WeekViewLink />
-                </button>
-                <button className="calendar-header__link">
-                    <MonthViewLink />
-                </button>
+                <DayViewLink>
+                    <button className="calendar-header__link">Day</button>
+                </DayViewLink>
+                <WeekViewLink>
+                    <button className="calendar-header__link">Week</button>
+                </WeekViewLink>
+                <MonthViewLink>
+                    <button className="calendar-header__link">Month</button>
+                </MonthViewLink>
             </div>
         </div>
     );

@@ -18,7 +18,7 @@
     margin-right: auto;
 }
 
-.calendar-header__link:not(:last-child) {
+.calendar-header__link-group *:not(:last-child) * {
     border-right: none;
 }
 
@@ -27,11 +27,11 @@
     border-radius: 0;
 }
 
-.calendar-header__link:first-child {
+.calendar-header__link-group *:first-child * {
     border-radius: var(--button-border-radius) 0 0 var(--button-border-radius);
 }
 
-.calendar-header__link:last-child {
+.calendar-header__link-group *:last-child * {
     border-radius: 0 var(--button-border-radius) var(--button-border-radius) 0;
 }
 
