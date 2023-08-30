@@ -24,7 +24,7 @@ import {
     useGetClosestPreviousEvt,
     useGetClosestNextEvt,
 } from "../hooks/events";
-import { CalEvent, CalInterval } from "../types";
+import { CalInterval } from "../types";
 
 export interface EventIntervalProps {
     viewDate: Date;
@@ -69,10 +69,10 @@ function EventIntervalResizable({
     windowHelper,
     evtIntvl,
 }: EventIntervalResizableProps) {
-    const { data: nextEvts = [] } = useGetClosestNextEvt<CalEvent[], Error>(
+    const { data: nextEvts = [] } = useGetClosestNextEvt(
         evtIntvl
     );
-    const { data: prevEvts = [] } = useGetClosestPreviousEvt<CalEvent[], Error>(
+    const { data: prevEvts = [] } = useGetClosestPreviousEvt(
         evtIntvl
     );
 

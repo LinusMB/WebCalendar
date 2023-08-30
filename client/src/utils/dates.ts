@@ -53,14 +53,18 @@ export function dateToFmt(date: Date, fmt: string = "yyyy-MM-dd") {
 }
 
 export function eachDayInWeek(date: Date) {
-    const start = df.startOfWeek(date, { weekStartsOn: 1 });
-    const end = df.endOfWeek(date, { weekStartsOn: 1 });
+    const { start, end } = getWeekIntvl(date);
     return df.eachDayOfInterval({ start, end });
 }
 
+export function eachDayInMonth(date: Date) {
+    const { start, end } = getMonthIntvl(date);
+    return df.eachDayOfInterval({ start, end });
+}
+
+// TODO: rename to eachWeekArrayInMonth
 export function eachWeekInMonth(date: Date) {
-    const start = df.startOfMonth(date);
-    const end = df.endOfMonth(date);
+    const { start, end } = getMonthIntvl(date);
     let weeksInMonth = [];
     for (
         let d = df.startOfWeek(start, { weekStartsOn: 1 });
@@ -96,6 +100,18 @@ export function isWholeDayIntvl({ start, end }: CalInterval) {
 export function getDayIntvl(date: Date): CalInterval {
     const start = df.startOfDay(date);
     const end = df.startOfDay(incDay(date));
+    return { start, end };
+}
+
+export function getWeekIntvl(date: Date): CalInterval {
+    const start = df.startOfWeek(date, { weekStartsOn: 1 });
+    const end = df.endOfWeek(date, { weekStartsOn: 1 });
+    return { start, end };
+}
+
+export function getMonthIntvl(date: Date): CalInterval {
+    const start = df.startOfMonth(date);
+    const end = df.endOfMonth(date);
     return { start, end };
 }
 

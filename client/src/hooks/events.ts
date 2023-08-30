@@ -1,5 +1,6 @@
 import { useRef } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { pick, uniqBy, prop } from "ramda";
 
 import {
     format,
@@ -9,9 +10,17 @@ import {
     getMonth,
     getWeek,
     isEqual,
+    eachDayInWeek,
+    eachDayInMonth,
+    eachWeekOfInterval,
+    areIntervalsOverlapping,
+    getDayIntvl,
+    getWeekIntvl,
+    getMonthIntvl,
 } from "../utils/dates";
 import { api } from "../constants";
 import { queryKeys } from "../react-query";
+import { filterEvents } from "../models/event";
 import { CalEvent, CalInterval } from "../types";
 
 const adaptor = {
@@ -34,23 +43,69 @@ const adaptor = {
     },
 };
 
-export function useEvtsForDay<TData, TError>(viewDate: Date) {
-    const isoDate = format(viewDate, "yyyy-MM-dd");
+const viewDateToArgs = {
+    day(viewDate: Date): [string] {
+        return [format(viewDate, "yyyy-MM-dd")];
+    },
+    week(viewDate: Date): [number, number] {
+        const year = getYear(viewDate);
+        const week = getWeek(viewDate, {
+            weekStartsOn: 1,
+            firstWeekContainsDate: 7,
+        });
+        return [year, week];
+    },
+    month(viewDate: Date): [number, number] {
+        const year = getYear(viewDate);
+        const month = getMonth(viewDate);
+        return [year, month];
+    },
+};
+
+export function useEvtsForDay(viewDate: Date) {
+    const [isoDate] = viewDateToArgs.day(viewDate);
+    const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_DAY(isoDate));
         const evts = await res.json();
         return evts?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByDay(isoDate);
-    return useQuery<TData, TError>(queryKey, queryFn);
+    return useQuery(queryKey, queryFn, {
+        placeholderData: () => {
+            const dayIntvl = getDayIntvl(viewDate);
+            {
+                const [year, week] = viewDateToArgs.week(viewDate);
+                const queryKey = queryKeys.events.getByWeek(year, week);
+                const evtsForWeek =
+                    queryClient.getQueryData<CalEvent[]>(queryKey);
+                const evts = filterEvents(evtsForWeek || [], (e) =>
+                    areIntervalsOverlapping(pick(["start", "end"], e), dayIntvl)
+                );
+                if (evts) {
+                    return evts;
+                }
+            }
+            {
+                const [year, month] = viewDateToArgs.month(viewDate);
+                const queryKey = queryKeys.events.getByMonth(year, month);
+                const evtsForMonth =
+                    queryClient.getQueryData<CalEvent[]>(queryKey);
+                const evts = filterEvents(evtsForMonth || [], (e) =>
+                    areIntervalsOverlapping(pick(["start", "end"], e), dayIntvl)
+                );
+                if (evts) {
+                    return evts;
+                }
+            }
+            return [];
+        },
+    });
 }
 
-export function useEvtsForWeek<TData, TError>(viewDate: Date) {
-    const year = getYear(viewDate);
-    const week = getWeek(viewDate, {
-        weekStartsOn: 1,
-        firstWeekContainsDate: 7,
-    });
+export function useEvtsForWeek(viewDate: Date) {
+    const [year, week] = viewDateToArgs.week(viewDate);
+    const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_WEEK(year, week));
         const evts = await res.json();
@@ -58,22 +113,76 @@ export function useEvtsForWeek<TData, TError>(viewDate: Date) {
     };
 
     const queryKey = queryKeys.events.getByWeek(year, week);
-    return useQuery<TData, TError>(queryKey, queryFn);
+    return useQuery(queryKey, queryFn, {
+        placeholderData: () => {
+            {
+                const [year, month] = viewDateToArgs.month(viewDate);
+                const queryKey = queryKeys.events.getByMonth(year, month);
+                const evtsForMonth =
+                    queryClient.getQueryData<CalEvent[]>(queryKey);
+                const weekIntvl = getWeekIntvl(viewDate);
+                const evts = filterEvents(evtsForMonth || [], (e) =>
+                    areIntervalsOverlapping(
+                        pick(["start", "end"], e),
+                        weekIntvl
+                    )
+                );
+                if (evts) {
+                    return evts;
+                }
+            }
+            {
+                const eachDay = eachDayInWeek(viewDate);
+                const evts = eachDay.flatMap((d) => {
+                    const [isoDate] = viewDateToArgs.day(d);
+                    const queryKey = queryKeys.events.getByDay(isoDate);
+                    return queryClient.getQueryData<CalEvent[]>(queryKey) || [];
+                });
+                return uniqBy(prop("uuid"), evts);
+            }
+        },
+    });
 }
 
-export function useEvtsForMonth<TData, TError>(viewDate: Date) {
-    const year = getYear(viewDate);
-    const month = getMonth(viewDate);
+export function useEvtsForMonth(viewDate: Date) {
+    const [year, month] = viewDateToArgs.month(viewDate);
+    const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_MONTH(year, month));
         const evts = await res.json();
         return evts?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByMonth(year, month);
-    return useQuery<TData, TError>(queryKey, queryFn);
+    return useQuery(queryKey, queryFn, {
+        placeholderData: () => {
+            {
+                const eachWeek = eachWeekOfInterval(getMonthIntvl(viewDate), {
+                    weekStartsOn: 1,
+                });
+                let evts = eachWeek.flatMap((w) => {
+                    const [year, week] = viewDateToArgs.week(w);
+                    const queryKey = queryKeys.events.getByWeek(year, week);
+                    return queryClient.getQueryData<CalEvent[]>(queryKey) || [];
+                });
+                evts = uniqBy(prop("uuid"), evts);
+                if (evts) {
+                    return evts;
+                }
+            }
+            {
+                const eachDay = eachDayInMonth(viewDate);
+                const evts = eachDay.flatMap((d) => {
+                    const [isoDate] = viewDateToArgs.day(d);
+                    const queryKey = queryKeys.events.getByDay(isoDate);
+                    return queryClient.getQueryData<CalEvent[]>(queryKey) || [];
+                });
+                return uniqBy(prop("uuid"), evts);
+            }
+        },
+    });
 }
 
-export function useGetClosestPreviousEvt<TData, TError>(intvl: CalInterval) {
+export function useGetClosestPreviousEvt(intvl: CalInterval) {
     const ref = useRef<CalInterval | null>(null);
     if (
         !ref.current ||
@@ -89,10 +198,10 @@ export function useGetClosestPreviousEvt<TData, TError>(intvl: CalInterval) {
         return evt?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getClosestPrevious(date);
-    return useQuery<TData, TError>(queryKey, queryFn);
+    return useQuery(queryKey, queryFn);
 }
 
-export function useGetClosestNextEvt<TData, TError>(intvl: CalInterval) {
+export function useGetClosestNextEvt(intvl: CalInterval) {
     const ref = useRef<CalInterval | null>(null);
     if (
         !ref.current ||
@@ -108,7 +217,7 @@ export function useGetClosestNextEvt<TData, TError>(intvl: CalInterval) {
         return evt?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getClosestNext(date);
-    return useQuery<TData, TError>(queryKey, queryFn);
+    return useQuery(queryKey, queryFn);
 }
 
 export function useAddEvt() {

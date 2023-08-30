@@ -11,7 +11,7 @@ interface EventsContextType {
     evts: CalEvent[];
     isLoading: boolean;
     isError: boolean;
-    error: Error | null;
+    error: unknown;
 }
 
 const EventsContext = createContext<EventsContextType | null>(null);
@@ -44,7 +44,7 @@ export function EventsProvider({
         isLoading,
         isError,
         error,
-    } = useEvts<CalEvent[], Error | null>(viewDate);
+    } = useEvts(viewDate);
 
     return (
         <EventsContext.Provider

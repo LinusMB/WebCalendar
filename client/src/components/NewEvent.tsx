@@ -13,7 +13,6 @@ import {
     useGetClosestPreviousEvt,
     useGetClosestNextEvt,
 } from "../hooks/events";
-import { CalEvent } from "../types";
 
 import "./NewEvent.css";
 
@@ -23,12 +22,8 @@ export default function NewEvent() {
         "isEvtIntvlVisible"
     );
 
-    const { data: nextEvts = [] } = useGetClosestNextEvt<CalEvent[], Error>(
-        evtIntvl
-    );
-    const { data: prevEvts = [] } = useGetClosestPreviousEvt<CalEvent[], Error>(
-        evtIntvl
-    );
+    const { data: nextEvts = [] } = useGetClosestNextEvt(evtIntvl);
+    const { data: prevEvts = [] } = useGetClosestPreviousEvt(evtIntvl);
 
     const { setIsModalOpen, setModalDataMode } = useModal();
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(

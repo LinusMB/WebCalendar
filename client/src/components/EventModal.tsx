@@ -19,7 +19,6 @@ import {
 } from "../hooks/events";
 import { invalidateOnEventChange } from "../react-query";
 import { isWholeDayIntvl } from "../utils/dates";
-import { CalEvent } from "../types";
 import "./EventModal.css";
 
 export default function EventModal() {
@@ -39,10 +38,10 @@ export default function EventModal() {
         "resetEvtFilter"
     );
 
-    const { data: nextEvts = [] } = useGetClosestNextEvt<CalEvent[], Error>(
+    const { data: nextEvts = [] } = useGetClosestNextEvt(
         evtIntvl
     );
-    const { data: prevEvts = [] } = useGetClosestPreviousEvt<CalEvent[], Error>(
+    const { data: prevEvts = [] } = useGetClosestPreviousEvt(
         evtIntvl
     );
 
