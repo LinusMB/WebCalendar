@@ -21,6 +21,9 @@ import {
     incWeek,
     decWeek,
     dateToHourIntvl,
+    momentHour,
+    momentWeek,
+    momentDay,
 } from "../utils/dates";
 
 import "./WeekView.css";
@@ -47,6 +50,7 @@ function WeekViewHeader() {
         <Table.Row className="week-view__header">
             <CalendarHeader
                 dateStr={dateStr}
+                moment={momentWeek(viewDate)}
                 onClickLeftChv={onClickLeftChv}
                 onClickRightChv={onClickRightChv}
             />
@@ -67,7 +71,7 @@ function WeekViewDayCell({ date }: { date: Date }) {
 
     return (
         <Table.Cell onClick={onClickHandler} className="week-view__day">
-            {dateStr}
+            <span className={`text--${momentDay(date)}`}>{dateStr}</span>
         </Table.Cell>
     );
 }
@@ -160,10 +164,16 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
         "setIsEvtIntvlVisible"
     );
 
+    const isCurHour = eachDay.some(
+        (d) => momentHour(setHours(d, hour)) === "present"
+    );
+
     return (
         <Table.Row className="week-view__row">
             <Table.Cell className="week-view__left">
-                {hour.toString().padStart(2, "0")}
+                <span className={isCurHour ? "text--present" : ""}>
+                    {hour.toString().padStart(2, "0")}
+                </span>
             </Table.Cell>
             {eachDay.map((d, i) => (
                 <Table.Cell

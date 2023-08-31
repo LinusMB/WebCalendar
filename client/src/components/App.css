@@ -1,7 +1,7 @@
 @font-face {
-    font-family: "PTSans";
-    src: local("PTSans"),
-        url(../assets/fonts/PTSans/PTSans-Regular.ttf) format("truetype");
+    font-family: "Overpass";
+    src: local("Overpass"),
+        url(../assets/fonts/Overpass/Overpass-Regular.ttf) format("truetype");
 }
 
 *,
@@ -14,6 +14,9 @@
 }
 
 :root {
+    --primary-fg: #3c4043;
+    --secondary-fg: #70757a;
+
     --bg-color-light: #f9f9f9;
     --bg-color-dark: #f2f2f2;
     --bg-color-darker: #dcdcdc;
@@ -27,31 +30,19 @@
     --link-active: #cc8548;
 
     --highlight-bg-color: #6082b6;
-    --highlight-bg-color-light: #708ebd;
-    --highlight-text-color: #eee;
-
-    --default-bg-color: #eee;
-    --default-text-color: #333;
     --default-border-color: #8b8a8b;
-
     --light-border-color: rgba(0, 0, 0, 0.2);
-
-    --calendar-header-date-width: 15ch;
 
     --table-border-size: 1px;
 
-    --window-bg-color: #6082b6dd;
-    --window-text-color: #eee;
+    --window-bg-color: #039be5ee;
+    --window-text-color: #fff;
     --window-bar-size: 1em;
-    --window-border-color: var(--default-border-color);
+    --window-border-color: none;
+    --window-border-size: 1px;
+    --window-border-radius: 0.1em;
 
     --modal-z-index: 2;
-
-    --tooltip-bg-color: #000;
-    --tooltip-text-color: #fff;
-    --tooltip-width: 4em;
-    --tooltip-font-size: 0.8em;
-    --tooltip-z-index: 1;
 
     --button-bg-color: var(--bg-color-dark);
     --button-bg-color--hover: var(--bg-color-darker);
@@ -95,6 +86,7 @@ button,
 input,
 textarea {
     font-family: inherit;
+    color: inherit;
 }
 
 ol,
@@ -108,10 +100,24 @@ a {
     color: inherit;
 }
 
+.text--future {
+    color: var(--primary-fg);
+}
+
+.text--present {
+    color: var(--primary-fg);
+    background: var(--bg-color-darker);
+    border-radius: 5%;
+}
+
+.text--past {
+    color: var(--secondary-fg);
+}
+
 body {
-    font-family: "PTSans", sans-serif;
+    font-family: "Overpass", sans-serif;
     font-size: 18px;
-    color: var(--default-text-color);
+    color: var(--primary-fg);
     background: var(--default-bg-color);
 }
 
@@ -120,7 +126,7 @@ body {
     height: 100vh;
     width: 100vw;
     grid-template-columns: 270px repeat(5, 1fr);
-    grid-template-rows: 40px auto;
+    grid-template-rows: 50px auto;
     grid-template-areas:
         "header  header header header header header"
         "sidebar main   main   main   main   main";

@@ -10,3 +10,5 @@ export interface CalEvent extends CalInterval {
 }
 
 export type View = "day" | "week" | "month";
+
+export type Moment = "past" | "present" | "future";

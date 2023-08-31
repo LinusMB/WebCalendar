@@ -1,5 +1,5 @@
 .sidebar {
     grid-area: sidebar;
     padding: 1em;
-    border-right: 1px solid black;
+    border-right: 1px solid var(--default-border-color);
 }

@@ -13,6 +13,8 @@ import {
     incMonth,
     decMonth,
     dateToFmt,
+    momentMonth,
+    momentDay,
 } from "../utils/dates";
 
 import "./MonthView.css";
@@ -35,6 +37,7 @@ function MonthViewHeader() {
         <Table.Row className="month-view__header">
             <CalendarHeader
                 dateStr={dateStr}
+                moment={momentMonth(viewDate)}
                 onClickLeftChv={onClickLeftChv}
                 onClickRightChv={onClickRightChv}
             />
@@ -55,7 +58,7 @@ function MonthViewDayCell({ date }: { date: Date }) {
 
     return (
         <Table.Cell onClick={onClickHandler} className="month-view__events">
-            {dateStr}
+            <span className={`text--${momentDay(date)}`}>{dateStr}</span>
         </Table.Cell>
     );
 }

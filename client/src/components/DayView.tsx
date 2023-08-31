@@ -17,6 +17,8 @@ import {
     decDay,
     dateToHourIntvl,
     setHours,
+    momentDay,
+    momentHour,
 } from "../utils/dates";
 
 import "./DayView.css";
@@ -39,6 +41,7 @@ function DayViewHeader() {
         <Table.Row className="day-view__header">
             <CalendarHeader
                 dateStr={dateStr}
+                moment={momentDay(viewDate)}
                 onClickLeftChv={onClickLeftChv}
                 onClickRightChv={onClickRightChv}
             />
@@ -120,10 +123,14 @@ function DayViewHourRow({ hour }: { hour: number }) {
         "setIsEvtIntvlVisible"
     );
 
+    const isCurHour = momentHour(setHours(viewDate, hour)) === "present";
+
     return (
         <Table.Row className="day-view__row">
             <Table.Cell className="day-view__left">
-                {hour.toString().padStart(2, "0")}
+                <span className={isCurHour ? "text--present" : ""}>
+                    {hour.toString().padStart(2, "0")}
+                </span>
             </Table.Cell>
             <Table.Cell
                 onClick={function () {

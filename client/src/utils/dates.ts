@@ -1,5 +1,5 @@
 import * as df from "date-fns";
-import { CalInterval } from "../types";
+import { CalInterval, Moment } from "../types";
 
 export * from "date-fns";
 
@@ -125,6 +125,94 @@ export function clampToDayIntvl(intvl: CalInterval, date: Date): CalInterval {
 
 export function intvlBelongsToDayIntvl(intvl: CalInterval, date: Date) {
     return df.areIntervalsOverlapping(intvl, getDayIntvl(date));
+}
+
+function compareNumArrays(
+    [h1, ...t1]: number[],
+    [h2, ...t2]: number[]
+): number {
+    if (h1 == null || h2 == null) {
+        return 0;
+    }
+    if (h1 < h2) {
+        return -1;
+    }
+    if (h1 > h2) {
+        return 1;
+    }
+    return compareNumArrays(t1, t2);
+}
+
+export function momentHour(date: Date): Moment {
+    const cur = now();
+    const arr1 = [df.getYear(date), df.getDayOfYear(date), df.getHours(date)];
+    const arr2 = [df.getYear(cur), df.getDayOfYear(cur), df.getHours(cur)];
+
+    const diff = compareNumArrays(arr1, arr2);
+    if (diff == 0) {
+        return "present";
+    }
+    if (diff < 0) {
+        return "past";
+    }
+    return "future";
+}
+
+export function momentDay(date: Date): Moment {
+    const cur = now();
+    const arr1 = [df.getYear(date), df.getDayOfYear(date)];
+    const arr2 = [df.getYear(cur), df.getDayOfYear(cur)];
+
+    const diff = compareNumArrays(arr1, arr2);
+    if (diff == 0) {
+        return "present";
+    }
+    if (diff < 0) {
+        return "past";
+    }
+    return "future";
+}
+
+export function momentWeek(date: Date): Moment {
+    const cur = now();
+    const arr1 = [
+        df.getYear(date),
+        df.getWeek(date, {
+            weekStartsOn: 1,
+            firstWeekContainsDate: 7,
+        }),
+    ];
+    const arr2 = [
+        df.getYear(cur),
+        df.getWeek(cur, {
+            weekStartsOn: 1,
+            firstWeekContainsDate: 7,
+        }),
+    ];
+
+    const diff = compareNumArrays(arr1, arr2);
+    if (diff == 0) {
+        return "present";
+    }
+    if (diff < 0) {
+        return "past";
+    }
+    return "future";
+}
+
+export function momentMonth(date: Date): Moment {
+    const cur = now();
+    const arr1 = [df.getYear(date), df.getMonth(date)];
+    const arr2 = [df.getYear(cur), df.getMonth(cur)];
+
+    const diff = compareNumArrays(arr1, arr2);
+    if (diff == 0) {
+        return "present";
+    }
+    if (diff < 0) {
+        return "past";
+    }
+    return "future";
 }
 
 export const monthMap = [

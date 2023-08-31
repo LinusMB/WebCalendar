@@ -14,7 +14,7 @@
 .calendar-header__date {
     display: inline-block;
     text-align: center;
-    width: var(--calendar-header-date-width);
+    margin-left: 2ch;
     margin-right: auto;
 }
 
