@@ -29,7 +29,9 @@ function DayViewHeader() {
         "updateViewDate"
     );
 
-    const dateStr = `${weekdayMap[getDay(viewDate)]} ${dateToFmt(viewDate)}`;
+    const dateStr = `${weekdayMap.get(getDay(viewDate))} ${dateToFmt(
+        viewDate
+    )}`;
     function onClickLeftChv() {
         updateViewDate(decDay);
     }
@@ -93,7 +95,7 @@ function DayViewWholeDayRow() {
                             setIsEvtIntvlVisible(true);
                         }
                     }}
-                    className="day-view__events day-view__events--whole-day"
+                    className="day-view__event day-view__event--whole-day"
                     ref={$cell}
                 >
                     {windowHelper && (
@@ -137,7 +139,7 @@ function DayViewHourRow({ hour }: { hour: number }) {
                     setEvtIntvl(dateToHourIntvl(setHours(viewDate, hour)));
                     setIsEvtIntvlVisible(true);
                 }}
-                className="day-view__events"
+                className="day-view__event"
             ></Table.Cell>
         </Table.Row>
     );

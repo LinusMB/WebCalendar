@@ -1,9 +1,11 @@
 import React, { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useStorePick } from "../store";
+import { EventsProvider } from "../context/events";
 import CalendarHeader from "./CalendarHeader";
 import Table from "./Table";
+import EventDots from "./EventDots";
+import { useStorePick } from "../store";
 import {
     getMonth,
     getYear,
@@ -25,7 +27,7 @@ function MonthViewHeader() {
         "updateViewDate"
     );
 
-    const dateStr = `${monthMap[getMonth(viewDate)]} ${getYear(viewDate)}`;
+    const dateStr = `${monthMap.get(getMonth(viewDate))} ${getYear(viewDate)}`;
     function onClickLeftChv() {
         updateViewDate(decMonth);
     }
@@ -57,8 +59,14 @@ function MonthViewDayCell({ date }: { date: Date }) {
     const dateStr = getDate(date);
 
     return (
-        <Table.Cell onClick={onClickHandler} className="month-view__events">
-            <span className={`text--${momentDay(date)}`}>{dateStr}</span>
+        <Table.Cell className="month-view__event relative">
+            <EventDots viewDate={date} />
+            <span
+                onClick={onClickHandler}
+                className={`month-view__event__text text--${momentDay(date)}`}
+            >
+                {dateStr}
+            </span>
         </Table.Cell>
     );
 }
@@ -79,11 +87,13 @@ function MonthViewGrid() {
                 <Table.Cell className="month-view__day">Sun</Table.Cell>
             </Table.Row>
             {eachWeek.map((w) => (
-                <Table.Row className="month-view__row">
-                    {w.map((d) => (
-                        <MonthViewDayCell date={d} />
-                    ))}
-                </Table.Row>
+                <EventsProvider view="week" viewDate={w[0]}>
+                    <Table.Row className="month-view__row">
+                        {w.map((d) => (
+                            <MonthViewDayCell date={d} />
+                        ))}
+                    </Table.Row>
+                </EventsProvider>
             ))}
         </Fragment>
     );

@@ -9,7 +9,7 @@
 }
 
 .week-view__left,
-.week-view__events,
+.week-view__event,
 .week-view__day {
     border-right: var(--table-border-size) solid var(--light-border-color);
     border-bottom: var(--table-border-size) solid var(--light-border-color);
@@ -21,7 +21,7 @@
     flex: 0 0 130px;
 }
 
-.week-view__events--whole-day {
+.week-view__event--whole-day {
     position: relative;
 }
 

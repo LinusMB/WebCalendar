@@ -1,7 +1,12 @@
 import * as df from "date-fns";
+import { zip, range } from "ramda";
 import { CalInterval, Moment } from "../types";
 
 export * from "date-fns";
+
+export function getMonth(date: Date) {
+    return df.getMonth(date) + 1;
+}
 
 export function incHour(date: Date) {
     return df.addHours(date, 1);
@@ -215,7 +220,8 @@ export function momentMonth(date: Date): Moment {
     return "future";
 }
 
-export const monthMap = [
+const monthIds = range(1, 13);
+const monthNames = [
     "January",
     "February",
     "March",
@@ -228,14 +234,15 @@ export const monthMap = [
     "October",
     "November",
     "December",
-] as const;
+];
 
-export const weekdayMap = [
-    "Sun",
-    "Mon",
-    "Tue",
-    "Wed",
-    "Thu",
-    "Fri",
-    "Sat",
-] as const;
+export const monthMap: ReadonlyMap<number, string> = new Map(
+    zip(monthIds, monthNames)
+);
+
+const weekdayIds = range(0, 7);
+const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+export const weekdayMap: ReadonlyMap<number, string> = new Map(
+    zip(weekdayIds, weekdayNames)
+);

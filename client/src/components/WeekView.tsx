@@ -67,7 +67,7 @@ function WeekViewDayCell({ date }: { date: Date }) {
         navigate(`/day/${dateToFmt(date)}`);
     }
 
-    const dateStr = `${weekdayMap[getDay(date)]} ${dateToFmt(date)}`;
+    const dateStr = `${weekdayMap.get(getDay(date))} ${dateToFmt(date)}`;
 
     return (
         <Table.Cell onClick={onClickHandler} className="week-view__day">
@@ -132,7 +132,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                                 setIsEvtIntvlVisible(true);
                             }
                         }}
-                        className="week-view__events week-view__events--whole-day"
+                        className="week-view__event week-view__event--whole-day"
                         ref={(el) => {
                             if (el) $cellList.current[i] = el;
                         }}
@@ -192,7 +192,7 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
                         setEvtIntvl(dateToHourIntvl(setHours(d, hour)));
                         setIsEvtIntvlVisible(true);
                     }}
-                    className="week-view__events"
+                    className="week-view__event"
                 ></Table.Cell>
             ))}
         </Table.Row>

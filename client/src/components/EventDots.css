@@ -1,0 +1,16 @@
+.event-dot {
+    --size: 0.8rem;
+    height: var(--size);
+    width: var(--size);
+    background-color: #039be5ee;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: calc(var(--size) / 4);
+    cursor: pointer;
+}
+
+.event-dots {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+}

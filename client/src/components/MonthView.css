@@ -8,7 +8,7 @@
     min-width: 1200px;
 }
 
-.month-view__events,
+.month-view__event,
 .month-view__day {
     display: flex;
     align-items: center;
@@ -17,7 +17,7 @@
     border-right: var(--table-border-size) solid var(--light-border-color);
 }
 
-.month-view__events:hover {
+.month-view__event__text:hover {
     cursor: pointer;
     text-decoration: underline;
 }

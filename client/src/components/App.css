@@ -114,6 +114,10 @@ a {
     color: var(--secondary-fg);
 }
 
+.relative {
+    position: relative;
+}
+
 body {
     font-family: "Overpass", sans-serif;
     font-size: 18px;

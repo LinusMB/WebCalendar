@@ -1,35 +1,3 @@
 .event-title {
-    position: relative;
     cursor: pointer;
-}
-
-.event-popover__delete {
-    padding: 0.3em;
-    cursor: pointer;
-}
-
-.event-popover__delete:hover {
-    background: var(--bg-color-dark);
-    border-radius: 50%;
-}
-
-.event-popover__edit {
-    padding: 0.3em;
-    cursor: pointer;
-}
-
-.event-popover__edit:hover {
-    background: var(--bg-color-dark);
-    border-radius: 50%;
-}
-
-.event-popover__title {
-    font-size: 1.5em;
-    margin: 0.1em 0 0.1em 0;
-}
-
-.event-popover__buttons {
-    display: flex;
-    justify-content: center;
-    margin: 0.1em 0 0.1em 0;
 }
