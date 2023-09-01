@@ -164,9 +164,19 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
         "setIsEvtIntvlVisible"
     );
 
-    const isCurHour = eachDay.some(
-        (d) => momentHour(setHours(d, hour)) === "present"
-    );
+    function computeIsCurHour(hour: number, eachDay: Date[]) {
+        return eachDay.some((d) => momentHour(setHours(d, hour)) === "present");
+    }
+
+    const [isCurHour, setIsCurHour] = useState(computeIsCurHour(hour, eachDay));
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setIsCurHour(computeIsCurHour(hour, eachDay));
+        }, 60 * 1000);
+
+        return () => clearTimeout(timeout);
+    }, [isCurHour, hour, eachDay]);
 
     return (
         <Table.Row className="week-view__row">
