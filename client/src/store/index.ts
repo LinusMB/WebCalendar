@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { assoc, modify, mergeLeft, pick, always } from "ramda";
 
-import { todayWholeDayIntvl, now } from "../utils/dates";
+import { todayWholeDayIntvl, now } from "../services/dates";
 import {
     updateStartWithAdjust,
     updateEndWithAdjust,
@@ -15,7 +15,7 @@ import {
     decStartAdjustFns,
     incEndAdjustFns,
     decEndAdjustFns,
-} from "../models";
+} from "../services/intervals";
 import { CalEvent, CalInterval } from "../types";
 
 export interface Store {
@@ -103,7 +103,7 @@ export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
         adjustNoEvtOverlap(evts),
     ]);
 
-    return function (update: (start: Date) => Date) {
+    return function (update: (newValue: Date) => Date) {
         function updateStoreFn({ evtIntvl }: { evtIntvl: CalInterval }) {
             const [newEvtIntvl] = updateStart(evtIntvl, update);
             return { evtIntvl: newEvtIntvl };
@@ -121,7 +121,7 @@ export function useEvtIntvlUpdateEnd(restrictGap: number, evts: CalEvent[]) {
         adjustNoEvtOverlap(evts),
     ]);
 
-    return function (update: (start: Date) => Date) {
+    return function (update: (newValue: Date) => Date) {
         function updateStoreFn({ evtIntvl }: { evtIntvl: CalInterval }) {
             const [newEvtIntvl] = updateEnd(evtIntvl, update);
             return { evtIntvl: newEvtIntvl };

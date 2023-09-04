@@ -17,7 +17,7 @@ import {
     dateToFmt,
     momentMonth,
     momentDay,
-} from "../utils/dates";
+} from "../services/dates";
 
 import "./MonthView.css";
 

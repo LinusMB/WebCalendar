@@ -2,7 +2,7 @@ import React from "react";
 
 import { INTVL_MIN_RESIZE_STEP } from "../constants";
 import Window from "./Window";
-import { WindowHelper } from "../utils/windowHelper";
+import { WindowHelper } from "../services/windowHelper";
 import {
     useStorePick,
     useIsEvtIntvlStartResizable,
@@ -19,11 +19,8 @@ import {
     clampToDayIntvl,
     getDayIntvl,
     isWithinInterval,
-} from "../utils/dates";
-import {
-    useGetClosestPreviousEvt,
-    useGetClosestNextEvt,
-} from "../hooks/events";
+} from "../services/dates";
+import { useGetSurroundingEvts } from "../hooks/events";
 import { CalInterval } from "../types";
 
 export interface EventIntervalProps {
@@ -69,12 +66,9 @@ function EventIntervalResizable({
     windowHelper,
     evtIntvl,
 }: EventIntervalResizableProps) {
-    const { data: nextEvts = [] } = useGetClosestNextEvt(
-        evtIntvl
-    );
-    const { data: prevEvts = [] } = useGetClosestPreviousEvt(
-        evtIntvl
-    );
+    const { data } = useGetSurroundingEvts(evtIntvl);
+
+    const [ prevEvts = [], nextEvts = []] = data || [];
 
     const incStart = useEvtIntvlIncStart(
         INTVL_MIN_RESIZE_STEP,

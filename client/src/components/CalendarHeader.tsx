@@ -1,5 +1,5 @@
 import React from "react";
-import { now } from "../utils/dates";
+import { now } from "../services/dates";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import { DayViewLink, WeekViewLink, MonthViewLink } from "./CalendarRouteLinks";

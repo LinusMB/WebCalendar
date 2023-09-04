@@ -6,7 +6,7 @@ import EventInterval from "./EventInterval";
 import Events from "./Events";
 import Table from "./Table";
 import CalendarHeader from "./CalendarHeader";
-import { WindowHelper } from "../utils/windowHelper";
+import { WindowHelper } from "../services/windowHelper";
 import { useStorePick } from "../store";
 import {
     weekdayMap,
@@ -19,7 +19,7 @@ import {
     setHours,
     momentDay,
     momentHour,
-} from "../utils/dates";
+} from "../services/dates";
 
 import "./DayView.css";
 

@@ -26,8 +26,19 @@ func writeJSON(w http.ResponseWriter, statusCode int, data any) error {
 	return json.NewEncoder(w).Encode(data)
 }
 
-func writeMsg(w http.ResponseWriter, statusCode int, key string, value any) error {
+func writeKV(w http.ResponseWriter, statusCode int, key string, value any) error {
 	return writeJSON(w, statusCode, map[string]any{
 		key: value,
 	})
+}
+
+func writeKVs(w http.ResponseWriter, statusCode int, kvPairs ...any) error {
+	m := map[string]any{}
+	for i := range kvPairs {
+		if i%2 == 0 {
+			m[kvPairs[i].(string)] = kvPairs[i+1]
+		}
+	}
+
+	return writeJSON(w, statusCode, m)
 }

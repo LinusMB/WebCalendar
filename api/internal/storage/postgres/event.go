@@ -3,6 +3,8 @@ package postgres
 import (
 	"api/internal/models"
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -37,65 +39,71 @@ func (ea *eventAccess) GetAll() ([]models.Event, error) {
 	return evts, nil
 }
 
-func (ea *eventAccess) GetByDate(start, end time.Time) ([]models.Event, error) {
-	query := `
-SELECT id, uuid, title, description, date_from, date_to, created_at
-FROM events
-WHERE ($1, $2) OVERLAPS (date_from, date_to);`
-	rows, err := ea.db.Query(query, start, end)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var evts []models.Event
-	for rows.Next() {
-		var evt models.Event
-		err = rows.Scan(&evt.ID, &evt.UUID, &evt.Title, &evt.Description, &evt.DateFrom, &evt.DateTo, &evt.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		evts = append(evts, evt)
-	}
-	return evts, nil
-}
+func (ea *eventAccess) GetByFilter(startDate, endDate time.Time, sortField models.EventField, sortOrder models.SortOrder, limit int) ([]models.Event, error) {
+	var (
+		evts      []models.Event
+		queryArgs []any
+	)
 
-func (ea *eventAccess) GetClosestPrevious(date time.Time) ([]models.Event, error) {
-	query := `
-SELECT id, uuid, title, description, date_from, date_to, created_at 
-FROM events
-WHERE date_to <= $1
-ORDER BY date_to DESC
-LIMIT 1;`
-	rows, err := ea.db.Query(query, date)
-	if err != nil {
-		return nil, err
+	var sortFieldName string
+	switch sortField {
+	case models.ID:
+		sortFieldName = "id"
+	case models.UUID:
+		sortFieldName = "uuid"
+	case models.Title:
+		sortFieldName = "title"
+	case models.Description:
+		sortFieldName = "description"
+	case models.DateFrom:
+		sortFieldName = "date_from"
+	case models.DateTo:
+		sortFieldName = "date_to"
+	case models.CreatedAt:
+		sortFieldName = "created_at"
+	default:
+		return evts, fmt.Errorf("sortField %v not supported", sortField)
 	}
-	defer rows.Close()
-	var evts []models.Event
-	for rows.Next() {
-		var evt models.Event
-		err = rows.Scan(&evt.ID, &evt.UUID, &evt.Title, &evt.Description, &evt.DateFrom, &evt.DateTo, &evt.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		evts = append(evts, evt)
-	}
-	return evts, nil
-}
 
-func (ea *eventAccess) GetClosestNext(date time.Time) ([]models.Event, error) {
-	query := `
-SELECT id, uuid, title, description, date_from, date_to, created_at 
-FROM events
-WHERE date_from >= $1
-ORDER BY date_from ASC
-LIMIT 1;`
-	rows, err := ea.db.Query(query, date)
+	var sortOrderName string
+	switch sortOrder {
+	case models.Asc:
+		sortOrderName = "ASC"
+	case models.Desc:
+		sortOrderName = "DESC"
+	default:
+		return evts, fmt.Errorf("sortOrder %v not supported", sortOrder)
+	}
+
+	var b strings.Builder
+
+	b.WriteString("SELECT id, uuid, title, description, date_from, date_to, created_at")
+	b.WriteString("\nFROM events")
+
+	if !startDate.IsZero() && !endDate.IsZero() {
+		b.WriteString("\nWHERE ($1, $2) OVERLAPS (date_from, date_to)")
+		queryArgs = append(queryArgs, startDate, endDate)
+	} else if !startDate.IsZero() {
+		b.WriteString("\nWHERE date_from >= $1")
+		queryArgs = append(queryArgs, startDate)
+	} else if !endDate.IsZero() {
+		b.WriteString("\nWHERE date_to < $1")
+		queryArgs = append(queryArgs, endDate)
+	}
+	b.WriteString(fmt.Sprintf("\nORDER BY %s %s", sortFieldName, sortOrderName))
+
+	if limit != 0 {
+		b.WriteString(fmt.Sprintf("\nLIMIT %d", limit))
+	}
+
+	b.WriteString(";")
+	query := b.String()
+
+	rows, err := ea.db.Query(query, queryArgs...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var evts []models.Event
 	for rows.Next() {
 		var evt models.Event
 		err = rows.Scan(&evt.ID, &evt.UUID, &evt.Title, &evt.Description, &evt.DateFrom, &evt.DateTo, &evt.CreatedAt)
@@ -118,11 +126,11 @@ RETURNING uuid;`
 }
 
 func (ea *eventAccess) GetByUUID(uuid string) (*models.Event, error) {
-	var evt models.Event
 	query := `
 SELECT id, uuid, title, description, date_from, date_to, created_at
 FROM events
 WHERE uuid = $1;`
+	var evt models.Event
 	err := ea.db.QueryRow(query, uuid).
 		Scan(&evt.ID, &evt.UUID, &evt.Title, &evt.Description, &evt.DateFrom, &evt.DateTo, &evt.CreatedAt)
 	if err != nil {

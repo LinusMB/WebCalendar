@@ -5,7 +5,7 @@ import { useStorePick } from "../store";
 import DayView from "./DayView";
 import WeekView from "./WeekView";
 import MonthView from "./MonthView";
-import { dateToFmt } from "../utils/dates";
+import { dateToFmt } from "../services/dates";
 
 export default function CalendarRoutes() {
     const { viewDate } = useStorePick("viewDate");

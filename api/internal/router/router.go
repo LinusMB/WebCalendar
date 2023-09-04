@@ -31,13 +31,16 @@ func New(controller *controller.Controller, config *viper.Viper) http.Handler {
 		return handlers.LoggingHandler(os.Stdout, h)
 	}
 
-	r.HandleFunc("/api/events", controller.GetEventsByDate).Methods(http.MethodGet).Queries("start", "{start:.*}", "end", "{end:.*}")
-	r.HandleFunc("/api/events/day", controller.GetEventsByDay).Methods(http.MethodGet).Queries("date", "{date:.*}", "tz", "{tz:.*}")
-	r.HandleFunc("/api/events/week", controller.GetEventsByWeek).Methods(http.MethodGet).Queries("year", "{year:.*}", "week", "{week:.*}", "tz", "{tz:.*}")
-	r.HandleFunc("/api/events/month", controller.GetEventsByMonth).Methods(http.MethodGet).Queries("year", "{year:.*}", "month", "{month:.*}", "tz", "{tz:.*}")
-	r.HandleFunc("/api/events/previous", controller.GetClosestPreviousEvent).Methods(http.MethodGet).Queries("date", "{date:.*}")
-	r.HandleFunc("/api/events/next", controller.GetClosestNextEvent).Methods(http.MethodGet).Queries("date", "{date:.*}")
-	r.HandleFunc("/api/events", controller.GetAllEvents).Methods(http.MethodGet)
+	r.HandleFunc("/api/events", controller.GetEvents).Methods(http.MethodGet)
+	r.HandleFunc("/api/events/day", controller.GetEventsByDay).
+		Methods(http.MethodGet).
+		Queries("date", "{date:.*}", "tz", "{tz:.*}")
+	r.HandleFunc("/api/events/week", controller.GetEventsByWeek).
+		Methods(http.MethodGet).
+		Queries("year", "{year:.*}", "week", "{week:.*}", "tz", "{tz:.*}")
+	r.HandleFunc("/api/events/month", controller.GetEventsByMonth).
+		Methods(http.MethodGet).
+		Queries("year", "{year:.*}", "month", "{month:.*}", "tz", "{tz:.*}")
 	r.HandleFunc("/api/events", controller.CreateEvent).Methods(http.MethodPost)
 	r.HandleFunc("/api/events/{uuid}", controller.GetEvent).Methods(http.MethodGet)
 	r.HandleFunc("/api/events/{uuid}", controller.UpdateEvent).Methods(http.MethodPut)

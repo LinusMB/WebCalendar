@@ -7,6 +7,17 @@ const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const buildQueryString = (params: Record<string, string>) =>
     new URLSearchParams(params).toString();
 
+type EventField =
+    | "id"
+    | "uuid"
+    | "title"
+    | "description"
+    | "date_from"
+    | "date_to"
+    | "created_at";
+
+type SortOrder = "asc" | "desc";
+
 /**
  * API Endpoints
  *
@@ -41,10 +52,26 @@ export const api = {
             }),
         GET_BY_DAY: (isoDate: string, tz: string = timezone) =>
             `${REST_API}/events/day?` + buildQueryString({ date: isoDate, tz }),
-        GET_CLOSEST_PREVIOUS: (date: string) =>
-            `${REST_API}/events/previous?` + buildQueryString({ date }),
-        GET_CLOSEST_NEXT: (date: string) =>
-            `${REST_API}/events/next?` + buildQueryString({ date }),
+        GET_SURROUNDING: (start: string, end: string) =>
+            `${REST_API}/events/surrounding?` +
+            buildQueryString({ start, end }),
+        GET_BY_FILTER: (filterOptions: {
+            start?: string;
+            end?: string;
+            sort?: EventField;
+            ord?: SortOrder;
+            limit?: number;
+        }) => {
+            const params: Record<string, string> = {};
+            if (filterOptions.start != null) params.start = filterOptions.start;
+            if (filterOptions.end != null) params.end = filterOptions.end;
+            if (filterOptions.sort != null) params.sort = filterOptions.sort;
+            if (filterOptions.ord != null) params.ord = filterOptions.ord;
+            if (filterOptions.limit != null)
+                params.limit = filterOptions.limit.toString();
+
+            return `${REST_API}/events?` + buildQueryString(params);
+        },
         GET: (uuid: string) => `${REST_API}/events/${uuid}`,
         CREATE: `${REST_API}/events`,
         UPDATE: (uuid: string) => `${REST_API}/events/${uuid}`,

@@ -1,7 +1,7 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 
 import { useEvts } from "../context/events";
-import { filterEvents, viewDateFilter } from "../models/event";
+import { filterEvents, viewDateFilter } from "../services/events";
 import { CalEvent } from "../types";
 import EventPopover from "./EventPopover";
 

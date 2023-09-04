@@ -5,8 +5,8 @@ import {
     subMinutes,
     differenceInMinutes,
     areIntervalsOverlapping,
-} from "../utils/dates";
-import { findLatestEventOverlap, findEarliestEventOverlap } from "./event";
+} from "./dates";
+import { findLatestEventOverlap, findEarliestEventOverlap } from "./events";
 import { CalEvent, CalInterval } from "../types";
 
 function incStart(evtIntvl: CalInterval, minutes: number) {

@@ -246,3 +246,5 @@ const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const weekdayMap: ReadonlyMap<number, string> = new Map(
     zip(weekdayIds, weekdayNames)
 );
+
+export const zeroDate = new Date(0);

@@ -33,22 +33,23 @@ import {
     getMinutes,
     setMinutes,
     format,
-} from "../utils/dates";
+    zeroDate,
+} from "../services/dates";
 
 import "./IntervalFields.css";
 
 export interface ToFieldProps {
-    date: Date;
-    isWholeDay: boolean;
+    date?: Date;
+    isWholeDay?: boolean;
     isEvtIntvlActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
 }
 
 export function ToField({
-    date,
+    date = zeroDate,
     updateDate = () => {},
-    isWholeDay,
+    isWholeDay = false,
     isEvtIntvlActive,
     className = "",
 }: ToFieldProps) {
@@ -69,17 +70,17 @@ export function ToField({
 }
 
 export interface FromFieldProps {
-    date: Date;
-    isWholeDay: boolean;
+    date?: Date;
+    isWholeDay?: boolean;
     isEvtIntvlActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
 }
 
 export function FromField({
-    date,
+    date = zeroDate,
     updateDate = () => {},
-    isWholeDay,
+    isWholeDay = false,
     isEvtIntvlActive,
     className = "",
 }: FromFieldProps) {

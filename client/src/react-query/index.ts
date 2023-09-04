@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 import { CalInterval } from "../types";
-import { format, getYear, getMonth, getWeek } from "../utils/dates";
+import { format, getYear, getMonth, getWeek } from "../services/dates";
 
 export const queryClient = new QueryClient({
     defaultOptions: {
@@ -26,8 +26,7 @@ export const queryKeys = {
             year,
             month,
         ],
-        getClosestPrevious: (date: string) => ["events", "previous", date],
-        getClosestNext: (date: string) => ["events", "next", date],
+        getSurrounding: () => ["events", "surrounding"],
     },
 };
 

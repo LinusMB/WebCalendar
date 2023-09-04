@@ -12,11 +12,37 @@ type Event struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type EventField int
+
+//go:generate stringer -type EventField
+
+const (
+	ID EventField = iota
+	UUID
+	Title
+	Description
+	DateFrom
+	DateTo
+	CreatedAt
+)
+
+type SortOrder int
+
+//go:generate stringer -type SortOrder
+
+const (
+	Asc SortOrder = iota
+	Desc
+)
+
 type EventAccess interface {
 	GetAll() ([]Event, error)
-	GetByDate(start, end time.Time) ([]Event, error)
-	GetClosestPrevious(date time.Time) ([]Event, error)
-	GetClosestNext(date time.Time) ([]Event, error)
+	GetByFilter(
+		startDate, endDate time.Time,
+		sortField EventField,
+		sortOrder SortOrder,
+		limit int,
+	) ([]Event, error)
 	Create(evt *Event) (string, error)
 	GetByUUID(uuid string) (*Event, error)
 	Update(evt *Event) error

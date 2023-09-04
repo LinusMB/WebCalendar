@@ -1,4 +1,4 @@
-import { startOfDay, differenceInMinutes } from "../utils/dates";
+import { startOfDay, differenceInMinutes } from "./dates";
 import { CalInterval } from "../types";
 
 export class WindowHelper {

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import { useStorePick } from "../store";
-import { dateToFmt } from "../utils/dates";
+import { dateToFmt } from "../services/dates";
 
 export interface DayViewLinkProps {
     children: React.ReactNode;

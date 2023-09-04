@@ -4,11 +4,11 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import Window from "./Window";
 import EventPopover from "./EventPopover";
-import { WindowHelper } from "../utils/windowHelper";
-import { clampToDayIntvl, isWholeDayIntvl } from "../utils/dates";
 import { useEvts } from "../context/events";
 import { useStorePick } from "../store";
-import { filterEvents, viewDateFilter } from "../models/event";
+import { WindowHelper } from "../services/windowHelper";
+import { clampToDayIntvl, isWholeDayIntvl } from "../services/dates";
+import { filterEvents, viewDateFilter } from "../services/events";
 import { CalEvent } from "../types";
 
 import "./Events.css";

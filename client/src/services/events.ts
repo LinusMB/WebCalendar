@@ -5,7 +5,7 @@ import {
     compareDesc,
     areIntervalsOverlapping,
     getDayIntvl,
-} from "../utils/dates";
+} from "./dates";
 import { CalEvent, CalInterval } from "../types";
 
 export function sortEventsAsc(evts: CalEvent[]): CalEvent[] {

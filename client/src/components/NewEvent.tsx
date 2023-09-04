@@ -8,22 +8,25 @@ import {
     useEvtIntvlUpdateStart,
     useEvtIntvlUpdateEnd,
 } from "../store";
-import { isWholeDayIntvl } from "../utils/dates";
-import {
-    useGetClosestPreviousEvt,
-    useGetClosestNextEvt,
-} from "../hooks/events";
+import { isWholeDayIntvl } from "../services/dates";
+import { useGetSurroundingEvts } from "../hooks/events";
 
 import "./NewEvent.css";
 
 export default function NewEvent() {
-    const { evtIntvl, isEvtIntvlVisible } = useStorePick(
-        "evtIntvl",
-        "isEvtIntvlVisible"
-    );
+    const { isEvtIntvlVisible } = useStorePick("isEvtIntvlVisible");
 
-    const { data: nextEvts = [] } = useGetClosestNextEvt(evtIntvl);
-    const { data: prevEvts = [] } = useGetClosestPreviousEvt(evtIntvl);
+    if (isEvtIntvlVisible) {
+        return <NewEventActive />;
+    }
+    return <NewEventInactive />;
+}
+
+function NewEventActive() {
+    const { evtIntvl } = useStorePick("evtIntvl");
+
+    const { data } = useGetSurroundingEvts(evtIntvl);
+    const [prevEvts = [], nextEvts = []] = data || [];
 
     const { setIsModalOpen, setModalDataMode } = useModal();
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
@@ -43,7 +46,6 @@ export default function NewEvent() {
                     setIsModalOpen(true);
                 }}
                 className="new-event__btn"
-                disabled={!isEvtIntvlVisible}
             >
                 New Event
             </button>
@@ -52,15 +54,27 @@ export default function NewEvent() {
                 date={evtIntvl.start}
                 updateDate={updateEvtIntvlStart}
                 isWholeDay={isWholeDayIntvl(evtIntvl)}
-                isEvtIntvlActive={isEvtIntvlVisible}
+                isEvtIntvlActive={true}
             />
             <ToField
                 className="new-event__to"
                 date={evtIntvl.end}
                 updateDate={updateEvtIntvlEnd}
                 isWholeDay={isWholeDayIntvl(evtIntvl)}
-                isEvtIntvlActive={isEvtIntvlVisible}
+                isEvtIntvlActive={true}
             />
+        </div>
+    );
+}
+
+function NewEventInactive() {
+    return (
+        <div className="new-event">
+            <button className="new-event__btn" disabled={true}>
+                New Event
+            </button>
+            <FromField className="new-event__from" isEvtIntvlActive={false} />
+            <ToField className="new-event__to" isEvtIntvlActive={false} />
         </div>
     );
 }

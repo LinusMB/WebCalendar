@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect } from "react";
 import { pick } from "ramda";
 
 import { INTVL_MIN_RESIZE_STEP } from "../constants";
@@ -11,14 +11,11 @@ import {
     useEvtIntvlUpdateStart,
     useEvtIntvlUpdateEnd,
 } from "../store";
-import {
-    useAddEvt,
-    useEditEvt,
-    useGetClosestPreviousEvt,
-    useGetClosestNextEvt,
-} from "../hooks/events";
+import { useAddEvt, useEditEvt, useGetSurroundingEvts } from "../hooks/events";
 import { invalidateOnEventChange } from "../react-query";
-import { isWholeDayIntvl } from "../utils/dates";
+import { isWholeDayIntvl } from "../services/dates";
+import { CalInterval, CalEvent } from "../types";
+
 import "./EventModal.css";
 
 export default function EventModal() {
@@ -37,14 +34,6 @@ export default function EventModal() {
         "setEvtFilter",
         "resetEvtFilter"
     );
-
-    const { data: nextEvts = [] } = useGetClosestNextEvt(
-        evtIntvl
-    );
-    const { data: prevEvts = [] } = useGetClosestPreviousEvt(
-        evtIntvl
-    );
-
     const { mutateAsync: addEvt } = useAddEvt();
     const { mutateAsync: editEvt } = useEditEvt();
 
@@ -119,15 +108,6 @@ export default function EventModal() {
             break;
     }
 
-    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_MIN_RESIZE_STEP,
-        prevEvts
-    );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(
-        INTVL_MIN_RESIZE_STEP,
-        nextEvts
-    );
-
     const [title, onTitleChange, resetTitle] = useInput(initialTitle);
     const [description, onDescriptionChange, resetDescription] =
         useInput(initialDescription);
@@ -146,18 +126,23 @@ export default function EventModal() {
                     placeholder="Enter Title"
                     value={title}
                 />
-                <FromField
-                    date={evtIntvl.start}
-                    updateDate={updateEvtIntvlStart}
-                    isWholeDay={isWholeDayIntvl(evtIntvl)}
-                    isEvtIntvlActive={isEvtIntvlVisible}
-                />
-                <ToField
-                    date={evtIntvl.end}
-                    updateDate={updateEvtIntvlEnd}
-                    isWholeDay={isWholeDayIntvl(evtIntvl)}
-                    isEvtIntvlActive={isEvtIntvlVisible}
-                />
+                {isEvtIntvlVisible && !isWholeDayIntvl(evtIntvl) ? (
+                    <WithAdjustableIntvl evtIntvl={evtIntvl}>
+                        {({ updateEvtIntvlStart, updateEvtIntvlEnd }) => (
+                            <IntervalFields
+                                evtIntvl={evtIntvl}
+                                isEvtIntvlVisible={isEvtIntvlVisible}
+                                updateEvtIntvlStart={updateEvtIntvlStart}
+                                updateEvtIntvlEnd={updateEvtIntvlEnd}
+                            />
+                        )}
+                    </WithAdjustableIntvl>
+                ) : (
+                    <IntervalFields
+                        evtIntvl={evtIntvl}
+                        isEvtIntvlVisible={isEvtIntvlVisible}
+                    />
+                )}
                 <textarea
                     className="event-modal__description"
                     onChange={onDescriptionChange}
@@ -171,5 +156,64 @@ export default function EventModal() {
                 </button>
             </Modal.Footer>
         </Modal>
+    );
+}
+
+interface IntervalFieldsProps {
+    evtIntvl: CalInterval;
+    isEvtIntvlVisible: boolean;
+    updateEvtIntvlStart?: (update: (newValue: Date) => Date) => void;
+    updateEvtIntvlEnd?: (update: (newValue: Date) => Date) => void;
+}
+
+function IntervalFields({
+    evtIntvl,
+    isEvtIntvlVisible,
+    updateEvtIntvlStart = () => {},
+    updateEvtIntvlEnd = () => {},
+}: IntervalFieldsProps) {
+    return (
+        <Fragment>
+            <FromField
+                date={evtIntvl.start}
+                updateDate={updateEvtIntvlStart}
+                isWholeDay={isWholeDayIntvl(evtIntvl)}
+                isEvtIntvlActive={isEvtIntvlVisible}
+            />
+            <ToField
+                date={evtIntvl.end}
+                updateDate={updateEvtIntvlEnd}
+                isWholeDay={isWholeDayIntvl(evtIntvl)}
+                isEvtIntvlActive={isEvtIntvlVisible}
+            />
+        </Fragment>
+    );
+}
+
+interface WithAdjustableIntvlProps {
+    evtIntvl: CalInterval;
+    children: (props: {
+        updateEvtIntvlStart: (update: (newValue: Date) => Date) => void;
+        updateEvtIntvlEnd: (update: (newValue: Date) => Date) => void;
+    }) => React.ReactNode;
+}
+
+function WithAdjustableIntvl({ evtIntvl, children }: WithAdjustableIntvlProps) {
+    const { data } = useGetSurroundingEvts(evtIntvl);
+    const [prevEvts = [], nextEvts = []] = data || [];
+
+    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
+        INTVL_MIN_RESIZE_STEP,
+        prevEvts
+    );
+    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(
+        INTVL_MIN_RESIZE_STEP,
+        nextEvts
+    );
+
+    return (
+        <Fragment>
+            {children({ updateEvtIntvlStart, updateEvtIntvlEnd })}
+        </Fragment>
     );
 }

@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { pick, uniqBy, prop } from "ramda";
 
@@ -9,18 +8,18 @@ import {
     getYear,
     getMonth,
     getWeek,
-    isEqual,
     eachDayInWeek,
     eachDayInMonth,
     eachWeekOfInterval,
+    isWithinInterval,
     areIntervalsOverlapping,
     getDayIntvl,
     getWeekIntvl,
     getMonthIntvl,
-} from "../utils/dates";
+} from "../services/dates";
 import { api } from "../constants";
 import { queryKeys } from "../react-query";
-import { filterEvents } from "../models/event";
+import { filterEvents } from "../services/events";
 import { CalEvent, CalInterval } from "../types";
 
 const adaptor = {
@@ -182,41 +181,58 @@ export function useEvtsForMonth(viewDate: Date) {
     });
 }
 
-export function useGetClosestPreviousEvt(intvl: CalInterval) {
-    const ref = useRef<CalInterval | null>(null);
-    if (
-        !ref.current ||
-        (!isEqual(ref.current.start, intvl.start) &&
-            !isEqual(ref.current.end, intvl.end))
-    ) {
-        ref.current = intvl;
-    }
-    const date = formatRFC3339(ref.current.start);
-    const queryFn = async () => {
-        const res = await fetch(api.ROUTES.GET_CLOSEST_PREVIOUS(date));
-        const evt = await res.json();
-        return evt?.map(adaptor.event) || [];
-    };
-    const queryKey = queryKeys.events.getClosestPrevious(date);
-    return useQuery(queryKey, queryFn);
-}
+export function useGetSurroundingEvts(intvl: CalInterval) {
+    const start = formatRFC3339(intvl.start);
+    const end = formatRFC3339(intvl.end);
 
-export function useGetClosestNextEvt(intvl: CalInterval) {
-    const ref = useRef<CalInterval | null>(null);
-    if (
-        !ref.current ||
-        (!isEqual(ref.current.start, intvl.start) &&
-            !isEqual(ref.current.end, intvl.end))
-    ) {
-        ref.current = intvl;
+    const queryKey = queryKeys.events.getSurrounding();
+    {
+        const queryClient = useQueryClient();
+        const [[prevEvt] = [], [nextEvt] = []] =
+            queryClient.getQueryData<[CalEvent[], CalEvent[]]>(queryKey) || [];
+        if (prevEvt != null && nextEvt != null) {
+            if (
+                !isWithinInterval(intvl.start, {
+                    start: prevEvt.end,
+                    end: nextEvt.start,
+                }) ||
+                !isWithinInterval(intvl.end, {
+                    start: prevEvt.end,
+                    end: nextEvt.start,
+                })
+            ) {
+                queryClient.removeQueries(queryKey);
+            }
+        }
     }
-    const date = formatRFC3339(ref.current.end);
-    const queryFn = async () => {
-        const res = await fetch(api.ROUTES.GET_CLOSEST_NEXT(date));
-        const evt = await res.json();
-        return evt?.map(adaptor.event) || [];
+
+    const fetchPrevEvts: () => Promise<CalEvent[]> = async () => {
+        const res = await fetch(
+            api.ROUTES.GET_BY_FILTER({
+                end: start,
+                sort: "date_to",
+                ord: "desc",
+                limit: 1,
+            })
+        );
+        const evts = await res.json();
+        return evts?.map(adaptor.event) || [];
     };
-    const queryKey = queryKeys.events.getClosestNext(date);
+
+    const fetchNextEvts: () => Promise<CalEvent[]> = async () => {
+        const res = await fetch(
+            api.ROUTES.GET_BY_FILTER({
+                start: end,
+                sort: "date_from",
+                ord: "asc",
+                limit: 1,
+            })
+        );
+        const evts = await res.json();
+        return evts?.map(adaptor.event) || [];
+    };
+    const queryFn = () => Promise.all([fetchPrevEvts(), fetchNextEvts()]);
+
     return useQuery(queryKey, queryFn);
 }
 
