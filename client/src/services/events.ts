@@ -38,6 +38,22 @@ export function findEarliestEventOverlap(
     );
 }
 
+export function findClosestNextEvent(
+    evts: CalEvent[],
+    intvl: CalInterval
+): CalEvent | undefined {
+    const evtsAsc = sortEventsAsc(evts);
+    return find((evt) => evt.start >= intvl.end, evtsAsc);
+}
+
+export function findClosestPreviousEvent(
+    evts: CalEvent[],
+    intvl: CalInterval
+): CalEvent | undefined {
+    const evtsDesc = sortEventsDesc(evts);
+    return find((evt) => evt.end <= intvl.start, evtsDesc);
+}
+
 export function filterEvents(
     evts: CalEvent[],
     ...filterFns: ((e: CalEvent) => boolean)[]

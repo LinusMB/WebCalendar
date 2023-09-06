@@ -13,6 +13,7 @@ export const queryClient = new QueryClient({
 
 export const queryKeys = {
     events: {
+        getAll: () => ["events"],
         getByDay: (date: string) => ["events", "day", date],
         getByWeek: (year: number, week: number) => [
             "events",
@@ -26,7 +27,8 @@ export const queryKeys = {
             year,
             month,
         ],
-        getSurrounding: () => ["events", "surrounding"],
+        getPrevious: () => ["events", "previous"],
+        getNext: () => ["events", "next"],
     },
 };
 

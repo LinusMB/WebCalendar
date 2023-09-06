@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, DependencyList } from "react";
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    QueryClient,
+} from "@tanstack/react-query";
 import { pick, uniqBy, prop } from "ramda";
 
 import {
@@ -11,16 +17,21 @@ import {
     eachDayInWeek,
     eachDayInMonth,
     eachWeekOfInterval,
-    isWithinInterval,
     areIntervalsOverlapping,
     getDayIntvl,
     getWeekIntvl,
     getMonthIntvl,
+    isEqual,
 } from "../services/dates";
+import {
+    findClosestPreviousEvent,
+    findClosestNextEvent,
+} from "../services/events";
 import { api } from "../constants";
 import { queryKeys } from "../react-query";
 import { filterEvents } from "../services/events";
-import { CalEvent, CalInterval } from "../types";
+import { useComparator } from ".";
+import { CalEvent, CalInterval, isCalEvent, isCalInterval } from "../types";
 
 const adaptor = {
     event(remote: {
@@ -181,32 +192,63 @@ export function useEvtsForMonth(viewDate: Date) {
     });
 }
 
-export function useGetSurroundingEvts(intvl: CalInterval) {
-    const start = formatRFC3339(intvl.start);
-    const end = formatRFC3339(intvl.end);
+function isArrayOfCalEvents(value: any): value is CalEvent[] {
+    return Array.isArray(value) && value.every((item) => isCalEvent(item));
+}
 
-    const queryKey = queryKeys.events.getSurrounding();
+export function useGetPreviousEvts(intvl: CalInterval) {
+    const start = formatRFC3339(intvl.start);
+    const queryKey = queryKeys.events.getPrevious();
+
     {
         const queryClient = useQueryClient();
-        const [[prevEvt] = [], [nextEvt] = []] =
-            queryClient.getQueryData<[CalEvent[], CalEvent[]]>(queryKey) || [];
-        if (prevEvt != null && nextEvt != null) {
-            if (
-                !isWithinInterval(intvl.start, {
-                    start: prevEvt.end,
-                    end: nextEvt.start,
-                }) ||
-                !isWithinInterval(intvl.end, {
-                    start: prevEvt.end,
-                    end: nextEvt.start,
-                })
-            ) {
+        function prepareQueryCache(queryClient: QueryClient) {
+            const data = queryClient.getQueriesData({
+                queryKey: queryKeys.events.getAll(),
+                exact: false,
+                stale: false,
+            });
+            let allEvts = data.flatMap(([_, evts]) =>
+                isArrayOfCalEvents(evts) ? evts : []
+            );
+            const prevEvt = findClosestPreviousEvent(allEvts, intvl);
+            if (prevEvt != null) {
+                queryClient.setQueryData(queryKey, [{ ...prevEvt }]);
+            } else {
                 queryClient.removeQueries(queryKey);
             }
         }
+        function intvlHasNotMoved(
+            oldDeps: DependencyList,
+            newDeps: DependencyList
+        ) {
+            if (oldDeps.length !== newDeps.length) {
+                return false;
+            }
+            if (
+                oldDeps.length !== 1 ||
+                newDeps.length !== 1 ||
+                !oldDeps.every(isCalInterval) ||
+                !newDeps.every(isCalInterval)
+            ) {
+                throw new Error(
+                    `${useGetPreviousEvts.name}: unexpected useEffect dependency list`
+                );
+            }
+            const [oldIntvl] = oldDeps;
+            const [newIntvl] = newDeps;
+            return (
+                isEqual(oldIntvl.start, newIntvl.start) ||
+                isEqual(oldIntvl.end, newIntvl.end)
+            );
+        }
+        useEffect(
+            () => prepareQueryCache(queryClient),
+            useComparator([intvl], intvlHasNotMoved)
+        );
     }
 
-    const fetchPrevEvts: () => Promise<CalEvent[]> = async () => {
+    const queryFn = async () => {
         const res = await fetch(
             api.ROUTES.GET_BY_FILTER({
                 end: start,
@@ -219,7 +261,63 @@ export function useGetSurroundingEvts(intvl: CalInterval) {
         return evts?.map(adaptor.event) || [];
     };
 
-    const fetchNextEvts: () => Promise<CalEvent[]> = async () => {
+    return useQuery(queryKey, queryFn);
+}
+
+export function useGetNextEvts(intvl: CalInterval) {
+    const end = formatRFC3339(intvl.end);
+    const queryKey = queryKeys.events.getNext();
+
+    {
+        const queryClient = useQueryClient();
+        function prepareQueryCache(queryClient: QueryClient) {
+            const data = queryClient.getQueriesData({
+                queryKey: queryKeys.events.getAll(),
+                exact: false,
+                stale: false,
+            });
+            let allEvts = data.flatMap(([_, evts]) =>
+                isArrayOfCalEvents(evts) ? evts : []
+            );
+            const nextEvt = findClosestNextEvent(allEvts, intvl);
+            if (nextEvt != null) {
+                queryClient.setQueryData(queryKey, [{ ...nextEvt }]);
+            } else {
+                queryClient.removeQueries(queryKey);
+            }
+        }
+
+        function intvlHasNotMoved(
+            oldDeps: DependencyList,
+            newDeps: DependencyList
+        ) {
+            if (oldDeps.length !== newDeps.length) {
+                return false;
+            }
+            if (
+                oldDeps.length !== 1 ||
+                newDeps.length !== 1 ||
+                !oldDeps.every(isCalInterval) ||
+                !newDeps.every(isCalInterval)
+            ) {
+                throw new Error(
+                    `${useGetNextEvts.name}: unexpected useEffect dependency list`
+                );
+            }
+            const [oldIntvl] = oldDeps;
+            const [newIntvl] = newDeps;
+            return (
+                isEqual(oldIntvl.start, newIntvl.start) ||
+                isEqual(oldIntvl.end, newIntvl.end)
+            );
+        }
+        useEffect(
+            () => prepareQueryCache(queryClient),
+            useComparator([intvl], intvlHasNotMoved)
+        );
+    }
+
+    const queryFn = async () => {
         const res = await fetch(
             api.ROUTES.GET_BY_FILTER({
                 start: end,
@@ -231,7 +329,6 @@ export function useGetSurroundingEvts(intvl: CalInterval) {
         const evts = await res.json();
         return evts?.map(adaptor.event) || [];
     };
-    const queryFn = () => Promise.all([fetchPrevEvts(), fetchNextEvts()]);
 
     return useQuery(queryKey, queryFn);
 }

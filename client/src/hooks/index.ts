@@ -28,7 +28,7 @@ export function useInput<T extends HTMLInputElement | HTMLTextAreaElement>(
     return [value, onChange, reset];
 }
 
-function useComparator(
+export function useComparator(
     dependencies: DependencyList,
     compare: (a: DependencyList, b: DependencyList) => boolean
 ) {

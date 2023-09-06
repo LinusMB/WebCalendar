@@ -9,7 +9,7 @@ import {
     useEvtIntvlUpdateEnd,
 } from "../store";
 import { isWholeDayIntvl } from "../services/dates";
-import { useGetSurroundingEvts } from "../hooks/events";
+import { useGetPreviousEvts, useGetNextEvts } from "../hooks/events";
 
 import "./NewEvent.css";
 
@@ -25,8 +25,8 @@ export default function NewEvent() {
 function NewEventActive() {
     const { evtIntvl } = useStorePick("evtIntvl");
 
-    const { data } = useGetSurroundingEvts(evtIntvl);
-    const [prevEvts = [], nextEvts = []] = data || [];
+    const { data: prevEvts = [] } = useGetPreviousEvts(evtIntvl);
+    const { data: nextEvts = [] } = useGetNextEvts(evtIntvl);
 
     const { setIsModalOpen, setModalDataMode } = useModal();
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(

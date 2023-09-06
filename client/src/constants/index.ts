@@ -34,8 +34,6 @@ type SortOrder = "asc" | "desc";
 export const api = {
     ROUTES: {
         GET_ALL: `${REST_API}/events`,
-        GET_BY_DATE: (start: string, end: string) =>
-            `${REST_API}/events?` + buildQueryString({ start, end }),
         GET_BY_MONTH: (year: number, month: number, tz: string = timezone) =>
             `${REST_API}/events/month?` +
             buildQueryString({
@@ -52,9 +50,6 @@ export const api = {
             }),
         GET_BY_DAY: (isoDate: string, tz: string = timezone) =>
             `${REST_API}/events/day?` + buildQueryString({ date: isoDate, tz }),
-        GET_SURROUNDING: (start: string, end: string) =>
-            `${REST_API}/events/surrounding?` +
-            buildQueryString({ start, end }),
         GET_BY_FILTER: (filterOptions: {
             start?: string;
             end?: string;
