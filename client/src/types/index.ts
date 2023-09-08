@@ -23,6 +23,9 @@ export function isCalEvent(value: any): value is CalEvent {
     );
 }
 
-export type View = "day" | "week" | "month";
+export function isArrayOfCalEvents(value: any): value is CalEvent[] {
+    return Array.isArray(value) && value.every((item) => isCalEvent(item));
+}
 
+export type View = "day" | "week" | "month";
 export type Moment = "past" | "present" | "future";

@@ -55,24 +55,20 @@ export const useStore = create<Store>((set) => ({
     isEvtIntvlVisible: false,
     isEvtIntvlResizable: { start: false, end: false },
     evtFilter: evtFilterInitial,
-    setViewDate: (date) => set(() => ({ viewDate: date })),
+    setViewDate: (date) => set({ viewDate: date }),
     updateViewDate: (update) =>
         set((state) => ({ viewDate: update(state.viewDate) })),
-    setEvtIntvl: (intvl) => set(() => ({ evtIntvl: intvl })),
+    setEvtIntvl: (intvl) => set({ evtIntvl: intvl }),
     updateEvtIntvl: (update) =>
         set((state) => ({ evtIntvl: update(state.evtIntvl) })),
-    setIsEvtIntvlVisible: (active) =>
-        set(() => ({ isEvtIntvlVisible: active })),
+    setIsEvtIntvlVisible: (active) => set({ isEvtIntvlVisible: active }),
     setIsEvtIntvlResizable: (isEvtIntvlResizable) =>
         set((state) =>
             modify("isEvtIntvlResizable", mergeLeft(isEvtIntvlResizable), state)
         ),
     setEvtFilter: (evtFilter) =>
         set((state) => modify("evtFilter", mergeLeft(evtFilter), state)),
-    resetEvtFilter: () =>
-        set(() => ({
-            evtFilter: evtFilterInitial,
-        })),
+    resetEvtFilter: () => set({ evtFilter: evtFilterInitial }),
     updateStore: (update) => set((state) => update(state)),
 }));
 

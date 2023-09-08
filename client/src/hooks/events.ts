@@ -1,19 +1,10 @@
-import { useEffect, DependencyList } from "react";
-import {
-    useQuery,
-    useMutation,
-    useQueryClient,
-    QueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { pick, uniqBy, prop } from "ramda";
 
 import {
     format,
     formatRFC3339,
     parseJSON,
-    getYear,
-    getMonth,
-    getWeek,
     eachDayInWeek,
     eachDayInMonth,
     eachWeekOfInterval,
@@ -21,17 +12,17 @@ import {
     getDayIntvl,
     getWeekIntvl,
     getMonthIntvl,
-    isEqual,
+    getWeekSpec,
+    getMonthSpec,
 } from "../services/dates";
 import {
     findClosestPreviousEvent,
     findClosestNextEvent,
 } from "../services/events";
 import { api } from "../constants";
-import { queryKeys } from "../react-query";
+import { queryClient, queryKeys } from "../react-query";
 import { filterEvents } from "../services/events";
-import { useComparator } from ".";
-import { CalEvent, CalInterval, isCalEvent, isCalInterval } from "../types";
+import { CalEvent, CalInterval, isArrayOfCalEvents } from "../types";
 
 const adaptor = {
     event(remote: {
@@ -57,19 +48,8 @@ const viewDateToArgs = {
     day(viewDate: Date): [string] {
         return [format(viewDate, "yyyy-MM-dd")];
     },
-    week(viewDate: Date): [number, number] {
-        const year = getYear(viewDate);
-        const week = getWeek(viewDate, {
-            weekStartsOn: 1,
-            firstWeekContainsDate: 7,
-        });
-        return [year, week];
-    },
-    month(viewDate: Date): [number, number] {
-        const year = getYear(viewDate);
-        const month = getMonth(viewDate);
-        return [year, month];
-    },
+    week: getWeekSpec,
+    month: getMonthSpec,
 };
 
 export function useEvtsForDay(viewDate: Date) {
@@ -192,147 +172,73 @@ export function useEvtsForMonth(viewDate: Date) {
     });
 }
 
-function isArrayOfCalEvents(value: any): value is CalEvent[] {
-    return Array.isArray(value) && value.every((item) => isCalEvent(item));
-}
-
-export function useGetPreviousEvts(intvl: CalInterval) {
+export async function getPreviousEvents(intvl: CalInterval) {
     const start = formatRFC3339(intvl.start);
-    const queryKey = queryKeys.events.getPrevious();
 
-    {
-        const queryClient = useQueryClient();
-        function prepareQueryCache(queryClient: QueryClient) {
-            const data = queryClient.getQueriesData({
-                queryKey: queryKeys.events.getAll(),
-                exact: false,
-                stale: false,
-            });
-            let allEvts = data.flatMap(([_, evts]) =>
-                isArrayOfCalEvents(evts) ? evts : []
-            );
-            const prevEvt = findClosestPreviousEvent(allEvts, intvl);
-            if (prevEvt != null) {
-                queryClient.setQueryData(queryKey, [{ ...prevEvt }]);
-            } else {
-                queryClient.removeQueries(queryKey);
-            }
-        }
-        function intvlHasNotMoved(
-            oldDeps: DependencyList,
-            newDeps: DependencyList
-        ) {
-            if (oldDeps.length !== newDeps.length) {
-                return false;
-            }
-            if (
-                oldDeps.length !== 1 ||
-                newDeps.length !== 1 ||
-                !oldDeps.every(isCalInterval) ||
-                !newDeps.every(isCalInterval)
-            ) {
-                throw new Error(
-                    `${useGetPreviousEvts.name}: unexpected useEffect dependency list`
-                );
-            }
-            const [oldIntvl] = oldDeps;
-            const [newIntvl] = newDeps;
-            return (
-                isEqual(oldIntvl.start, newIntvl.start) ||
-                isEqual(oldIntvl.end, newIntvl.end)
-            );
-        }
-        useEffect(
-            () => prepareQueryCache(queryClient),
-            useComparator([intvl], intvlHasNotMoved)
-        );
+    const data = queryClient.getQueriesData({
+        queryKey: queryKeys.events.getAll(),
+        exact: false,
+        stale: false,
+    });
+    const allEvts = data.flatMap(([_, evts]) =>
+        isArrayOfCalEvents(evts) ? evts : []
+    );
+    const prevEvt = findClosestPreviousEvent(allEvts, intvl);
+    if (prevEvt != null) {
+        return [prevEvt];
     }
 
-    const queryFn = async () => {
-        const res = await fetch(
-            api.ROUTES.GET_BY_FILTER({
-                end: start,
-                sort: "date_to",
-                ord: "desc",
-                limit: 1,
-            })
-        );
-        const evts = await res.json();
-        return evts?.map(adaptor.event) || [];
-    };
-
-    return useQuery(queryKey, queryFn);
+    const res = await fetch(
+        api.ROUTES.GET_BY_FILTER({
+            end: start,
+            sort: "date_to",
+            ord: "desc",
+            limit: 1,
+        })
+    );
+    const evts = await res.json();
+    return evts?.map(adaptor.event) || [];
 }
 
-export function useGetNextEvts(intvl: CalInterval) {
+export async function getNextEvents(intvl: CalInterval) {
     const end = formatRFC3339(intvl.end);
-    const queryKey = queryKeys.events.getNext();
 
-    {
-        const queryClient = useQueryClient();
-        function prepareQueryCache(queryClient: QueryClient) {
-            const data = queryClient.getQueriesData({
-                queryKey: queryKeys.events.getAll(),
-                exact: false,
-                stale: false,
-            });
-            let allEvts = data.flatMap(([_, evts]) =>
-                isArrayOfCalEvents(evts) ? evts : []
-            );
-            const nextEvt = findClosestNextEvent(allEvts, intvl);
-            if (nextEvt != null) {
-                queryClient.setQueryData(queryKey, [{ ...nextEvt }]);
-            } else {
-                queryClient.removeQueries(queryKey);
-            }
-        }
-
-        function intvlHasNotMoved(
-            oldDeps: DependencyList,
-            newDeps: DependencyList
-        ) {
-            if (oldDeps.length !== newDeps.length) {
-                return false;
-            }
-            if (
-                oldDeps.length !== 1 ||
-                newDeps.length !== 1 ||
-                !oldDeps.every(isCalInterval) ||
-                !newDeps.every(isCalInterval)
-            ) {
-                throw new Error(
-                    `${useGetNextEvts.name}: unexpected useEffect dependency list`
-                );
-            }
-            const [oldIntvl] = oldDeps;
-            const [newIntvl] = newDeps;
-            return (
-                isEqual(oldIntvl.start, newIntvl.start) ||
-                isEqual(oldIntvl.end, newIntvl.end)
-            );
-        }
-        useEffect(
-            () => prepareQueryCache(queryClient),
-            useComparator([intvl], intvlHasNotMoved)
-        );
+    const data = queryClient.getQueriesData({
+        queryKey: queryKeys.events.getAll(),
+        exact: false,
+        stale: false,
+    });
+    const allEvts = data.flatMap(([_, evts]) =>
+        isArrayOfCalEvents(evts) ? evts : []
+    );
+    const nextEvt = findClosestNextEvent(allEvts, intvl);
+    if (nextEvt != null) {
+        return [nextEvt];
     }
 
-    const queryFn = async () => {
-        const res = await fetch(
-            api.ROUTES.GET_BY_FILTER({
-                start: end,
-                sort: "date_from",
-                ord: "asc",
-                limit: 1,
-            })
-        );
-        const evts = await res.json();
-        return evts?.map(adaptor.event) || [];
-    };
-
-    return useQuery(queryKey, queryFn);
+    const res = await fetch(
+        api.ROUTES.GET_BY_FILTER({
+            start: end,
+            sort: "date_from",
+            ord: "asc",
+            limit: 1,
+        })
+    );
+    const evts = await res.json();
+    return evts?.map(adaptor.event) || [];
 }
 
+export function useGetPreviousEvents(intvl: CalInterval) {
+    return useQuery(queryKeys.events.getPrevious(), () =>
+        getPreviousEvents(intvl)
+    );
+}
+
+export function useGetNextEvents(intvl: CalInterval) {
+    return useQuery(queryKeys.events.getNext(), () => getNextEvents(intvl));
+}
+
+// TODO: invalidate in `onSettled`
 export function useAddEvt() {
     const mutationFn = async ({
         title,

@@ -4,7 +4,7 @@ import { pick } from "ramda";
 import Popover from "./Popover";
 import { useModal } from "../context/modal";
 import { useDeleteEvt } from "../hooks/events";
-import { invalidateOnEventChange } from "../react-query";
+import { invalidateOnEventChange } from "../react-query/invalidate";
 import { CalEvent } from "../types";
 
 import "./EventPopover.css";

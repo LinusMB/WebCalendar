@@ -20,7 +20,7 @@ import {
     getDayIntvl,
     isWithinInterval,
 } from "../services/dates";
-import { useGetPreviousEvts, useGetNextEvts } from "../hooks/events";
+import { useGetPreviousEvents, useGetNextEvents } from "../hooks/events";
 import { CalInterval } from "../types";
 
 export interface EventIntervalProps {
@@ -66,9 +66,12 @@ function EventIntervalResizable({
     windowHelper,
     evtIntvl,
 }: EventIntervalResizableProps) {
-    const { data: prevEvts = [] } = useGetPreviousEvts(evtIntvl);
-    const { data: nextEvts = [] } = useGetNextEvts(evtIntvl);
+    const { data: prevEvts = [] } = useGetPreviousEvents(evtIntvl);
+    const { data: nextEvts = [] } = useGetNextEvents(evtIntvl);
 
+
+    console.log(prevEvts);
+    console.log(nextEvts);
     const incStart = useEvtIntvlIncStart(
         INTVL_MIN_RESIZE_STEP,
         getDayIntvl(viewDate)

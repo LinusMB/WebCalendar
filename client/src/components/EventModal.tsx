@@ -14,10 +14,10 @@ import {
 import {
     useAddEvt,
     useEditEvt,
-    useGetPreviousEvts,
-    useGetNextEvts,
+    useGetPreviousEvents,
+    useGetNextEvents,
 } from "../hooks/events";
-import { invalidateOnEventChange } from "../react-query";
+import { invalidateOnEventChange } from "../react-query/invalidate";
 import { isWholeDayIntvl } from "../services/dates";
 import { CalInterval } from "../types";
 
@@ -204,8 +204,8 @@ interface WithAdjustableIntvlProps {
 }
 
 function WithAdjustableIntvl({ evtIntvl, children }: WithAdjustableIntvlProps) {
-    const { data: prevEvts = [] } = useGetPreviousEvts(evtIntvl);
-    const { data: nextEvts = [] } = useGetNextEvts(evtIntvl);
+    const { data: prevEvts = [] } = useGetPreviousEvents(evtIntvl);
+    const { data: nextEvts = [] } = useGetNextEvents(evtIntvl);
 
     const updateEvtIntvlStart = useEvtIntvlUpdateStart(
         INTVL_MIN_RESIZE_STEP,

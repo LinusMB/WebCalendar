@@ -20,6 +20,10 @@ import {
     momentDay,
     momentHour,
 } from "../services/dates";
+import {
+    refetchPreviousEvents,
+    refetchNextEvents,
+} from "../react-query/invalidate";
 
 import "./DayView.css";
 
@@ -150,6 +154,8 @@ function DayViewHourRow({ hour }: { hour: number }) {
                 onClick={function () {
                     setEvtIntvl(dateToHourIntvl(setHours(viewDate, hour)));
                     setIsEvtIntvlVisible(true);
+                    refetchPreviousEvents();
+                    refetchNextEvents();
                 }}
                 className="day-view__event"
             ></Table.Cell>

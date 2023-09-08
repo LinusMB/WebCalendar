@@ -132,6 +132,28 @@ export function intvlBelongsToDayIntvl(intvl: CalInterval, date: Date) {
     return df.areIntervalsOverlapping(intvl, getDayIntvl(date));
 }
 
+export function getHourSpec(date: Date): [number, number, number] {
+    return [df.getYear(date), df.getDayOfYear(date), df.getHours(date)];
+}
+
+export function getDaySpec(date: Date): [number, number] {
+    return [df.getYear(date), df.getDayOfYear(date)];
+}
+
+export function getWeekSpec(date: Date): [number, number] {
+    return [
+        df.getYear(date),
+        df.getWeek(date, {
+            weekStartsOn: 1,
+            firstWeekContainsDate: 7,
+        }),
+    ];
+}
+
+export function getMonthSpec(date: Date): [number, number] {
+    return [df.getYear(date), df.getMonth(date)];
+}
+
 function compareNumArrays(
     [h1, ...t1]: number[],
     [h2, ...t2]: number[]
@@ -150,8 +172,8 @@ function compareNumArrays(
 
 export function momentHour(date: Date): Moment {
     const cur = now();
-    const arr1 = [df.getYear(date), df.getDayOfYear(date), df.getHours(date)];
-    const arr2 = [df.getYear(cur), df.getDayOfYear(cur), df.getHours(cur)];
+    const arr1 = getHourSpec(date);
+    const arr2 = getHourSpec(cur);
 
     const diff = compareNumArrays(arr1, arr2);
     if (diff == 0) {
@@ -165,8 +187,8 @@ export function momentHour(date: Date): Moment {
 
 export function momentDay(date: Date): Moment {
     const cur = now();
-    const arr1 = [df.getYear(date), df.getDayOfYear(date)];
-    const arr2 = [df.getYear(cur), df.getDayOfYear(cur)];
+    const arr1 = getDaySpec(date);
+    const arr2 = getDaySpec(cur);
 
     const diff = compareNumArrays(arr1, arr2);
     if (diff == 0) {
@@ -180,20 +202,8 @@ export function momentDay(date: Date): Moment {
 
 export function momentWeek(date: Date): Moment {
     const cur = now();
-    const arr1 = [
-        df.getYear(date),
-        df.getWeek(date, {
-            weekStartsOn: 1,
-            firstWeekContainsDate: 7,
-        }),
-    ];
-    const arr2 = [
-        df.getYear(cur),
-        df.getWeek(cur, {
-            weekStartsOn: 1,
-            firstWeekContainsDate: 7,
-        }),
-    ];
+    const arr1 = getWeekSpec(date);
+    const arr2 = getWeekSpec(cur);
 
     const diff = compareNumArrays(arr1, arr2);
     if (diff == 0) {
@@ -207,8 +217,8 @@ export function momentWeek(date: Date): Moment {
 
 export function momentMonth(date: Date): Moment {
     const cur = now();
-    const arr1 = [df.getYear(date), df.getMonth(date)];
-    const arr2 = [df.getYear(cur), df.getMonth(cur)];
+    const arr1 = getMonthSpec(date);
+    const arr2 = getMonthSpec(cur);
 
     const diff = compareNumArrays(arr1, arr2);
     if (diff == 0) {

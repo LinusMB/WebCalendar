@@ -25,6 +25,10 @@ import {
     momentWeek,
     momentDay,
 } from "../services/dates";
+import {
+    refetchPreviousEvents,
+    refetchNextEvents,
+} from "../react-query/invalidate";
 
 import "./WeekView.css";
 
@@ -191,6 +195,8 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
                     onClick={function () {
                         setEvtIntvl(dateToHourIntvl(setHours(d, hour)));
                         setIsEvtIntvlVisible(true);
+                        refetchPreviousEvents();
+                        refetchNextEvents();
                     }}
                     className="week-view__event"
                 ></Table.Cell>
