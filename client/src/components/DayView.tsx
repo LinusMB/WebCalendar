@@ -125,7 +125,19 @@ function DayViewHourRow({ hour }: { hour: number }) {
         "setIsEvtIntvlVisible"
     );
 
-    const isCurHour = momentHour(setHours(viewDate, hour)) === "present";
+    function computeIsCurHour(hour: number) {
+        return momentHour(setHours(viewDate, hour)) === "present";
+    }
+
+    const [isCurHour, setIsCurHour] = useState(computeIsCurHour(hour));
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setIsCurHour(computeIsCurHour(hour));
+        }, 60 * 1000);
+
+        return () => clearTimeout(timeout);
+    }, [isCurHour, hour]);
 
     return (
         <Table.Row className="day-view__row">
