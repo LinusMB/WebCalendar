@@ -9,8 +9,8 @@ interface ModalContextType {
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     modalDataMode: ModalDataMode;
     setModalDataMode: React.Dispatch<React.SetStateAction<ModalDataMode>>;
-    modalEditEvt: CalEvent | null;
-    setModalEditEvt: React.Dispatch<React.SetStateAction<CalEvent | null>>;
+    modalEditEvent: CalEvent | null;
+    setModalEditEvent: React.Dispatch<React.SetStateAction<CalEvent | null>>;
 }
 
 const ModalContext = createContext<ModalContextType | null>(null);
@@ -26,7 +26,7 @@ export function useModal() {
 export function ModalProvider({ children }: { children: React.ReactNode }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalDataMode, setModalDataMode] = useState<ModalDataMode>("add");
-    const [modalEditEvt, setModalEditEvt] = useState<CalEvent | null>(null);
+    const [modalEditEvent, setModalEditEvent] = useState<CalEvent | null>(null);
 
     return (
         <ModalContext.Provider
@@ -35,8 +35,8 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
                 setIsModalOpen,
                 modalDataMode,
                 setModalDataMode,
-                modalEditEvt,
-                setModalEditEvt,
+                modalEditEvent,
+                setModalEditEvent,
             }}
         >
             {children}

@@ -14,12 +14,12 @@ export class WindowHelper {
             height: this.cellHeight,
         };
     }
-    getDimensions(intvl: CalInterval) {
+    getDimensions(interval: CalInterval) {
         const minStart = differenceInMinutes(
-            intvl.start,
-            startOfDay(intvl.start)
+            interval.start,
+            startOfDay(interval.start)
         );
-        const minDist = differenceInMinutes(intvl.end, intvl.start);
+        const minDist = differenceInMinutes(interval.end, interval.start);
         return {
             top: this.cellHeight + minStart * this.minInPixel,
             height: minDist * this.minInPixel,

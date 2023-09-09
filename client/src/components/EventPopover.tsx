@@ -3,33 +3,33 @@ import { pick } from "ramda";
 
 import Popover from "./Popover";
 import { useModal } from "../context/modal";
-import { useDeleteEvt } from "../hooks/events";
+import { useDeleteEvent } from "../hooks/events";
 import { invalidateOnEventChange } from "../react-query/invalidate";
 import { CalEvent } from "../types";
 
 import "./EventPopover.css";
 
 export interface EventPopoverProps {
-    evt: CalEvent;
+    event: CalEvent;
     setIsPopoverActive: (arg: boolean) => void;
 }
 
 export default function EventPopover({
-    evt,
+    event,
     setIsPopoverActive,
 }: EventPopoverProps) {
-    const { mutateAsync: deleteEvt } = useDeleteEvt();
-    const { setIsModalOpen, setModalDataMode, setModalEditEvt } = useModal();
+    const { mutateAsync: deleteEvent } = useDeleteEvent();
+    const { setIsModalOpen, setModalDataMode, setModalEditEvent } = useModal();
 
     async function onDeleteEvent() {
-        await deleteEvt({ uuid: evt.uuid });
-        invalidateOnEventChange(pick(["start", "end"], evt));
+        await deleteEvent({ uuid: event.uuid });
+        invalidateOnEventChange(pick(["start", "end"], event));
         setIsPopoverActive(false);
     }
 
     function onClickEdit() {
         setModalDataMode("edit");
-        setModalEditEvt(evt);
+        setModalEditEvent(event);
         setIsModalOpen(true);
         setIsPopoverActive(false);
     }
@@ -48,9 +48,9 @@ export default function EventPopover({
                         <i className="fa-regular fa-pen-to-square"></i>
                     </span>
                 </div>
-                <div className="event-popover__title">{evt.title}</div>
+                <div className="event-popover__title">{event.title}</div>
             </Popover.Head>
-            <Popover.Body>{evt.description}</Popover.Body>
+            <Popover.Body>{event.description}</Popover.Body>
         </Popover>
     );
 }

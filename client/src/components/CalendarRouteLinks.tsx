@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import { useStorePick } from "../store";
-import { dateToFmt } from "../services/dates";
+import { formatDate } from "../services/dates";
 
 export interface DayViewLinkProps {
     children: React.ReactNode;
@@ -10,7 +10,7 @@ export interface DayViewLinkProps {
 
 export function DayViewLink({ children }: DayViewLinkProps) {
     const { viewDate } = useStorePick("viewDate");
-    return <Link to={`/day/${dateToFmt(viewDate)}`}>{children}</Link>;
+    return <Link to={`/day/${formatDate(viewDate)}`}>{children}</Link>;
 }
 
 export interface WeekViewLinkProps {
@@ -19,7 +19,7 @@ export interface WeekViewLinkProps {
 
 export function WeekViewLink({ children }: WeekViewLinkProps) {
     const { viewDate } = useStorePick("viewDate");
-    return <Link to={`/week/${dateToFmt(viewDate)}`}>{children}</Link>;
+    return <Link to={`/week/${formatDate(viewDate)}`}>{children}</Link>;
 }
 
 export interface MonthViewLinkProps {
@@ -28,5 +28,5 @@ export interface MonthViewLinkProps {
 
 export function MonthViewLink({ children }: MonthViewLinkProps) {
     const { viewDate } = useStorePick("viewDate");
-    return <Link to={`/month/${dateToFmt(viewDate)}`}>{children}</Link>;
+    return <Link to={`/month/${formatDate(viewDate)}`}>{children}</Link>;
 }

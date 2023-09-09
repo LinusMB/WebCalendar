@@ -1,231 +1,125 @@
-import { partial, pick, modify, find, assoc } from "ramda";
+import { pick, modify, assoc, curry } from "ramda";
 
 import {
     addMinutes,
     subMinutes,
     differenceInMinutes,
     areIntervalsOverlapping,
+    isWithinInterval,
+    zeroDate,
+    clamp,
 } from "./dates";
 import { findLatestEventOverlap, findEarliestEventOverlap } from "./events";
 import { CalEvent, CalInterval } from "../types";
 
-function incStart(evtIntvl: CalInterval, minutes: number) {
-    return modify("start", (start) => addMinutes(start, minutes), evtIntvl);
+export function incStart(eventInterval: CalInterval, minutes: number) {
+    return modify(
+        "start",
+        (start) => addMinutes(start, minutes),
+        eventInterval
+    );
 }
 
-function decStart(evtIntvl: CalInterval, minutes: number) {
-    return modify("start", (start) => subMinutes(start, minutes), evtIntvl);
+export function decStart(eventInterval: CalInterval, minutes: number) {
+    return modify(
+        "start",
+        (start) => subMinutes(start, minutes),
+        eventInterval
+    );
 }
 
-function incEnd(evtIntvl: CalInterval, minutes: number) {
-    return modify("end", (end) => addMinutes(end, minutes), evtIntvl);
+export function incEnd(eventInterval: CalInterval, minutes: number) {
+    return modify("end", (end) => addMinutes(end, minutes), eventInterval);
 }
 
-function decEnd(evtIntvl: CalInterval, minutes: number) {
-    return modify("end", (end) => subMinutes(end, minutes), evtIntvl);
+export function decEnd(eventInterval: CalInterval, minutes: number) {
+    return modify("end", (end) => subMinutes(end, minutes), eventInterval);
 }
 
-function updateStart(evtIntvl: CalInterval, update: (start: Date) => Date) {
-    return modify("start", update, evtIntvl);
-}
-
-function updateEnd(evtIntvl: CalInterval, update: (end: Date) => Date) {
-    return modify("end", update, evtIntvl);
-}
-
-function updateWithAdjust<T extends Array<any>>(
-    updateFn: (...args: T) => CalInterval,
-    adjustFns: ((arg: CalInterval) => CalInterval | undefined)[]
+export function updateStart(
+    eventInterval: CalInterval,
+    update: (start: Date) => Date
 ) {
-    return function (...args: T): [CalInterval, boolean] {
-        const initial = updateFn(...args);
-        for (const adjust of adjustFns) {
-            const next = adjust(initial);
-            if (next) return [next, true];
-        }
-        return [initial, false];
-    };
+    return modify("start", update, eventInterval);
 }
 
-export const updateStartWithAdjust = partial(
-    updateWithAdjust<Parameters<typeof updateStart>>,
-    [updateStart]
-);
+export function updateEnd(
+    eventInterval: CalInterval,
+    update: (end: Date) => Date
+) {
+    return modify("end", update, eventInterval);
+}
 
-export const updateEndWithAdjust = partial(
-    updateWithAdjust<Parameters<typeof updateEnd>>,
-    [updateEnd]
-);
+export interface Constraint {
+    check: (newInterval: CalInterval) => boolean;
+    correct: (newInterval: CalInterval) => CalInterval;
+}
 
-export const incStartWithAdjust = partial(
-    updateWithAdjust<Parameters<typeof incStart>>,
-    [incStart]
-);
-export const decStartWithAdjust = partial(
-    updateWithAdjust<Parameters<typeof decStart>>,
-    [decStart]
-);
-export const incEndWithAdjust = partial(
-    updateWithAdjust<Parameters<typeof incEnd>>,
-    [incEnd]
-);
-export const decEndWithAdjust = partial(
-    updateWithAdjust<Parameters<typeof decEnd>>,
-    [decEnd]
-);
-
-export const updateStartAdjustFns = {
-    adjustIntvlGap(gapInMinutes: number) {
-        return function (evtIntvl: CalInterval): CalInterval | undefined {
-            const diff = differenceInMinutes(evtIntvl.end, evtIntvl.start);
-            if (diff < gapInMinutes) {
-                return assoc(
-                    "start",
-                    subMinutes(evtIntvl.end, gapInMinutes),
-                    evtIntvl
+export const constraints = {
+    withinInterval: (restrictInterval: CalInterval): Constraint => ({
+        check: (newInterval) =>
+            isWithinInterval(newInterval.start, restrictInterval) &&
+            isWithinInterval(newInterval.end, restrictInterval),
+        correct: (newInterval) => ({
+            start: clamp(newInterval.start, restrictInterval),
+            end: clamp(newInterval.end, restrictInterval),
+        }),
+    }),
+    ensureMinTimeSpan: (minutes: number, keepStart: boolean): Constraint => ({
+        check: (newInterval) =>
+            differenceInMinutes(newInterval.end, newInterval.start) > minutes,
+        correct: (newInterval) =>
+            keepStart
+                ? assoc(
+                      "end",
+                      addMinutes(newInterval.start, minutes),
+                      newInterval
+                  )
+                : assoc(
+                      "start",
+                      subMinutes(newInterval.end, minutes),
+                      newInterval
+                  ),
+    }),
+    noEventOverlap: (events: CalEvent[], keepStart: boolean): Constraint => ({
+        check: (newInterval) =>
+            events.every(
+                (e) =>
+                    !areIntervalsOverlapping(
+                        pick(["start", "end"], e),
+                        newInterval
+                    )
+            ),
+        correct: (newInterval) => {
+            const findOverlap = keepStart
+                ? findEarliestEventOverlap
+                : findLatestEventOverlap;
+            const event = findOverlap(events, newInterval);
+            if (event == null) {
+                throw new Error(
+                    `${constraints.noEventOverlap.name} Unexpect result: No overlapping event found.`
                 );
             }
-        };
-    },
-    adjustNoEvtOverlap(evts: CalEvent[]) {
-        return function (evtIntvl: CalInterval): CalInterval | undefined {
-            const evt = findLatestEventOverlap(evts, evtIntvl);
-            if (evt) {
-                return assoc("start", evt.end, evtIntvl);
-            }
-        };
-    },
+            return keepStart
+                ? assoc("end", event.start, newInterval)
+                : assoc("start", event.end, newInterval);
+        },
+    }),
 };
 
-export const updateEndAdjustFns = {
-    adjustIntvlGap(gapInMinutes: number) {
-        return function (evtIntvl: CalInterval): CalInterval | undefined {
-            const diff = differenceInMinutes(evtIntvl.end, evtIntvl.start);
-            if (diff < gapInMinutes) {
-                return assoc(
-                    "end",
-                    addMinutes(evtIntvl.start, gapInMinutes),
-                    evtIntvl
-                );
-            }
-        };
-    },
-    adjustNoEvtOverlap(evts: CalEvent[]) {
-        return function (evtIntvl: CalInterval): CalInterval | undefined {
-            const evt = findEarliestEventOverlap(evts, evtIntvl);
-            if (evt) {
-                return assoc("end", evt.start, evtIntvl);
-            }
-        };
-    },
-};
+function _checkConstraints(
+    newInterval: CalInterval,
+    constraints: Constraint[]
+): [CalInterval, boolean] {
+    for (const constraint of constraints) {
+        if (!constraint.check(newInterval)) {
+            newInterval = constraint.correct(newInterval);
+            return [newInterval, true];
+        }
+    }
+    return [newInterval, false];
+}
 
-export const incStartAdjustFns = {
-    adjustIntvlGap(gapInMinutes: number) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            const diff = differenceInMinutes(end, start);
-            if (diff < gapInMinutes) {
-                return {
-                    start: subMinutes(end, gapInMinutes),
-                    end: end,
-                };
-            }
-        };
-    },
-    adjustToIntvl(intvl: CalInterval) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            if (start >= intvl.end) {
-                return {
-                    start: intvl.end,
-                    end: end,
-                };
-            }
-        };
-    },
-};
+export const checkConstraints = curry(_checkConstraints);
 
-export const decStartAdjustFns = {
-    adjustToIntvl(intvl: CalInterval) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            if (start <= intvl.start) {
-                return {
-                    start: intvl.start,
-                    end: end,
-                };
-            }
-        };
-    },
-    adjustNoEvtOverlap(evts: CalEvent[]) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            const evt = find(
-                (evt) =>
-                    areIntervalsOverlapping(pick(["start", "end"], evt), {
-                        start,
-                        end,
-                    }),
-                evts
-            );
-            if (evt) {
-                return {
-                    start: evt.end,
-                    end: end,
-                };
-            }
-        };
-    },
-};
-
-export const incEndAdjustFns = {
-    adjustToIntvl(intvl: CalInterval) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            if (end >= intvl.end) {
-                return {
-                    start: start,
-                    end: intvl.end,
-                };
-            }
-        };
-    },
-    adjustNoEvtOverlap(evts: CalEvent[]) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            const evt = find(
-                (evt) =>
-                    areIntervalsOverlapping(pick(["start", "end"], evt), {
-                        start,
-                        end,
-                    }),
-                evts
-            );
-            if (evt) {
-                return {
-                    start: start,
-                    end: evt.start,
-                };
-            }
-        };
-    },
-};
-
-export const decEndAdjustFns = {
-    adjustIntvlGap(gapInMinutes: number) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            const diff = differenceInMinutes(end, start);
-            if (diff < gapInMinutes) {
-                return {
-                    start: start,
-                    end: addMinutes(start, gapInMinutes),
-                };
-            }
-        };
-    },
-    adjustToIntvl(intvl: CalInterval) {
-        return function ({ start, end }: CalInterval): CalInterval | undefined {
-            if (end <= intvl.start) {
-                return {
-                    start: start,
-                    end: intvl.start,
-                };
-            }
-        };
-    },
-};
+export const zeroInterval = { start: zeroDate, end: zeroDate };

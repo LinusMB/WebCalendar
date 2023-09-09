@@ -5,7 +5,7 @@ import { useStorePick } from "../store";
 import DayView from "./DayView";
 import WeekView from "./WeekView";
 import MonthView from "./MonthView";
-import { dateToFmt } from "../services/dates";
+import { formatDate } from "../services/dates";
 
 export default function CalendarRoutes() {
     const { viewDate } = useStorePick("viewDate");
@@ -17,7 +17,7 @@ export default function CalendarRoutes() {
             <Route
                 path="/"
                 element={
-                    <Navigate replace to={`/day/${dateToFmt(viewDate)}`} />
+                    <Navigate replace to={`/day/${formatDate(viewDate)}`} />
                 }
             />
         </Routes>

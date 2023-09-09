@@ -1,95 +1,95 @@
 import React, { Fragment, useEffect } from "react";
 import { pick } from "ramda";
 
-import { INTVL_MIN_RESIZE_STEP } from "../constants";
+import { INTERVAL_MIN_RESIZE_STEP } from "../constants";
 import { FromField, ToField } from "./IntervalFields";
 import Modal from "./Modal";
 import { useModal } from "../context/modal";
 import { useInput } from "../hooks";
 import {
     useStorePick,
-    useEvtIntvlUpdateStart,
-    useEvtIntvlUpdateEnd,
+    useEventIntervalUpdateStart,
+    useEventIntervalUpdateEnd,
 } from "../store";
 import {
-    useAddEvt,
-    useEditEvt,
+    useAddEvent,
+    useEditEvent,
     useGetPreviousEvents,
     useGetNextEvents,
 } from "../hooks/events";
 import { invalidateOnEventChange } from "../react-query/invalidate";
-import { isWholeDayIntvl } from "../services/dates";
+import { isWholeDayInterval } from "../services/dates";
 import { CalInterval } from "../types";
 
 import "./EventModal.css";
 
 export default function EventModal() {
     const {
-        evtIntvl,
-        setEvtIntvl,
-        isEvtIntvlVisible,
-        setIsEvtIntvlVisible,
-        setEvtFilter,
-        resetEvtFilter,
+        eventInterval,
+        setEventInterval,
+        isEventIntervalVisible,
+        setIsEventIntervalVisible,
+        setEventFilter,
+        resetEventFilter,
     } = useStorePick(
-        "evtIntvl",
-        "setEvtIntvl",
-        "isEvtIntvlVisible",
-        "setIsEvtIntvlVisible",
-        "setEvtFilter",
-        "resetEvtFilter"
+        "eventInterval",
+        "setEventInterval",
+        "isEventIntervalVisible",
+        "setIsEventIntervalVisible",
+        "setEventFilter",
+        "resetEventFilter"
     );
-    const { mutateAsync: addEvt } = useAddEvt();
-    const { mutateAsync: editEvt } = useEditEvt();
+    const { mutateAsync: addEvent } = useAddEvent();
+    const { mutateAsync: editEvent } = useEditEvent();
 
-    const { setIsModalOpen, modalDataMode, modalEditEvt } = useModal();
+    const { setIsModalOpen, modalDataMode, modalEditEvent } = useModal();
 
-    if (modalDataMode === "edit" && !modalEditEvt) {
+    if (modalDataMode === "edit" && !modalEditEvent) {
         throw new Error(
-            "modalEditEvt has to be set if modalDataMode is set to 'edit'"
+            "modalEditEvent has to be set if modalDataMode is set to 'edit'"
         );
     }
 
     useEffect(() => {
         if (modalDataMode === "edit") {
-            setEvtFilter({
-                uuid: (uuid: string) => uuid !== modalEditEvt!.uuid,
+            setEventFilter({
+                uuid: (uuid: string) => uuid !== modalEditEvent!.uuid,
             });
-            setEvtIntvl(pick(["start", "end"], modalEditEvt!));
-            setIsEvtIntvlVisible(true);
+            setEventInterval(pick(["start", "end"], modalEditEvent!));
+            setIsEventIntervalVisible(true);
         }
     }, []);
 
     async function onAddEvent() {
-        await addEvt({ title, description, evtIntvl });
-        invalidateOnEventChange(evtIntvl);
+        await addEvent({ title, description, eventInterval });
+        invalidateOnEventChange(eventInterval);
         resetTitle();
         resetDescription();
-        setIsEvtIntvlVisible(false);
+        setIsEventIntervalVisible(false);
         setIsModalOpen(false);
     }
 
     async function onEditEvent() {
-        await editEvt({
-            uuid: modalEditEvt!.uuid,
+        await editEvent({
+            uuid: modalEditEvent!.uuid,
             title,
             description,
-            evtIntvl,
+            eventInterval,
         });
-        invalidateOnEventChange(evtIntvl);
+        invalidateOnEventChange(eventInterval);
         resetTitle();
         resetDescription();
-        setIsEvtIntvlVisible(false);
+        setIsEventIntervalVisible(false);
         setIsModalOpen(false);
-        resetEvtFilter();
+        resetEventFilter();
     }
 
     function onClose() {
         resetTitle();
         resetDescription();
         if (modalDataMode === "edit") {
-            setIsEvtIntvlVisible(false);
-            resetEvtFilter();
+            setIsEventIntervalVisible(false);
+            resetEventFilter();
         }
         setIsModalOpen(false);
     }
@@ -100,8 +100,8 @@ export default function EventModal() {
         onClick: () => void;
     switch (modalDataMode) {
         case "edit":
-            initialTitle = modalEditEvt!.title;
-            initialDescription = modalEditEvt!.description;
+            initialTitle = modalEditEvent!.title;
+            initialDescription = modalEditEvent!.description;
             headerText = "Edit Event";
             onClick = onEditEvent;
             break;
@@ -131,21 +131,26 @@ export default function EventModal() {
                     placeholder="Enter Title"
                     value={title}
                 />
-                {isEvtIntvlVisible && !isWholeDayIntvl(evtIntvl) ? (
-                    <WithAdjustableIntvl evtIntvl={evtIntvl}>
-                        {({ updateEvtIntvlStart, updateEvtIntvlEnd }) => (
+                {isEventIntervalVisible && !isWholeDayInterval(eventInterval) ? (
+                    <WithAdjustableInterval eventInterval={eventInterval}>
+                        {({
+                            updateEventIntervalStart,
+                            updateEventIntervalEnd,
+                        }) => (
                             <IntervalFields
-                                evtIntvl={evtIntvl}
-                                isEvtIntvlVisible={isEvtIntvlVisible}
-                                updateEvtIntvlStart={updateEvtIntvlStart}
-                                updateEvtIntvlEnd={updateEvtIntvlEnd}
+                                eventInterval={eventInterval}
+                                isEventIntervalVisible={isEventIntervalVisible}
+                                updateEventIntervalStart={
+                                    updateEventIntervalStart
+                                }
+                                updateEventIntervalEnd={updateEventIntervalEnd}
                             />
                         )}
-                    </WithAdjustableIntvl>
+                    </WithAdjustableInterval>
                 ) : (
                     <IntervalFields
-                        evtIntvl={evtIntvl}
-                        isEvtIntvlVisible={isEvtIntvlVisible}
+                        eventInterval={eventInterval}
+                        isEventIntervalVisible={isEventIntervalVisible}
                     />
                 )}
                 <textarea
@@ -156,7 +161,7 @@ export default function EventModal() {
                 />
             </Modal.Body>
             <Modal.Footer>
-                <button onClick={onClick} disabled={!isEvtIntvlVisible}>
+                <button onClick={onClick} disabled={!isEventIntervalVisible}>
                     Save changes
                 </button>
             </Modal.Footer>
@@ -165,60 +170,63 @@ export default function EventModal() {
 }
 
 interface IntervalFieldsProps {
-    evtIntvl: CalInterval;
-    isEvtIntvlVisible: boolean;
-    updateEvtIntvlStart?: (update: (newValue: Date) => Date) => void;
-    updateEvtIntvlEnd?: (update: (newValue: Date) => Date) => void;
+    eventInterval: CalInterval;
+    isEventIntervalVisible: boolean;
+    updateEventIntervalStart?: (update: (newValue: Date) => Date) => void;
+    updateEventIntervalEnd?: (update: (newValue: Date) => Date) => void;
 }
 
 function IntervalFields({
-    evtIntvl,
-    isEvtIntvlVisible,
-    updateEvtIntvlStart = () => {},
-    updateEvtIntvlEnd = () => {},
+    eventInterval,
+    isEventIntervalVisible,
+    updateEventIntervalStart = () => {},
+    updateEventIntervalEnd = () => {},
 }: IntervalFieldsProps) {
     return (
         <Fragment>
             <FromField
-                date={evtIntvl.start}
-                updateDate={updateEvtIntvlStart}
-                isWholeDay={isWholeDayIntvl(evtIntvl)}
-                isEvtIntvlActive={isEvtIntvlVisible}
+                date={eventInterval.start}
+                updateDate={updateEventIntervalStart}
+                isWholeDay={isWholeDayInterval(eventInterval)}
+                isEventIntervalActive={isEventIntervalVisible}
             />
             <ToField
-                date={evtIntvl.end}
-                updateDate={updateEvtIntvlEnd}
-                isWholeDay={isWholeDayIntvl(evtIntvl)}
-                isEvtIntvlActive={isEvtIntvlVisible}
+                date={eventInterval.end}
+                updateDate={updateEventIntervalEnd}
+                isWholeDay={isWholeDayInterval(eventInterval)}
+                isEventIntervalActive={isEventIntervalVisible}
             />
         </Fragment>
     );
 }
 
-interface WithAdjustableIntvlProps {
-    evtIntvl: CalInterval;
+interface WithAdjustableIntervalProps {
+    eventInterval: CalInterval;
     children: (props: {
-        updateEvtIntvlStart: (update: (newValue: Date) => Date) => void;
-        updateEvtIntvlEnd: (update: (newValue: Date) => Date) => void;
+        updateEventIntervalStart: (update: (newValue: Date) => Date) => void;
+        updateEventIntervalEnd: (update: (newValue: Date) => Date) => void;
     }) => React.ReactNode;
 }
 
-function WithAdjustableIntvl({ evtIntvl, children }: WithAdjustableIntvlProps) {
-    const { data: prevEvts = [] } = useGetPreviousEvents(evtIntvl);
-    const { data: nextEvts = [] } = useGetNextEvents(evtIntvl);
+function WithAdjustableInterval({
+    eventInterval,
+    children,
+}: WithAdjustableIntervalProps) {
+    const { data: prevEvents = [] } = useGetPreviousEvents(eventInterval);
+    const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 
-    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_MIN_RESIZE_STEP,
-        prevEvts
+    const updateEventIntervalStart = useEventIntervalUpdateStart(
+        INTERVAL_MIN_RESIZE_STEP,
+        prevEvents
     );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(
-        INTVL_MIN_RESIZE_STEP,
-        nextEvts
+    const updateEventIntervalEnd = useEventIntervalUpdateEnd(
+        INTERVAL_MIN_RESIZE_STEP,
+        nextEvents
     );
 
     return (
         <Fragment>
-            {children({ updateEvtIntvlStart, updateEvtIntvlEnd })}
+            {children({ updateEventIntervalStart, updateEventIntervalEnd })}
         </Fragment>
     );
 }

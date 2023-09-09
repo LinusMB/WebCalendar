@@ -14,7 +14,7 @@ import {
     getDate,
     incMonth,
     decMonth,
-    dateToFmt,
+    formatDate,
     momentMonth,
     momentDay,
 } from "../services/dates";
@@ -53,7 +53,7 @@ function MonthViewDayCell({ date }: { date: Date }) {
 
     function onClickHandler() {
         setViewDate(date);
-        navigate(`/day/${dateToFmt(date)}`);
+        navigate(`/day/${formatDate(date)}`);
     }
 
     const dateStr = getDate(date);

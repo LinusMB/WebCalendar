@@ -1,47 +1,40 @@
 import { create } from "zustand";
-import { assoc, modify, mergeLeft, pick, always } from "ramda";
+import { modify, mergeLeft, pick, always, __ } from "ramda";
 
-import { todayWholeDayIntvl, now } from "../services/dates";
+import { now } from "../services/dates";
 import {
-    updateStartWithAdjust,
-    updateEndWithAdjust,
-    updateStartAdjustFns,
-    updateEndAdjustFns,
-    incStartWithAdjust,
-    decStartWithAdjust,
-    incEndWithAdjust,
-    decEndWithAdjust,
-    incStartAdjustFns,
-    decStartAdjustFns,
-    incEndAdjustFns,
-    decEndAdjustFns,
+    constraints,
+    checkConstraints,
+    zeroInterval,
+    incStart,
+    decStart,
+    incEnd,
+    decEnd,
+    updateStart,
+    updateEnd,
 } from "../services/intervals";
 import { CalEvent, CalInterval } from "../types";
 
 export interface Store {
     viewDate: Date;
-    evtIntvl: CalInterval;
-    isEvtIntvlVisible: boolean;
-    isEvtIntvlResizable: { start: boolean; end: boolean };
-    evtFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean };
+    eventInterval: CalInterval;
+    isEventIntervalVisible: boolean;
+    isEventIntervalStartResizable: boolean;
+    isEventIntervalEndResizable: boolean;
+    setEventInterval: (interval: CalInterval) => void;
+    updateEventInterval: (update: (arg: CalInterval) => CalInterval) => void;
+    setIsEventIntervalVisible: (active: boolean) => void;
+    setIsEventIntervalStartResizable: (resizable: boolean) => void;
+    setIsEventIntervalEndResizable: (resizable: boolean) => void;
+    eventFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean };
     setViewDate: (date: Date) => void;
     updateViewDate: (update: (arg: Date) => Date) => void;
-    setEvtIntvl: (intvl: CalInterval) => void;
-    updateEvtIntvl: (update: (arg: CalInterval) => CalInterval) => void;
-    setIsEvtIntvlVisible: (active: boolean) => void;
-    setIsEvtIntvlResizable: ({
-        start,
-        end,
-    }: {
-        start?: boolean;
-        end?: boolean;
-    }) => void;
-    setEvtFilter: (filter: Partial<Store["evtFilter"]>) => void;
-    resetEvtFilter: () => void;
+    setEventFilter: (filter: Partial<Store["eventFilter"]>) => void;
+    resetEventFilter: () => void;
     updateStore: (update: (arg: Store) => Partial<Store>) => void;
 }
 
-const evtFilterInitial = {
+const eventFilterInitial = {
     start: always(true),
     end: always(true),
     title: always(true),
@@ -51,24 +44,26 @@ const evtFilterInitial = {
 
 export const useStore = create<Store>((set) => ({
     viewDate: now(),
-    evtIntvl: todayWholeDayIntvl(),
-    isEvtIntvlVisible: false,
-    isEvtIntvlResizable: { start: false, end: false },
-    evtFilter: evtFilterInitial,
+    eventInterval: zeroInterval,
+    isEventIntervalVisible: false,
+    isEventIntervalStartResizable: false,
+    isEventIntervalEndResizable: false,
+    setEventInterval: (interval) => set({ eventInterval: interval }),
+    updateEventInterval: (update) =>
+        set((state) => ({ eventInterval: update(state.eventInterval) })),
+    setIsEventIntervalVisible: (active) =>
+        set({ isEventIntervalVisible: active }),
+    setIsEventIntervalStartResizable: (isResizable) =>
+        set({ isEventIntervalStartResizable: isResizable }),
+    setIsEventIntervalEndResizable: (isResizable) =>
+        set({ isEventIntervalEndResizable: isResizable }),
+    eventFilter: eventFilterInitial,
     setViewDate: (date) => set({ viewDate: date }),
     updateViewDate: (update) =>
         set((state) => ({ viewDate: update(state.viewDate) })),
-    setEvtIntvl: (intvl) => set({ evtIntvl: intvl }),
-    updateEvtIntvl: (update) =>
-        set((state) => ({ evtIntvl: update(state.evtIntvl) })),
-    setIsEvtIntvlVisible: (active) => set({ isEvtIntvlVisible: active }),
-    setIsEvtIntvlResizable: (isEvtIntvlResizable) =>
-        set((state) =>
-            modify("isEvtIntvlResizable", mergeLeft(isEvtIntvlResizable), state)
-        ),
-    setEvtFilter: (evtFilter) =>
-        set((state) => modify("evtFilter", mergeLeft(evtFilter), state)),
-    resetEvtFilter: () => set({ evtFilter: evtFilterInitial }),
+    setEventFilter: (eventFilter) =>
+        set((state) => modify("eventFilter", mergeLeft(eventFilter), state)),
+    resetEventFilter: () => set({ eventFilter: eventFilterInitial }),
     updateStore: (update) => set((state) => update(state)),
 }));
 
@@ -76,189 +71,158 @@ export function useStorePick<T extends keyof Store>(...keys: T[]) {
     return useStore((state) => pick(keys, state));
 }
 
-export const useIsEvtIntvlStartResizable = () =>
-    useStore((state) => [
-        state.isEvtIntvlResizable.start,
-        (isStartResizable) =>
-            state.setIsEvtIntvlResizable({ start: isStartResizable }),
-    ]) as [boolean, (resize: boolean) => void];
-
-export const useIsEvtIntvlEndResizable = () =>
-    useStore((state) => [
-        state.isEvtIntvlResizable.end,
-        (isEndResizable) =>
-            state.setIsEvtIntvlResizable({ end: isEndResizable }),
-    ]) as [boolean, (resize: boolean) => void];
-
-export function useEvtIntvlUpdateStart(restrictGap: number, evts: CalEvent[]) {
-    const { adjustIntvlGap, adjustNoEvtOverlap } = updateStartAdjustFns;
-    const { updateStore } = useStorePick("updateStore");
-
-    const updateStart = updateStartWithAdjust([
-        adjustIntvlGap(restrictGap),
-        adjustNoEvtOverlap(evts),
+export const useIsEventIntervalStartResizable = () =>
+    useStore<[boolean, (resizable: boolean) => void]>((state) => [
+        state.isEventIntervalStartResizable,
+        state.setIsEventIntervalStartResizable,
     ]);
 
-    return function (update: (newValue: Date) => Date) {
-        function updateStoreFn({ evtIntvl }: { evtIntvl: CalInterval }) {
-            const [newEvtIntvl] = updateStart(evtIntvl, update);
-            return { evtIntvl: newEvtIntvl };
-        }
-        updateStore(updateStoreFn);
-    };
-}
-
-export function useEvtIntvlUpdateEnd(restrictGap: number, evts: CalEvent[]) {
-    const { adjustIntvlGap, adjustNoEvtOverlap } = updateEndAdjustFns;
-    const { updateStore } = useStorePick("updateStore");
-
-    const updateEnd = updateEndWithAdjust([
-        adjustIntvlGap(restrictGap),
-        adjustNoEvtOverlap(evts),
+export const useIsEventIntervalEndResizable = () =>
+    useStore<[boolean, (resizable: boolean) => void]>((state) => [
+        state.isEventIntervalEndResizable,
+        state.setIsEventIntervalEndResizable,
     ]);
 
-    return function (update: (newValue: Date) => Date) {
-        function updateStoreFn({ evtIntvl }: { evtIntvl: CalInterval }) {
-            const [newEvtIntvl] = updateEnd(evtIntvl, update);
-            return { evtIntvl: newEvtIntvl };
-        }
-        updateStore(updateStoreFn);
-    };
-}
-
-export function useEvtIntvlIncStart(
-    restrictGap: number,
-    restrictIntvl: CalInterval
+export function useEventIntervalIncStart(
+    restrictInterval: CalInterval,
+    minTimeSpan: number
 ) {
-    const { adjustIntvlGap, adjustToIntvl } = incStartAdjustFns;
     const { updateStore } = useStorePick("updateStore");
-
-    const incStart = incStartWithAdjust([
-        adjustIntvlGap(restrictGap),
-        adjustToIntvl(restrictIntvl),
-    ]);
-
-    // TODO: wrap in useCallback
-    return function (minutes: number) {
-        function updateStoreFn({
-            evtIntvl,
-            isEvtIntvlResizable,
-        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
-            const [newEvtIntvl, isAdjusted] = incStart(evtIntvl, minutes);
-            if (isAdjusted) {
-                return {
-                    evtIntvl: newEvtIntvl,
-                    isEvtIntvlResizable: assoc(
-                        "start",
-                        false,
-                        isEvtIntvlResizable
-                    ),
-                };
-            }
-            return { evtIntvl: newEvtIntvl };
-        }
-        updateStore(updateStoreFn);
-    };
-}
-
-export function useEvtIntvlDecStart(
-    restrictIntvl: CalInterval,
-    evts: CalEvent[]
-) {
-    const { adjustToIntvl, adjustNoEvtOverlap } = decStartAdjustFns;
-    const { updateStore } = useStorePick("updateStore");
-
-    const decStart = decStartWithAdjust([
-        adjustToIntvl(restrictIntvl),
-        adjustNoEvtOverlap(evts),
+    const check = checkConstraints(__, [
+        constraints.ensureMinTimeSpan(minTimeSpan, false),
+        constraints.withinInterval(restrictInterval),
     ]);
 
     return function (minutes: number) {
-        function updateStoreFn({
-            evtIntvl,
-            isEvtIntvlResizable,
-        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
-            const [newEvtIntvl, isAdjusted] = decStart(evtIntvl, minutes);
-            if (isAdjusted) {
+        updateStore((state) => {
+            const [newEventInterval, checkFailed] = check(
+                incStart(state.eventInterval, minutes)
+            );
+            if (checkFailed) {
                 return {
-                    evtIntvl: newEvtIntvl,
-                    isEvtIntvlResizable: assoc(
-                        "start",
-                        false,
-                        isEvtIntvlResizable
-                    ),
+                    eventInterval: newEventInterval,
+                    isEventIntervalStartResizable: false,
                 };
             }
-            return { evtIntvl: newEvtIntvl };
-        }
-        updateStore(updateStoreFn);
+            return { eventInterval: newEventInterval };
+        });
     };
 }
 
-export function useEvtIntvlIncEnd(
-    restrictIntvl: CalInterval,
-    evts: CalEvent[]
+export function useEventIntervalDecStart(
+    restrictInterval: CalInterval,
+    events: CalEvent[]
 ) {
-    const { adjustToIntvl, adjustNoEvtOverlap } = incEndAdjustFns;
     const { updateStore } = useStorePick("updateStore");
-
-    const incEnd = incEndWithAdjust([
-        adjustToIntvl(restrictIntvl),
-        adjustNoEvtOverlap(evts),
+    const check = checkConstraints(__, [
+        constraints.withinInterval(restrictInterval),
+        constraints.noEventOverlap(events, false),
     ]);
 
     return function (minutes: number) {
-        function updateStoreFn({
-            evtIntvl,
-            isEvtIntvlResizable,
-        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
-            const [newEvtIntvl, isAdjusted] = incEnd(evtIntvl, minutes);
-            if (isAdjusted) {
+        updateStore((state) => {
+            const [newEventInterval, checkFailed] = check(
+                decStart(state.eventInterval, minutes)
+            );
+            if (checkFailed) {
                 return {
-                    evtIntvl: newEvtIntvl,
-                    isEvtIntvlResizable: assoc(
-                        "end",
-                        false,
-                        isEvtIntvlResizable
-                    ),
+                    eventInterval: newEventInterval,
+                    isEventIntervalStartResizable: false,
                 };
             }
-            return { evtIntvl: newEvtIntvl };
-        }
-        updateStore(updateStoreFn);
+            return { eventInterval: newEventInterval };
+        });
     };
 }
 
-export function useEvtIntvlDecEnd(
-    restrictGap: number,
-    restrictIntvl: CalInterval
+export function useEventIntervalIncEnd(
+    restrictInterval: CalInterval,
+    events: CalEvent[]
 ) {
-    const { adjustIntvlGap, adjustToIntvl } = decEndAdjustFns;
     const { updateStore } = useStorePick("updateStore");
-
-    const decEnd = decEndWithAdjust([
-        adjustIntvlGap(restrictGap),
-        adjustToIntvl(restrictIntvl),
+    const check = checkConstraints(__, [
+        constraints.withinInterval(restrictInterval),
+        constraints.noEventOverlap(events, true),
     ]);
 
     return function (minutes: number) {
-        function updateStoreFn({
-            evtIntvl,
-            isEvtIntvlResizable,
-        }: Pick<Store, "evtIntvl" | "isEvtIntvlResizable">) {
-            const [newEvtIntvl, isAdjusted] = decEnd(evtIntvl, minutes);
-            if (isAdjusted) {
+        updateStore((state) => {
+            const [newEventInterval, checkFailed] = check(
+                incEnd(state.eventInterval, minutes)
+            );
+            if (checkFailed) {
                 return {
-                    evtIntvl: newEvtIntvl,
-                    isEvtIntvlResizable: assoc(
-                        "end",
-                        false,
-                        isEvtIntvlResizable
-                    ),
+                    eventInterval: newEventInterval,
+                    isEventIntervalEndResizable: false,
                 };
             }
-            return { evtIntvl: newEvtIntvl };
-        }
-        updateStore(updateStoreFn);
+            return { eventInterval: newEventInterval };
+        });
+    };
+}
+
+export function useEventIntervalDecEnd(
+    restrictInterval: CalInterval,
+    minTimeSpan: number
+) {
+    const { updateStore } = useStorePick("updateStore");
+    const check = checkConstraints(__, [
+        constraints.ensureMinTimeSpan(minTimeSpan, true),
+        constraints.withinInterval(restrictInterval),
+    ]);
+
+    return function (minutes: number) {
+        updateStore((state) => {
+            const [newEventInterval, checkFailed] = check(
+                decEnd(state.eventInterval, minutes)
+            );
+            if (checkFailed) {
+                return {
+                    eventInterval: newEventInterval,
+                    isEventIntervalEndResizable: false,
+                };
+            }
+            return { eventInterval: newEventInterval };
+        });
+    };
+}
+
+export function useEventIntervalUpdateStart(
+    minTimeSpan: number,
+    events: CalEvent[]
+) {
+    const { updateStore } = useStorePick("updateStore");
+    const check = checkConstraints(__, [
+        constraints.ensureMinTimeSpan(minTimeSpan, false),
+        constraints.noEventOverlap(events, false),
+    ]);
+
+    return function (update: (newDate: Date) => Date) {
+        updateStore((state) => {
+            const [newEventInterval] = check(
+                updateStart(state.eventInterval, update)
+            );
+            return { eventInterval: newEventInterval };
+        });
+    };
+}
+
+export function useEventIntervalUpdateEnd(
+    minTimeSpan: number,
+    events: CalEvent[]
+) {
+    const { updateStore } = useStorePick("updateStore");
+    let check = checkConstraints(__, [
+        constraints.ensureMinTimeSpan(minTimeSpan, true),
+        constraints.noEventOverlap(events, true),
+    ]);
+
+    return function (update: (newDate: Date) => Date) {
+        updateStore((state) => {
+            const [newEventInterval] = check(
+                updateEnd(state.eventInterval, update)
+            );
+            return { eventInterval: newEventInterval };
+        });
     };
 }

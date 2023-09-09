@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { useEvts } from "../context/events";
+import { useEvents } from "../context/events";
 import { filterEvents, viewDateFilter } from "../services/events";
 import { CalEvent } from "../types";
 import EventPopover from "./EventPopover";
@@ -12,23 +12,23 @@ export interface EventDots {
 }
 
 export default function EventDots({ viewDate }: EventDots) {
-    let { evts } = useEvts();
-    evts = filterEvents(evts, viewDateFilter(viewDate));
+    let { events } = useEvents();
+    events = filterEvents(events, viewDateFilter(viewDate));
 
     return (
         <div className="event-dots">
-            {evts.map((e) => (
-                <EventDot key={e.uuid} evt={e} />
+            {events.map((e) => (
+                <EventDot key={e.uuid} event={e} />
             ))}
         </div>
     );
 }
 
 interface EventDotProps {
-    evt: CalEvent;
+    event: CalEvent;
 }
 
-function EventDot({ evt }: EventDotProps) {
+function EventDot({ event }: EventDotProps) {
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
     return (
@@ -38,7 +38,7 @@ function EventDot({ evt }: EventDotProps) {
         >
             {isPopoverActive && (
                 <EventPopover
-                    evt={evt}
+                    event={event}
                     setIsPopoverActive={setIsPopoverActive}
                 />
             )}

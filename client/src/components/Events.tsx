@@ -4,10 +4,10 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import Window from "./Window";
 import EventPopover from "./EventPopover";
-import { useEvts } from "../context/events";
+import { useEvents } from "../context/events";
 import { useStorePick } from "../store";
 import { WindowHelper } from "../services/windowHelper";
-import { clampToDayIntvl, isWholeDayIntvl } from "../services/dates";
+import { clampToDayInterval, isWholeDayInterval } from "../services/dates";
 import { filterEvents, viewDateFilter } from "../services/events";
 import { CalEvent } from "../types";
 
@@ -19,17 +19,17 @@ export interface EventsProps {
 }
 
 export default function Events({ viewDate, windowHelper }: EventsProps) {
-    let { evts } = useEvts();
-    const { evtFilter } = useStorePick("evtFilter");
+    let { events } = useEvents();
+    const { eventFilter } = useStorePick("eventFilter");
 
-    evts = filterEvents(evts, viewDateFilter(viewDate), where(evtFilter));
+    events = filterEvents(events, viewDateFilter(viewDate), where(eventFilter));
 
     return (
         <Fragment>
-            {evts.map((e) => (
+            {events.map((e) => (
                 <Event
                     key={e.uuid}
-                    evt={e}
+                    event={e}
                     viewDate={viewDate}
                     windowHelper={windowHelper}
                 />
@@ -39,18 +39,18 @@ export default function Events({ viewDate, windowHelper }: EventsProps) {
 }
 
 interface EventProps {
-    evt: CalEvent;
+    event: CalEvent;
     viewDate: Date;
     windowHelper: WindowHelper;
 }
 
-function Event({ evt, viewDate, windowHelper }: EventProps) {
+function Event({ event, viewDate, windowHelper }: EventProps) {
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
-    const intvl = pick(["start", "end"], evt);
-    const dimensions = isWholeDayIntvl(intvl)
+    const interval = pick(["start", "end"], event);
+    const dimensions = isWholeDayInterval(interval)
         ? windowHelper.getDimensionsWholeDay()
-        : windowHelper.getDimensions(clampToDayIntvl(intvl, viewDate));
+        : windowHelper.getDimensions(clampToDayInterval(interval, viewDate));
 
     return (
         <Window dimensions={dimensions}>
@@ -58,10 +58,10 @@ function Event({ evt, viewDate, windowHelper }: EventProps) {
                 className="event-title relative"
                 onClick={() => setIsPopoverActive((isActive) => !isActive)}
             >
-                {evt.title}
+                {event.title}
                 {isPopoverActive && (
                     <EventPopover
-                        evt={evt}
+                        event={event}
                         setIsPopoverActive={setIsPopoverActive}
                     />
                 )}

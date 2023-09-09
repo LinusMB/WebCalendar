@@ -1,4 +1,4 @@
-export const INTVL_MIN_RESIZE_STEP = 10;
+export const INTERVAL_MIN_RESIZE_STEP = 10;
 
 const REST_API = "http://localhost:5000/api";
 

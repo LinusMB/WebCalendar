@@ -2,13 +2,13 @@ import React, { createContext, useContext } from "react";
 
 import { CalEvent, View } from "../types";
 import {
-    useEvtsForDay,
-    useEvtsForWeek,
-    useEvtsForMonth,
+    useEventsForDay,
+    useEventsForWeek,
+    useEventsForMonth,
 } from "../hooks/events";
 
 interface EventsContextType {
-    evts: CalEvent[];
+    events: CalEvent[];
     isLoading: boolean;
     isError: boolean;
     error: unknown;
@@ -16,10 +16,10 @@ interface EventsContextType {
 
 const EventsContext = createContext<EventsContextType | null>(null);
 
-export function useEvts() {
+export function useEvents() {
     const context = useContext(EventsContext);
     if (!context) {
-        throw new Error("useEvts was used outside of EventsProvider");
+        throw new Error("useEvents was used outside of EventsProvider");
     }
     return context;
 }
@@ -33,23 +33,18 @@ export function EventsProvider({
     view: View;
     viewDate: Date;
 }) {
-    let useEvts = {
-        day: useEvtsForDay,
-        week: useEvtsForWeek,
-        month: useEvtsForMonth,
+    let useEvents = {
+        day: useEventsForDay,
+        week: useEventsForWeek,
+        month: useEventsForMonth,
     }[view];
 
-    const {
-        data: evts = [],
-        isLoading,
-        isError,
-        error,
-    } = useEvts(viewDate);
+    const { data: events = [], isLoading, isError, error } = useEvents(viewDate);
 
     return (
         <EventsContext.Provider
             value={{
-                evts,
+                events,
                 isLoading,
                 isError,
                 error,

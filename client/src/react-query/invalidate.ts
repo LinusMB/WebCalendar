@@ -23,8 +23,8 @@ export function invalidateEventsOnMonth(d: Date) {
 }
 
 export async function refetchPreviousEvents() {
-    const evtIntvl = useStore.getState().evtIntvl;
-    const previousEvents = await getPreviousEvents(evtIntvl);
+    const eventInterval = useStore.getState().eventInterval;
+    const previousEvents = await getPreviousEvents(eventInterval);
     return queryClient.setQueryData(
         queryKeys.events.getPrevious(),
         previousEvents
@@ -32,19 +32,19 @@ export async function refetchPreviousEvents() {
 }
 
 export async function refetchNextEvents() {
-    const evtIntvl = useStore.getState().evtIntvl;
-    const nextEvents = await getNextEvents(evtIntvl);
+    const eventInterval = useStore.getState().eventInterval;
+    const nextEvents = await getNextEvents(eventInterval);
     return queryClient.setQueryData(queryKeys.events.getNext(), nextEvents);
 }
 
-export function invalidateOnEventChange(evtIntvl: CalInterval) {
-    invalidateEventsOnDay(evtIntvl.start);
-    invalidateEventsOnWeek(evtIntvl.start);
-    invalidateEventsOnMonth(evtIntvl.start);
+export function invalidateOnEventChange(eventInterval: CalInterval) {
+    invalidateEventsOnDay(eventInterval.start);
+    invalidateEventsOnWeek(eventInterval.start);
+    invalidateEventsOnMonth(eventInterval.start);
 
-    invalidateEventsOnDay(evtIntvl.end);
-    invalidateEventsOnWeek(evtIntvl.end);
-    invalidateEventsOnMonth(evtIntvl.end);
+    invalidateEventsOnDay(eventInterval.end);
+    invalidateEventsOnWeek(eventInterval.end);
+    invalidateEventsOnMonth(eventInterval.end);
 
     refetchPreviousEvents();
     refetchNextEvents();

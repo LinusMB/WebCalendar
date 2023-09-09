@@ -49,87 +49,89 @@ export function now() {
     return new Date();
 }
 
-export function todayToFmt(fmt: string = "yyyy-MM-dd") {
-    return df.format(today(), fmt);
-}
-
-export function dateToFmt(date: Date, fmt: string = "yyyy-MM-dd") {
+export function formatDate(date: Date, fmt: string = "yyyy-MM-dd") {
     return df.format(date, fmt);
 }
 
 export function eachDayInWeek(date: Date) {
-    const { start, end } = getWeekIntvl(date);
+    const { start, end } = getWeekInterval(date, false);
     return df.eachDayOfInterval({ start, end });
 }
 
 export function eachDayInMonth(date: Date) {
-    const { start, end } = getMonthIntvl(date);
+    const { start, end } = getMonthInterval(date, false);
     return df.eachDayOfInterval({ start, end });
 }
 
-// TODO: rename to eachWeekArrayInMonth
 export function eachWeekInMonth(date: Date) {
-    const { start, end } = getMonthIntvl(date);
-    let weeksInMonth = [];
-    for (
-        let d = df.startOfWeek(start, { weekStartsOn: 1 });
-        df.isBefore(d, end) || df.isEqual(d, end);
-        d = incWeek(d)
-    ) {
-        weeksInMonth.push(eachDayInWeek(d));
-    }
-    return weeksInMonth;
+    const monthInterval = getMonthInterval(date, false);
+    const startOfWeekArray = df.eachWeekOfInterval(monthInterval, {
+        weekStartsOn: 1,
+    });
+    return startOfWeekArray.map((startOfWeek) => eachDayInWeek(startOfWeek));
 }
 
-export function dateToHourIntvl(date: Date): CalInterval {
-    const start = df.startOfHour(date);
-    const end = incHour(start);
-    return { start, end };
-}
-
-export function wholeDayIntvl(date: Date): CalInterval {
+/* BEGIN TODO: remove */
+export function wholeDayInterval(date: Date): CalInterval {
     const d = df.startOfDay(date);
     return { start: d, end: d };
 }
 
-export function todayWholeDayIntvl(): CalInterval {
+export function todayWholeDayInterval(): CalInterval {
     const d = today();
     return { start: d, end: d };
 }
 
-export function isWholeDayIntvl({ start, end }: CalInterval) {
+export function isWholeDayInterval({ start, end }: CalInterval) {
     const s = df.startOfDay(start);
     return df.isEqual(start, end) && df.isEqual(start, s);
 }
+/* END */
 
-export function getDayIntvl(date: Date): CalInterval {
+export function getHourInterval(date: Date, halfOpen = true): CalInterval {
+    const start = df.startOfHour(date);
+    const end = halfOpen ? df.startOfHour(incHour(date)) : df.endOfHour(date);
+    return { start, end };
+}
+
+export function getDayInterval(date: Date, halfOpen = true): CalInterval {
     const start = df.startOfDay(date);
-    const end = df.startOfDay(incDay(date));
+    const end = halfOpen ? df.startOfDay(incDay(date)) : df.endOfDay(date);
     return { start, end };
 }
 
-export function getWeekIntvl(date: Date): CalInterval {
-    const start = df.startOfWeek(date, { weekStartsOn: 1 });
-    const end = df.endOfWeek(date, { weekStartsOn: 1 });
+export function getWeekInterval(date: Date, halfOpen = true): CalInterval {
+    const start = df.startOfISOWeek(date);
+    const end = halfOpen
+        ? df.startOfISOWeek(incWeek(date))
+        : df.endOfISOWeek(date);
     return { start, end };
 }
 
-export function getMonthIntvl(date: Date): CalInterval {
+export function getMonthInterval(date: Date, halfOpen = true): CalInterval {
     const start = df.startOfMonth(date);
-    const end = df.endOfMonth(date);
+    const end = halfOpen
+        ? df.startOfMonth(incMonth(date))
+        : df.endOfMonth(date);
     return { start, end };
 }
 
-export function clampToDayIntvl(intvl: CalInterval, date: Date): CalInterval {
-    const dayIntvl = getDayIntvl(date);
+export function clampToDayInterval(
+    interval: CalInterval,
+    date: Date
+): CalInterval {
+    const dayInterval = getDayInterval(date);
     return {
-        start: intvl.start < dayIntvl.start ? dayIntvl.start : intvl.start,
-        end: intvl.end > dayIntvl.end ? dayIntvl.end : intvl.end,
+        start: df.clamp(interval.start, dayInterval),
+        end: df.clamp(interval.end, dayInterval),
     };
 }
 
-export function intvlBelongsToDayIntvl(intvl: CalInterval, date: Date) {
-    return df.areIntervalsOverlapping(intvl, getDayIntvl(date));
+export function intervalBelongsToDayInterval(
+    interval: CalInterval,
+    date: Date
+) {
+    return df.areIntervalsOverlapping(interval, getDayInterval(date));
 }
 
 export function getHourSpec(date: Date): [number, number, number] {
@@ -141,13 +143,7 @@ export function getDaySpec(date: Date): [number, number] {
 }
 
 export function getWeekSpec(date: Date): [number, number] {
-    return [
-        df.getYear(date),
-        df.getWeek(date, {
-            weekStartsOn: 1,
-            firstWeekContainsDate: 7,
-        }),
-    ];
+    return [df.getYear(date), df.getISOWeek(date)];
 }
 
 export function getMonthSpec(date: Date): [number, number] {

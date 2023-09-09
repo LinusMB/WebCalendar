@@ -9,9 +9,9 @@ import {
     eachDayInMonth,
     eachWeekOfInterval,
     areIntervalsOverlapping,
-    getDayIntvl,
-    getWeekIntvl,
-    getMonthIntvl,
+    getDayInterval,
+    getWeekInterval,
+    getMonthInterval,
     getWeekSpec,
     getMonthSpec,
 } from "../services/dates";
@@ -52,40 +52,46 @@ const viewDateToArgs = {
     month: getMonthSpec,
 };
 
-export function useEvtsForDay(viewDate: Date) {
+export function useEventsForDay(viewDate: Date) {
     const [isoDate] = viewDateToArgs.day(viewDate);
     const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_DAY(isoDate));
-        const evts = await res.json();
-        return evts?.map(adaptor.event) || [];
+        const events = await res.json();
+        return events?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByDay(isoDate);
     return useQuery(queryKey, queryFn, {
         placeholderData: () => {
-            const dayIntvl = getDayIntvl(viewDate);
+            const dayInterval = getDayInterval(viewDate);
             {
                 const [year, week] = viewDateToArgs.week(viewDate);
                 const queryKey = queryKeys.events.getByWeek(year, week);
-                const evtsForWeek =
+                const eventsForWeek =
                     queryClient.getQueryData<CalEvent[]>(queryKey);
-                const evts = filterEvents(evtsForWeek || [], (e) =>
-                    areIntervalsOverlapping(pick(["start", "end"], e), dayIntvl)
+                const events = filterEvents(eventsForWeek || [], (e) =>
+                    areIntervalsOverlapping(
+                        pick(["start", "end"], e),
+                        dayInterval
+                    )
                 );
-                if (evts) {
-                    return evts;
+                if (events) {
+                    return events;
                 }
             }
             {
                 const [year, month] = viewDateToArgs.month(viewDate);
                 const queryKey = queryKeys.events.getByMonth(year, month);
-                const evtsForMonth =
+                const eventsForMonth =
                     queryClient.getQueryData<CalEvent[]>(queryKey);
-                const evts = filterEvents(evtsForMonth || [], (e) =>
-                    areIntervalsOverlapping(pick(["start", "end"], e), dayIntvl)
+                const events = filterEvents(eventsForMonth || [], (e) =>
+                    areIntervalsOverlapping(
+                        pick(["start", "end"], e),
+                        dayInterval
+                    )
                 );
-                if (evts) {
-                    return evts;
+                if (events) {
+                    return events;
                 }
             }
             return [];
@@ -93,13 +99,13 @@ export function useEvtsForDay(viewDate: Date) {
     });
 }
 
-export function useEvtsForWeek(viewDate: Date) {
+export function useEventsForWeek(viewDate: Date) {
     const [year, week] = viewDateToArgs.week(viewDate);
     const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_WEEK(year, week));
-        const evts = await res.json();
-        return evts?.map(adaptor.event) || [];
+        const events = await res.json();
+        return events?.map(adaptor.event) || [];
     };
 
     const queryKey = queryKeys.events.getByWeek(year, week);
@@ -108,84 +114,87 @@ export function useEvtsForWeek(viewDate: Date) {
             {
                 const [year, month] = viewDateToArgs.month(viewDate);
                 const queryKey = queryKeys.events.getByMonth(year, month);
-                const evtsForMonth =
+                const eventsForMonth =
                     queryClient.getQueryData<CalEvent[]>(queryKey);
-                const weekIntvl = getWeekIntvl(viewDate);
-                const evts = filterEvents(evtsForMonth || [], (e) =>
+                const weekInterval = getWeekInterval(viewDate);
+                const events = filterEvents(eventsForMonth || [], (e) =>
                     areIntervalsOverlapping(
                         pick(["start", "end"], e),
-                        weekIntvl
+                        weekInterval
                     )
                 );
-                if (evts) {
-                    return evts;
+                if (events) {
+                    return events;
                 }
             }
             {
                 const eachDay = eachDayInWeek(viewDate);
-                const evts = eachDay.flatMap((d) => {
+                const events = eachDay.flatMap((d) => {
                     const [isoDate] = viewDateToArgs.day(d);
                     const queryKey = queryKeys.events.getByDay(isoDate);
                     return queryClient.getQueryData<CalEvent[]>(queryKey) || [];
                 });
-                return uniqBy(prop("uuid"), evts);
+                return uniqBy(prop("uuid"), events);
             }
         },
     });
 }
 
-export function useEvtsForMonth(viewDate: Date) {
+export function useEventsForMonth(viewDate: Date) {
     const [year, month] = viewDateToArgs.month(viewDate);
     const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_MONTH(year, month));
-        const evts = await res.json();
-        return evts?.map(adaptor.event) || [];
+        const events = await res.json();
+        return events?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByMonth(year, month);
     return useQuery(queryKey, queryFn, {
         placeholderData: () => {
             {
-                const eachWeek = eachWeekOfInterval(getMonthIntvl(viewDate), {
-                    weekStartsOn: 1,
-                });
-                let evts = eachWeek.flatMap((w) => {
+                const eachWeek = eachWeekOfInterval(
+                    getMonthInterval(viewDate),
+                    {
+                        weekStartsOn: 1,
+                    }
+                );
+                let events = eachWeek.flatMap((w) => {
                     const [year, week] = viewDateToArgs.week(w);
                     const queryKey = queryKeys.events.getByWeek(year, week);
                     return queryClient.getQueryData<CalEvent[]>(queryKey) || [];
                 });
-                evts = uniqBy(prop("uuid"), evts);
-                if (evts) {
-                    return evts;
+                events = uniqBy(prop("uuid"), events);
+                if (events) {
+                    return events;
                 }
             }
             {
                 const eachDay = eachDayInMonth(viewDate);
-                const evts = eachDay.flatMap((d) => {
+                const events = eachDay.flatMap((d) => {
                     const [isoDate] = viewDateToArgs.day(d);
                     const queryKey = queryKeys.events.getByDay(isoDate);
                     return queryClient.getQueryData<CalEvent[]>(queryKey) || [];
                 });
-                return uniqBy(prop("uuid"), evts);
+                return uniqBy(prop("uuid"), events);
             }
         },
     });
 }
 
-export async function getPreviousEvents(intvl: CalInterval) {
-    const start = formatRFC3339(intvl.start);
+export async function getPreviousEvents(interval: CalInterval) {
+    const start = formatRFC3339(interval.start);
 
     const data = queryClient.getQueriesData({
         queryKey: queryKeys.events.getAll(),
         exact: false,
         stale: false,
     });
-    const allEvts = data.flatMap(([_, evts]) =>
-        isArrayOfCalEvents(evts) ? evts : []
+    const allEvents = data.flatMap(([_, events]) =>
+        isArrayOfCalEvents(events) ? events : []
     );
-    const prevEvt = findClosestPreviousEvent(allEvts, intvl);
-    if (prevEvt != null) {
-        return [prevEvt];
+    const prevEvent = findClosestPreviousEvent(allEvents, interval);
+    if (prevEvent != null) {
+        return [prevEvent];
     }
 
     const res = await fetch(
@@ -196,24 +205,24 @@ export async function getPreviousEvents(intvl: CalInterval) {
             limit: 1,
         })
     );
-    const evts = await res.json();
-    return evts?.map(adaptor.event) || [];
+    const events = await res.json();
+    return events?.map(adaptor.event) || [];
 }
 
-export async function getNextEvents(intvl: CalInterval) {
-    const end = formatRFC3339(intvl.end);
+export async function getNextEvents(interval: CalInterval) {
+    const end = formatRFC3339(interval.end);
 
     const data = queryClient.getQueriesData({
         queryKey: queryKeys.events.getAll(),
         exact: false,
         stale: false,
     });
-    const allEvts = data.flatMap(([_, evts]) =>
-        isArrayOfCalEvents(evts) ? evts : []
+    const allEvents = data.flatMap(([_, events]) =>
+        isArrayOfCalEvents(events) ? events : []
     );
-    const nextEvt = findClosestNextEvent(allEvts, intvl);
-    if (nextEvt != null) {
-        return [nextEvt];
+    const nextEvent = findClosestNextEvent(allEvents, interval);
+    if (nextEvent != null) {
+        return [nextEvent];
     }
 
     const res = await fetch(
@@ -224,30 +233,30 @@ export async function getNextEvents(intvl: CalInterval) {
             limit: 1,
         })
     );
-    const evts = await res.json();
-    return evts?.map(adaptor.event) || [];
+    const events = await res.json();
+    return events?.map(adaptor.event) || [];
 }
 
-export function useGetPreviousEvents(intvl: CalInterval) {
+export function useGetPreviousEvents(interval: CalInterval) {
     return useQuery(queryKeys.events.getPrevious(), () =>
-        getPreviousEvents(intvl)
+        getPreviousEvents(interval)
     );
 }
 
-export function useGetNextEvents(intvl: CalInterval) {
-    return useQuery(queryKeys.events.getNext(), () => getNextEvents(intvl));
+export function useGetNextEvents(interval: CalInterval) {
+    return useQuery(queryKeys.events.getNext(), () => getNextEvents(interval));
 }
 
 // TODO: invalidate in `onSettled`
-export function useAddEvt() {
+export function useAddEvent() {
     const mutationFn = async ({
         title,
         description,
-        evtIntvl,
+        eventInterval,
     }: {
         title: string;
         description: string;
-        evtIntvl: CalInterval;
+        eventInterval: CalInterval;
     }) => {
         const res = await fetch(api.ROUTES.CREATE, {
             method: "POST",
@@ -257,8 +266,8 @@ export function useAddEvt() {
             body: JSON.stringify({
                 title: title,
                 description: description,
-                date_from: formatRFC3339(evtIntvl.start),
-                date_to: formatRFC3339(evtIntvl.end),
+                date_from: formatRFC3339(eventInterval.start),
+                date_to: formatRFC3339(eventInterval.end),
             }),
         });
         return res.json();
@@ -266,17 +275,17 @@ export function useAddEvt() {
     return useMutation(mutationFn);
 }
 
-export function useEditEvt() {
+export function useEditEvent() {
     const mutationFn = async ({
         uuid,
         title,
         description,
-        evtIntvl,
+        eventInterval,
     }: {
         uuid: string;
         title: string;
         description: string;
-        evtIntvl: CalInterval;
+        eventInterval: CalInterval;
     }) => {
         const res = await fetch(api.ROUTES.UPDATE(uuid), {
             method: "PUT",
@@ -286,8 +295,8 @@ export function useEditEvt() {
             body: JSON.stringify({
                 title: title,
                 description: description,
-                date_from: formatRFC3339(evtIntvl.start),
-                date_to: formatRFC3339(evtIntvl.end),
+                date_from: formatRFC3339(eventInterval.start),
+                date_to: formatRFC3339(eventInterval.end),
             }),
         });
         return res.json();
@@ -295,7 +304,7 @@ export function useEditEvt() {
     return useMutation(mutationFn);
 }
 
-export function useDeleteEvt() {
+export function useDeleteEvent() {
     const mutationFn = async ({ uuid }: { uuid: string }) => {
         const res = await fetch(api.ROUTES.DELETE(uuid), {
             method: "DELETE",

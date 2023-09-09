@@ -41,7 +41,7 @@ import "./IntervalFields.css";
 export interface ToFieldProps {
     date?: Date;
     isWholeDay?: boolean;
-    isEvtIntvlActive: boolean;
+    isEventIntervalActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
 }
@@ -50,13 +50,13 @@ export function ToField({
     date = zeroDate,
     updateDate = () => {},
     isWholeDay = false,
-    isEvtIntvlActive,
+    isEventIntervalActive,
     className = "",
 }: ToFieldProps) {
     return (
         <div className={`interval-field ${className}`}>
             {"to "}
-            {isEvtIntvlActive ? (
+            {isEventIntervalActive ? (
                 <DateDisplay
                     date={date}
                     updateDate={updateDate}
@@ -72,7 +72,7 @@ export function ToField({
 export interface FromFieldProps {
     date?: Date;
     isWholeDay?: boolean;
-    isEvtIntvlActive: boolean;
+    isEventIntervalActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
 }
@@ -81,13 +81,13 @@ export function FromField({
     date = zeroDate,
     updateDate = () => {},
     isWholeDay = false,
-    isEvtIntvlActive,
+    isEventIntervalActive,
     className = "",
 }: FromFieldProps) {
     return (
         <div className={`interval-field ${className}`}>
             {"from "}
-            {isEvtIntvlActive ? (
+            {isEventIntervalActive ? (
                 <DateDisplay
                     date={date}
                     updateDate={updateDate}
@@ -141,12 +141,12 @@ function YearSelection({
     numYearsPast = 5,
     numYearsFuture = 5,
 }: YearSelectionProps) {
-    const intvl = {
+    const interval = {
         start: subYears(date, numYearsPast),
         end: addYears(date, numYearsFuture),
     };
 
-    const items = eachYearOfInterval(intvl).map((d) => ({
+    const items = eachYearOfInterval(interval).map((d) => ({
         date: d,
         dateStr: format(d, fmt),
     }));
@@ -174,12 +174,12 @@ interface MonthSelectionProps {
 }
 
 function MonthSelection({ date, updateDate, fmt = "MM" }: MonthSelectionProps) {
-    const intvl = {
+    const interval = {
         start: startOfYear(date),
         end: endOfYear(date),
     };
 
-    const items = eachMonthOfInterval(intvl).map((d) => ({
+    const items = eachMonthOfInterval(interval).map((d) => ({
         date: d,
         dateStr: format(d, fmt),
     }));
@@ -207,12 +207,12 @@ interface DaySelectionProps {
 }
 
 function DaySelection({ date, updateDate, fmt = "dd" }: DaySelectionProps) {
-    const intvl = {
+    const interval = {
         start: startOfMonth(date),
         end: endOfMonth(date),
     };
 
-    const items = eachDayOfInterval(intvl).map((d) => ({
+    const items = eachDayOfInterval(interval).map((d) => ({
         date: d,
         dateStr: format(d, fmt),
     }));
@@ -240,12 +240,12 @@ interface HourSelectionProps {
 }
 
 function HourSelection({ date, updateDate, fmt = "HH" }: HourSelectionProps) {
-    const intvl = {
+    const interval = {
         start: startOfDay(date),
         end: endOfDay(date),
     };
 
-    const items = eachHourOfInterval(intvl).map((d) => ({
+    const items = eachHourOfInterval(interval).map((d) => ({
         date: d,
         dateStr: format(d, fmt),
     }));
@@ -277,12 +277,12 @@ function MinuteSelection({
     updateDate,
     fmt = "mm",
 }: MinuteSelectionProps) {
-    const intvl = {
+    const interval = {
         start: startOfHour(date),
         end: endOfHour(date),
     };
 
-    const items = eachMinuteOfInterval(intvl).map((d) => ({
+    const items = eachMinuteOfInterval(interval).map((d) => ({
         date: d,
         dateStr: format(d, fmt),
     }));

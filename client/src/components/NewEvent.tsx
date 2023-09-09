@@ -1,41 +1,41 @@
 import React from "react";
 
-import { INTVL_MIN_RESIZE_STEP } from "../constants";
+import { INTERVAL_MIN_RESIZE_STEP } from "../constants";
 import { FromField, ToField } from "./IntervalFields";
 import { useModal } from "../context/modal";
 import {
     useStorePick,
-    useEvtIntvlUpdateStart,
-    useEvtIntvlUpdateEnd,
+    useEventIntervalUpdateStart,
+    useEventIntervalUpdateEnd,
 } from "../store";
-import { isWholeDayIntvl } from "../services/dates";
+import { isWholeDayInterval } from "../services/dates";
 import { useGetPreviousEvents, useGetNextEvents } from "../hooks/events";
 
 import "./NewEvent.css";
 
 export default function NewEvent() {
-    const { isEvtIntvlVisible } = useStorePick("isEvtIntvlVisible");
+    const { isEventIntervalVisible } = useStorePick("isEventIntervalVisible");
 
-    if (isEvtIntvlVisible) {
+    if (isEventIntervalVisible) {
         return <NewEventActive />;
     }
     return <NewEventInactive />;
 }
 
 function NewEventActive() {
-    const { evtIntvl } = useStorePick("evtIntvl");
+    const { eventInterval } = useStorePick("eventInterval");
 
-    const { data: prevEvts = [] } = useGetPreviousEvents(evtIntvl);
-    const { data: nextEvts = [] } = useGetNextEvents(evtIntvl);
+    const { data: prevEvents = [] } = useGetPreviousEvents(eventInterval);
+    const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 
     const { setIsModalOpen, setModalDataMode } = useModal();
-    const updateEvtIntvlStart = useEvtIntvlUpdateStart(
-        INTVL_MIN_RESIZE_STEP,
-        prevEvts
+    const updateEventIntervalStart = useEventIntervalUpdateStart(
+        INTERVAL_MIN_RESIZE_STEP,
+        prevEvents
     );
-    const updateEvtIntvlEnd = useEvtIntvlUpdateEnd(
-        INTVL_MIN_RESIZE_STEP,
-        nextEvts
+    const updateEventIntervalEnd = useEventIntervalUpdateEnd(
+        INTERVAL_MIN_RESIZE_STEP,
+        nextEvents
     );
 
     return (
@@ -51,17 +51,17 @@ function NewEventActive() {
             </button>
             <FromField
                 className="new-event__from"
-                date={evtIntvl.start}
-                updateDate={updateEvtIntvlStart}
-                isWholeDay={isWholeDayIntvl(evtIntvl)}
-                isEvtIntvlActive={true}
+                date={eventInterval.start}
+                updateDate={updateEventIntervalStart}
+                isWholeDay={isWholeDayInterval(eventInterval)}
+                isEventIntervalActive={true}
             />
             <ToField
                 className="new-event__to"
-                date={evtIntvl.end}
-                updateDate={updateEvtIntvlEnd}
-                isWholeDay={isWholeDayIntvl(evtIntvl)}
-                isEvtIntvlActive={true}
+                date={eventInterval.end}
+                updateDate={updateEventIntervalEnd}
+                isWholeDay={isWholeDayInterval(eventInterval)}
+                isEventIntervalActive={true}
             />
         </div>
     );
@@ -73,8 +73,11 @@ function NewEventInactive() {
             <button className="new-event__btn" disabled={true}>
                 New Event
             </button>
-            <FromField className="new-event__from" isEvtIntvlActive={false} />
-            <ToField className="new-event__to" isEvtIntvlActive={false} />
+            <FromField
+                className="new-event__from"
+                isEventIntervalActive={false}
+            />
+            <ToField className="new-event__to" isEventIntervalActive={false} />
         </div>
     );
 }

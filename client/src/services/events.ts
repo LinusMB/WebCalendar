@@ -4,65 +4,65 @@ import {
     compareAsc,
     compareDesc,
     areIntervalsOverlapping,
-    getDayIntvl,
+    getDayInterval,
 } from "./dates";
 import { CalEvent, CalInterval } from "../types";
 
-export function sortEventsAsc(evts: CalEvent[]): CalEvent[] {
-    return sort((e1, e2) => compareAsc(e1.start, e2.start), evts);
+export function sortEventsAsc(events: CalEvent[]): CalEvent[] {
+    return sort((e1, e2) => compareAsc(e1.start, e2.start), events);
 }
 
-export function sortEventsDesc(evts: CalEvent[]): CalEvent[] {
-    return sort((e1, e2) => compareDesc(e1.start, e2.start), evts);
+export function sortEventsDesc(events: CalEvent[]): CalEvent[] {
+    return sort((e1, e2) => compareDesc(e1.start, e2.start), events);
 }
 
 export function findLatestEventOverlap(
-    evts: CalEvent[],
-    intvl: CalInterval
+    events: CalEvent[],
+    interval: CalInterval
 ): CalEvent | undefined {
-    const evtsDesc = sortEventsDesc(evts);
+    const eventsDesc = sortEventsDesc(events);
     return find(
-        (evt) => areIntervalsOverlapping(pick(["start", "end"], evt), intvl),
-        evtsDesc
+        (event) => areIntervalsOverlapping(pick(["start", "end"], event), interval),
+        eventsDesc
     );
 }
 
 export function findEarliestEventOverlap(
-    evts: CalEvent[],
-    intvl: CalInterval
+    events: CalEvent[],
+    interval: CalInterval
 ): CalEvent | undefined {
-    const evtsAsc = sortEventsAsc(evts);
+    const eventsAsc = sortEventsAsc(events);
     return find(
-        (evt) => areIntervalsOverlapping(pick(["start", "end"], evt), intvl),
-        evtsAsc
+        (event) => areIntervalsOverlapping(pick(["start", "end"], event), interval),
+        eventsAsc
     );
 }
 
 export function findClosestNextEvent(
-    evts: CalEvent[],
-    intvl: CalInterval
+    events: CalEvent[],
+    interval: CalInterval
 ): CalEvent | undefined {
-    const evtsAsc = sortEventsAsc(evts);
-    return find((evt) => evt.start >= intvl.end, evtsAsc);
+    const eventsAsc = sortEventsAsc(events);
+    return find((event) => event.start >= interval.end, eventsAsc);
 }
 
 export function findClosestPreviousEvent(
-    evts: CalEvent[],
-    intvl: CalInterval
+    events: CalEvent[],
+    interval: CalInterval
 ): CalEvent | undefined {
-    const evtsDesc = sortEventsDesc(evts);
-    return find((evt) => evt.end <= intvl.start, evtsDesc);
+    const eventsDesc = sortEventsDesc(events);
+    return find((event) => event.end <= interval.start, eventsDesc);
 }
 
 export function filterEvents(
-    evts: CalEvent[],
+    events: CalEvent[],
     ...filterFns: ((e: CalEvent) => boolean)[]
 ) {
-    return filter(allPass(filterFns), evts);
+    return filter(allPass(filterFns), events);
 }
 
 export function viewDateFilter(viewDate: Date) {
-    const intvl = getDayIntvl(viewDate);
+    const interval = getDayInterval(viewDate);
     return (e: CalEvent) =>
-        areIntervalsOverlapping(pick(["start", "end"], e), intvl);
+        areIntervalsOverlapping(pick(["start", "end"], e), interval);
 }

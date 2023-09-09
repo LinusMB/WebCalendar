@@ -10,12 +10,12 @@ import { WindowHelper } from "../services/windowHelper";
 import { useStorePick } from "../store";
 import {
     weekdayMap,
-    wholeDayIntvl,
-    dateToFmt,
+    wholeDayInterval,
+    formatDate,
     getDay,
     incDay,
     decDay,
-    dateToHourIntvl,
+    getHourInterval,
     setHours,
     momentDay,
     momentHour,
@@ -33,7 +33,7 @@ function DayViewHeader() {
         "updateViewDate"
     );
 
-    const dateStr = `${weekdayMap.get(getDay(viewDate))} ${dateToFmt(
+    const dateStr = `${weekdayMap.get(getDay(viewDate))} ${formatDate(
         viewDate
     )}`;
     function onClickLeftChv() {
@@ -56,13 +56,17 @@ function DayViewHeader() {
 }
 
 function DayViewWholeDayRow() {
-    const { viewDate, setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } =
-        useStorePick(
-            "viewDate",
-            "setEvtIntvl",
-            "isEvtIntvlVisible",
-            "setIsEvtIntvlVisible"
-        );
+    const {
+        viewDate,
+        setEventInterval,
+        isEventIntervalVisible,
+        setIsEventIntervalVisible,
+    } = useStorePick(
+        "viewDate",
+        "setEventInterval",
+        "isEventIntervalVisible",
+        "setIsEventIntervalVisible"
+    );
 
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
     const $cell = useRef<HTMLDivElement>(null);
@@ -95,8 +99,8 @@ function DayViewWholeDayRow() {
                             e.clientY >= top &&
                             e.clientY <= bottom
                         ) {
-                            setEvtIntvl(wholeDayIntvl(viewDate));
-                            setIsEvtIntvlVisible(true);
+                            setEventInterval(wholeDayInterval(viewDate));
+                            setIsEventIntervalVisible(true);
                         }
                     }}
                     className="day-view__event day-view__event--whole-day"
@@ -108,7 +112,7 @@ function DayViewWholeDayRow() {
                                 viewDate={viewDate}
                                 windowHelper={windowHelper}
                             />
-                            {isEvtIntvlVisible && (
+                            {isEventIntervalVisible && (
                                 <EventInterval
                                     viewDate={viewDate}
                                     windowHelper={windowHelper}
@@ -123,10 +127,10 @@ function DayViewWholeDayRow() {
 }
 
 function DayViewHourRow({ hour }: { hour: number }) {
-    const { viewDate, setEvtIntvl, setIsEvtIntvlVisible } = useStorePick(
+    const { viewDate, setEventInterval, setIsEventIntervalVisible } = useStorePick(
         "viewDate",
-        "setEvtIntvl",
-        "setIsEvtIntvlVisible"
+        "setEventInterval",
+        "setIsEventIntervalVisible"
     );
 
     function computeIsCurHour(hour: number) {
@@ -152,8 +156,8 @@ function DayViewHourRow({ hour }: { hour: number }) {
             </Table.Cell>
             <Table.Cell
                 onClick={function () {
-                    setEvtIntvl(dateToHourIntvl(setHours(viewDate, hour)));
-                    setIsEvtIntvlVisible(true);
+                    setEventInterval(getHourInterval(setHours(viewDate, hour)));
+                    setIsEventIntervalVisible(true);
                     refetchPreviousEvents();
                     refetchNextEvents();
                 }}

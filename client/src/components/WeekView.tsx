@@ -15,12 +15,12 @@ import {
     getYear,
     setHours,
     weekdayMap,
-    dateToFmt,
+    formatDate,
     eachDayInWeek,
-    wholeDayIntvl,
+    wholeDayInterval,
     incWeek,
     decWeek,
-    dateToHourIntvl,
+    getHourInterval,
     momentHour,
     momentWeek,
     momentDay,
@@ -68,10 +68,10 @@ function WeekViewDayCell({ date }: { date: Date }) {
 
     function onClickHandler() {
         setViewDate(date);
-        navigate(`/day/${dateToFmt(date)}`);
+        navigate(`/day/${formatDate(date)}`);
     }
 
-    const dateStr = `${weekdayMap.get(getDay(date))} ${dateToFmt(date)}`;
+    const dateStr = `${weekdayMap.get(getDay(date))} ${formatDate(date)}`;
 
     return (
         <Table.Cell onClick={onClickHandler} className="week-view__day">
@@ -92,11 +92,11 @@ function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
-    const { setEvtIntvl, isEvtIntvlVisible, setIsEvtIntvlVisible } =
+    const { setEventInterval, isEventIntervalVisible, setIsEventIntervalVisible } =
         useStorePick(
-            "setEvtIntvl",
-            "isEvtIntvlVisible",
-            "setIsEvtIntvlVisible"
+            "setEventInterval",
+            "isEventIntervalVisible",
+            "setIsEventIntervalVisible"
         );
 
     const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
@@ -132,8 +132,8 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                                 e.clientY >= top &&
                                 e.clientY <= bottom
                             ) {
-                                setEvtIntvl(wholeDayIntvl(d));
-                                setIsEvtIntvlVisible(true);
+                                setEventInterval(wholeDayInterval(d));
+                                setIsEventIntervalVisible(true);
                             }
                         }}
                         className="week-view__event week-view__event--whole-day"
@@ -147,7 +147,7 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
                                     viewDate={d}
                                     windowHelper={windowHelperList[i]}
                                 />
-                                {isEvtIntvlVisible && (
+                                {isEventIntervalVisible && (
                                     <EventInterval
                                         viewDate={d}
                                         windowHelper={windowHelperList[i]}
@@ -163,9 +163,9 @@ function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
 }
 
 function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
-    const { setEvtIntvl, setIsEvtIntvlVisible } = useStorePick(
-        "setEvtIntvl",
-        "setIsEvtIntvlVisible"
+    const { setEventInterval, setIsEventIntervalVisible } = useStorePick(
+        "setEventInterval",
+        "setIsEventIntervalVisible"
     );
 
     function computeIsCurHour(hour: number, eachDay: Date[]) {
@@ -193,8 +193,8 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
                 <Table.Cell
                     key={i}
                     onClick={function () {
-                        setEvtIntvl(dateToHourIntvl(setHours(d, hour)));
-                        setIsEvtIntvlVisible(true);
+                        setEventInterval(getHourInterval(setHours(d, hour)));
+                        setIsEventIntervalVisible(true);
                         refetchPreviousEvents();
                         refetchNextEvents();
                     }}
