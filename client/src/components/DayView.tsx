@@ -1,4 +1,10 @@
-import React, { Fragment, useState, useRef, useEffect } from "react";
+import React, {
+    Fragment,
+    useState,
+    useRef,
+    useEffect,
+    forwardRef,
+} from "react";
 import { range } from "ramda";
 
 import { EventsProvider } from "../context/events";
@@ -10,7 +16,8 @@ import { WindowHelper } from "../services/windowHelper";
 import { useStorePick } from "../store";
 import {
     weekdayMap,
-    wholeDayInterval,
+    areIntervalsOverlapping,
+    getDayInterval,
     formatDate,
     getDay,
     incDay,
@@ -55,19 +62,88 @@ function DayViewHeader() {
     );
 }
 
-function DayViewWholeDayRow() {
-    const {
-        viewDate,
-        setEventInterval,
-        isEventIntervalVisible,
-        setIsEventIntervalVisible,
-    } = useStorePick(
+function _DayViewHourRow(
+    { hour }: { hour: number },
+    ref: React.ForwardedRef<HTMLDivElement>
+) {
+    const { viewDate, setEventInterval, setIsEventIntervalVisible } =
+        useStorePick(
+            "viewDate",
+            "setEventInterval",
+            "setIsEventIntervalVisible"
+        );
+
+    function computeIsCurHour(hour: number) {
+        return momentHour(setHours(viewDate, hour)) === "present";
+    }
+
+    const [isCurHour, setIsCurHour] = useState(computeIsCurHour(hour));
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setIsCurHour(computeIsCurHour(hour));
+        }, 60 * 1000);
+
+        return () => clearTimeout(timeout);
+    }, [isCurHour, hour]);
+
+    return (
+        <Table.Row className="day-view__row">
+            <Table.Cell className="day-view__time">
+                <span className={isCurHour ? "text--present" : ""}>
+                    {hour.toString().padStart(2, "0")}
+                </span>
+            </Table.Cell>
+            <Table.Cell
+                onClick={function () {
+                    setEventInterval(getHourInterval(setHours(viewDate, hour)));
+                    setIsEventIntervalVisible(true);
+                    refetchPreviousEvents();
+                    refetchNextEvents();
+                }}
+                className="day-view__event"
+                ref={ref}
+            ></Table.Cell>
+        </Table.Row>
+    );
+}
+
+const DayViewHourRow = forwardRef(_DayViewHourRow);
+
+function EventWindowContainer({
+    windowHelper,
+}: {
+    windowHelper: WindowHelper | null;
+}) {
+    const { viewDate, eventInterval, isEventIntervalVisible } = useStorePick(
         "viewDate",
-        "setEventInterval",
-        "isEventIntervalVisible",
-        "setIsEventIntervalVisible"
+        "eventInterval",
+        "isEventIntervalVisible"
     );
 
+    const isShowEventInterval =
+        isEventIntervalVisible &&
+        areIntervalsOverlapping(eventInterval, getDayInterval(viewDate));
+
+    return (
+        <Table.Row className="day-view__row day-view__row--anchor">
+            <Table.Cell className="day-view__time day-view__time--anchor" />
+            <Table.Cell className="day-view__event day-view__event--anchor">
+                {windowHelper && (
+                    <Events viewDate={viewDate} windowHelper={windowHelper} />
+                )}
+                {windowHelper && isShowEventInterval && (
+                    <EventInterval
+                        viewDate={viewDate}
+                        windowHelper={windowHelper}
+                    />
+                )}
+            </Table.Cell>
+        </Table.Row>
+    );
+}
+
+function DayViewGrid() {
     const [windowHelper, setWindowHelper] = useState<WindowHelper | null>(null);
     const $cell = useRef<HTMLDivElement>(null);
     function updateWindowHelper() {
@@ -86,93 +162,9 @@ function DayViewWholeDayRow() {
 
     return (
         <Fragment>
-            <Table.Row className="day-view__row">
-                <Table.Cell className="day-view__left">Whole Day</Table.Cell>
-                <Table.Cell
-                    onClick={function (e) {
-                        if (!$cell.current) return;
-                        const { top, right, bottom, left } =
-                            $cell.current.getBoundingClientRect();
-                        if (
-                            e.clientX >= left &&
-                            e.clientX <= right &&
-                            e.clientY >= top &&
-                            e.clientY <= bottom
-                        ) {
-                            setEventInterval(wholeDayInterval(viewDate));
-                            setIsEventIntervalVisible(true);
-                        }
-                    }}
-                    className="day-view__event day-view__event--whole-day"
-                    ref={$cell}
-                >
-                    {windowHelper && (
-                        <Fragment>
-                            <Events
-                                viewDate={viewDate}
-                                windowHelper={windowHelper}
-                            />
-                            {isEventIntervalVisible && (
-                                <EventInterval
-                                    viewDate={viewDate}
-                                    windowHelper={windowHelper}
-                                />
-                            )}
-                        </Fragment>
-                    )}
-                </Table.Cell>
-            </Table.Row>
-        </Fragment>
-    );
-}
-
-function DayViewHourRow({ hour }: { hour: number }) {
-    const { viewDate, setEventInterval, setIsEventIntervalVisible } = useStorePick(
-        "viewDate",
-        "setEventInterval",
-        "setIsEventIntervalVisible"
-    );
-
-    function computeIsCurHour(hour: number) {
-        return momentHour(setHours(viewDate, hour)) === "present";
-    }
-
-    const [isCurHour, setIsCurHour] = useState(computeIsCurHour(hour));
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setIsCurHour(computeIsCurHour(hour));
-        }, 60 * 1000);
-
-        return () => clearTimeout(timeout);
-    }, [isCurHour, hour]);
-
-    return (
-        <Table.Row className="day-view__row">
-            <Table.Cell className="day-view__left">
-                <span className={isCurHour ? "text--present" : ""}>
-                    {hour.toString().padStart(2, "0")}
-                </span>
-            </Table.Cell>
-            <Table.Cell
-                onClick={function () {
-                    setEventInterval(getHourInterval(setHours(viewDate, hour)));
-                    setIsEventIntervalVisible(true);
-                    refetchPreviousEvents();
-                    refetchNextEvents();
-                }}
-                className="day-view__event"
-            ></Table.Cell>
-        </Table.Row>
-    );
-}
-
-function DayViewGrid() {
-    return (
-        <Fragment>
-            <DayViewWholeDayRow />
+            <EventWindowContainer windowHelper={windowHelper} />
             {range(0, 24).map((h, i) => (
-                <DayViewHourRow key={i} hour={h} />
+                <DayViewHourRow key={i} hour={h} ref={h === 0 ? $cell : null} />
             ))}
         </Fragment>
     );

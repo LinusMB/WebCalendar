@@ -8,7 +8,7 @@
     min-width: 1200px;
 }
 
-.week-view__left,
+.week-view__time,
 .week-view__event,
 .week-view__day {
     border-right: var(--table-border-size) solid var(--light-border-color);
@@ -16,7 +16,7 @@
 }
 
 /* flex item in row direction */
-.week-view__left {
+.week-view__time {
     text-align: center;
     flex: 0 0 130px;
 }
@@ -39,4 +39,17 @@
     border-bottom: var(--table-border-size) solid var(--light-border-color);
     flex: 0 0 50px;
     min-width: 450px;
+}
+
+.week-view__row--anchor {
+    flex: 0;
+}
+
+.week-view__event--anchor {
+    position: relative;
+    border: 0;
+}
+
+.week-view__time--anchor {
+    border: 0;
 }

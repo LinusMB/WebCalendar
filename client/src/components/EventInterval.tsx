@@ -13,15 +13,11 @@ import {
     useEventIntervalDecEnd,
 } from "../store";
 import {
-    intervalBelongsToDayInterval,
-    isSameDay,
-    isWholeDayInterval,
     clampToDayInterval,
     getDayInterval,
     isWithinInterval,
 } from "../services/dates";
 import { useGetPreviousEvents, useGetNextEvents } from "../hooks/events";
-import { CalInterval } from "../types";
 
 export interface EventIntervalProps {
     viewDate: Date;
@@ -34,41 +30,6 @@ export default function EventInterval({
 }: EventIntervalProps) {
     const { eventInterval } = useStorePick("eventInterval");
 
-    if (
-        isSameDay(viewDate, eventInterval.start) &&
-        isWholeDayInterval(eventInterval)
-    ) {
-        return <EventIntervalWholeDay windowHelper={windowHelper} />;
-    }
-
-    if (!intervalBelongsToDayInterval(eventInterval, viewDate)) return null;
-
-    return (
-        <EventIntervalResizable
-            viewDate={viewDate}
-            windowHelper={windowHelper}
-            eventInterval={eventInterval}
-        />
-    );
-}
-
-function EventIntervalWholeDay({
-    windowHelper,
-}: {
-    windowHelper: WindowHelper;
-}) {
-    return <Window dimensions={windowHelper.getDimensionsWholeDay()} />;
-}
-
-interface EventIntervalResizableProps extends EventIntervalProps {
-    eventInterval: CalInterval;
-}
-
-function EventIntervalResizable({
-    viewDate,
-    windowHelper,
-    eventInterval,
-}: EventIntervalResizableProps) {
     const { data: prevEvents = [] } = useGetPreviousEvents(eventInterval);
     const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 

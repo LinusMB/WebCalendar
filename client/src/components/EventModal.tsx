@@ -18,7 +18,6 @@ import {
     useGetNextEvents,
 } from "../hooks/events";
 import { invalidateOnEventChange } from "../react-query/invalidate";
-import { isWholeDayInterval } from "../services/dates";
 import { CalInterval } from "../types";
 
 import "./EventModal.css";
@@ -131,7 +130,7 @@ export default function EventModal() {
                     placeholder="Enter Title"
                     value={title}
                 />
-                {isEventIntervalVisible && !isWholeDayInterval(eventInterval) ? (
+                {isEventIntervalVisible ? (
                     <WithAdjustableInterval eventInterval={eventInterval}>
                         {({
                             updateEventIntervalStart,
@@ -187,13 +186,11 @@ function IntervalFields({
             <FromField
                 date={eventInterval.start}
                 updateDate={updateEventIntervalStart}
-                isWholeDay={isWholeDayInterval(eventInterval)}
                 isEventIntervalActive={isEventIntervalVisible}
             />
             <ToField
                 date={eventInterval.end}
                 updateDate={updateEventIntervalEnd}
-                isWholeDay={isWholeDayInterval(eventInterval)}
                 isEventIntervalActive={isEventIntervalVisible}
             />
         </Fragment>

@@ -8,7 +8,6 @@ import {
     useEventIntervalUpdateStart,
     useEventIntervalUpdateEnd,
 } from "../store";
-import { isWholeDayInterval } from "../services/dates";
 import { useGetPreviousEvents, useGetNextEvents } from "../hooks/events";
 
 import "./NewEvent.css";
@@ -53,14 +52,12 @@ function NewEventActive() {
                 className="new-event__from"
                 date={eventInterval.start}
                 updateDate={updateEventIntervalStart}
-                isWholeDay={isWholeDayInterval(eventInterval)}
                 isEventIntervalActive={true}
             />
             <ToField
                 className="new-event__to"
                 date={eventInterval.end}
                 updateDate={updateEventIntervalEnd}
-                isWholeDay={isWholeDayInterval(eventInterval)}
                 isEventIntervalActive={true}
             />
         </div>

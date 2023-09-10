@@ -3,16 +3,8 @@ import { CalInterval } from "../types";
 
 export class WindowHelper {
     private minInPixel: number;
-    private cellHeight: number;
     constructor(height: number) {
-        this.cellHeight = height;
         this.minInPixel = height / 60;
-    }
-    getDimensionsWholeDay() {
-        return {
-            top: 0,
-            height: this.cellHeight,
-        };
     }
     getDimensions(interval: CalInterval) {
         const minStart = differenceInMinutes(
@@ -21,7 +13,7 @@ export class WindowHelper {
         );
         const minDist = differenceInMinutes(interval.end, interval.start);
         return {
-            top: this.cellHeight + minStart * this.minInPixel,
+            top: minStart * this.minInPixel,
             height: minDist * this.minInPixel,
         };
     }

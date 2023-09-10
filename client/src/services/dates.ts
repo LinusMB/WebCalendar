@@ -71,23 +71,6 @@ export function eachWeekInMonth(date: Date) {
     return startOfWeekArray.map((startOfWeek) => eachDayInWeek(startOfWeek));
 }
 
-/* BEGIN TODO: remove */
-export function wholeDayInterval(date: Date): CalInterval {
-    const d = df.startOfDay(date);
-    return { start: d, end: d };
-}
-
-export function todayWholeDayInterval(): CalInterval {
-    const d = today();
-    return { start: d, end: d };
-}
-
-export function isWholeDayInterval({ start, end }: CalInterval) {
-    const s = df.startOfDay(start);
-    return df.isEqual(start, end) && df.isEqual(start, s);
-}
-/* END */
-
 export function getHourInterval(date: Date, halfOpen = true): CalInterval {
     const start = df.startOfHour(date);
     const end = halfOpen ? df.startOfHour(incHour(date)) : df.endOfHour(date);
@@ -125,13 +108,6 @@ export function clampToDayInterval(
         start: df.clamp(interval.start, dayInterval),
         end: df.clamp(interval.end, dayInterval),
     };
-}
-
-export function intervalBelongsToDayInterval(
-    interval: CalInterval,
-    date: Date
-) {
-    return df.areIntervalsOverlapping(interval, getDayInterval(date));
 }
 
 export function getHourSpec(date: Date): [number, number, number] {

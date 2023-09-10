@@ -1,4 +1,10 @@
-import React, { Fragment, useState, useRef, useEffect } from "react";
+import React, {
+    Fragment,
+    useState,
+    useRef,
+    useEffect,
+    forwardRef,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { range } from "ramda";
 
@@ -17,10 +23,11 @@ import {
     weekdayMap,
     formatDate,
     eachDayInWeek,
-    wholeDayInterval,
     incWeek,
     decWeek,
     getHourInterval,
+    areIntervalsOverlapping,
+    getDayInterval,
     momentHour,
     momentWeek,
     momentDay,
@@ -83,7 +90,7 @@ function WeekViewDayCell({ date }: { date: Date }) {
 function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
     return (
         <Table.Row className="week-view__row">
-            <Table.Cell className="week-view__left week-view__day"></Table.Cell>
+            <Table.Cell className="week-view__time week-view__day"></Table.Cell>
             {eachDay.map((d, i) => (
                 <WeekViewDayCell key={i} date={d} />
             ))}
@@ -91,78 +98,10 @@ function WeekViewDayRow({ eachDay }: { eachDay: Date[] }) {
     );
 }
 
-function WeekViewWholeDayRow({ eachDay }: { eachDay: Date[] }) {
-    const { setEventInterval, isEventIntervalVisible, setIsEventIntervalVisible } =
-        useStorePick(
-            "setEventInterval",
-            "isEventIntervalVisible",
-            "setIsEventIntervalVisible"
-        );
-
-    const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
-        []
-    );
-    const $cellList = useRef<HTMLDivElement[]>([]);
-    function updateWindowHelperList() {
-        const rects = $cellList.current.map((e) => e.getBoundingClientRect());
-        setWindowHelperList(rects.map((r) => new WindowHelper(r.height)));
-    }
-    useEffect(() => {
-        updateWindowHelperList();
-        window.addEventListener("resize", updateWindowHelperList);
-        return () => {
-            window.removeEventListener("resize", updateWindowHelperList);
-        };
-    }, []);
-
-    return (
-        <Fragment>
-            <Table.Row className="week-view__row">
-                <Table.Cell className="week-view__left">Whole Day</Table.Cell>
-                {eachDay.map((d, i) => (
-                    <Table.Cell
-                        key={i}
-                        onClick={function (e) {
-                            if (!$cellList.current[i]) return;
-                            const { top, right, bottom, left } =
-                                $cellList.current[i].getBoundingClientRect();
-                            if (
-                                e.clientX >= left &&
-                                e.clientX <= right &&
-                                e.clientY >= top &&
-                                e.clientY <= bottom
-                            ) {
-                                setEventInterval(wholeDayInterval(d));
-                                setIsEventIntervalVisible(true);
-                            }
-                        }}
-                        className="week-view__event week-view__event--whole-day"
-                        ref={(el) => {
-                            if (el) $cellList.current[i] = el;
-                        }}
-                    >
-                        {windowHelperList[i] && (
-                            <Fragment>
-                                <Events
-                                    viewDate={d}
-                                    windowHelper={windowHelperList[i]}
-                                />
-                                {isEventIntervalVisible && (
-                                    <EventInterval
-                                        viewDate={d}
-                                        windowHelper={windowHelperList[i]}
-                                    />
-                                )}
-                            </Fragment>
-                        )}
-                    </Table.Cell>
-                ))}
-            </Table.Row>
-        </Fragment>
-    );
-}
-
-function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
+function _WeekViewHourRow(
+    { hour, eachDay }: { hour: number; eachDay: Date[] },
+    ref: React.ForwardedRef<HTMLDivElement[]>
+) {
     const { setEventInterval, setIsEventIntervalVisible } = useStorePick(
         "setEventInterval",
         "setIsEventIntervalVisible"
@@ -184,7 +123,7 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
 
     return (
         <Table.Row className="week-view__row">
-            <Table.Cell className="week-view__left">
+            <Table.Cell className="week-view__time">
                 <span className={isCurHour ? "text--present" : ""}>
                     {hour.toString().padStart(2, "0")}
                 </span>
@@ -199,7 +138,70 @@ function WeekViewHourRow({ hour, eachDay }: { hour: number; eachDay: Date[] }) {
                         refetchNextEvents();
                     }}
                     className="week-view__event"
+                    ref={function (el) {
+                        if (!ref || !el) return undefined;
+                        if (typeof ref === "function")
+                            throw new Error(
+                                `${_WeekViewHourRow.name} Unexpected ref type.`
+                            );
+                        (
+                            ref as React.MutableRefObject<HTMLDivElement[]>
+                        ).current[i] = el;
+                    }}
                 ></Table.Cell>
+            ))}
+        </Table.Row>
+    );
+}
+
+const WeekViewHourRow = forwardRef(_WeekViewHourRow);
+
+function WeekViewEventWindowsOnDay({
+    viewDate,
+    windowHelper,
+}: {
+    viewDate: Date;
+    windowHelper: WindowHelper;
+}) {
+    const { eventInterval, isEventIntervalVisible } = useStorePick(
+        "eventInterval",
+        "isEventIntervalVisible"
+    );
+
+    const isShowEventInterval =
+        isEventIntervalVisible &&
+        areIntervalsOverlapping(eventInterval, getDayInterval(viewDate));
+
+    return (
+        <Table.Cell className="week-view__event week-view__event--anchor">
+            {windowHelper && (
+                <Events viewDate={viewDate} windowHelper={windowHelper} />
+            )}
+            {windowHelper && isShowEventInterval && (
+                <EventInterval
+                    viewDate={viewDate}
+                    windowHelper={windowHelper}
+                />
+            )}
+        </Table.Cell>
+    );
+}
+
+function WeekViewEventWindows({
+    eachDay,
+    windowHelperList,
+}: {
+    eachDay: Date[];
+    windowHelperList: WindowHelper[];
+}) {
+    return (
+        <Table.Row className="week-view__row week-view__row--anchor">
+            <Table.Cell className="week-view__time week-view__time--anchor" />
+            {eachDay.map((d, i) => (
+                <WeekViewEventWindowsOnDay
+                    viewDate={d}
+                    windowHelper={windowHelperList[i]}
+                />
             ))}
         </Table.Row>
     );
@@ -209,12 +211,36 @@ function WeekViewGrid() {
     const { viewDate } = useStorePick("viewDate");
     const eachDay = eachDayInWeek(viewDate);
 
+    const [windowHelperList, setWindowHelperList] = useState<WindowHelper[]>(
+        []
+    );
+    const $cellList = useRef<HTMLDivElement[]>([]);
+    function updateWindowHelperList() {
+        const rects = $cellList.current.map((e) => e.getBoundingClientRect());
+        setWindowHelperList(rects.map((r) => new WindowHelper(r.height)));
+    }
+    useEffect(() => {
+        updateWindowHelperList();
+        window.addEventListener("resize", updateWindowHelperList);
+        return () => {
+            window.removeEventListener("resize", updateWindowHelperList);
+        };
+    }, []);
+
     return (
         <Fragment>
             <WeekViewDayRow eachDay={eachDay} />
-            <WeekViewWholeDayRow eachDay={eachDay} />
+            <WeekViewEventWindows
+                eachDay={eachDay}
+                windowHelperList={windowHelperList}
+            />
             {range(0, 24).map((h, i) => (
-                <WeekViewHourRow key={i} hour={h} eachDay={eachDay} />
+                <WeekViewHourRow
+                    key={i}
+                    hour={h}
+                    eachDay={eachDay}
+                    ref={h === 0 ? $cellList : undefined}
+                />
             ))}
         </Fragment>
     );

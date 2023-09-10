@@ -40,7 +40,6 @@ import "./IntervalFields.css";
 
 export interface ToFieldProps {
     date?: Date;
-    isWholeDay?: boolean;
     isEventIntervalActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
@@ -49,7 +48,6 @@ export interface ToFieldProps {
 export function ToField({
     date = zeroDate,
     updateDate = () => {},
-    isWholeDay = false,
     isEventIntervalActive,
     className = "",
 }: ToFieldProps) {
@@ -57,11 +55,7 @@ export function ToField({
         <div className={`interval-field ${className}`}>
             {"to "}
             {isEventIntervalActive ? (
-                <DateDisplay
-                    date={date}
-                    updateDate={updateDate}
-                    isWholeDay={isWholeDay}
-                />
+                <DateDisplay date={date} updateDate={updateDate} />
             ) : (
                 <Fragment>--</Fragment>
             )}
@@ -71,7 +65,6 @@ export function ToField({
 
 export interface FromFieldProps {
     date?: Date;
-    isWholeDay?: boolean;
     isEventIntervalActive: boolean;
     updateDate?: (arg: (arg: Date) => Date) => void;
     className?: string;
@@ -80,7 +73,6 @@ export interface FromFieldProps {
 export function FromField({
     date = zeroDate,
     updateDate = () => {},
-    isWholeDay = false,
     isEventIntervalActive,
     className = "",
 }: FromFieldProps) {
@@ -88,11 +80,7 @@ export function FromField({
         <div className={`interval-field ${className}`}>
             {"from "}
             {isEventIntervalActive ? (
-                <DateDisplay
-                    date={date}
-                    updateDate={updateDate}
-                    isWholeDay={isWholeDay}
-                />
+                <DateDisplay date={date} updateDate={updateDate} />
             ) : (
                 <Fragment>--</Fragment>
             )}
@@ -102,11 +90,10 @@ export function FromField({
 
 interface DateDisplayProps {
     date: Date;
-    isWholeDay: boolean;
     updateDate: (arg: (arg: Date) => Date) => void;
 }
 
-function DateDisplay({ date, updateDate, isWholeDay }: DateDisplayProps) {
+function DateDisplay({ date, updateDate }: DateDisplayProps) {
     return (
         <Fragment>
             <YearSelection date={date} updateDate={updateDate} />
@@ -114,14 +101,10 @@ function DateDisplay({ date, updateDate, isWholeDay }: DateDisplayProps) {
             <MonthSelection date={date} updateDate={updateDate} />
             {"-"}
             <DaySelection date={date} updateDate={updateDate} />
-            {!isWholeDay && (
-                <Fragment>
-                    {" at "}
-                    <HourSelection date={date} updateDate={updateDate} />
-                    {":"}
-                    <MinuteSelection date={date} updateDate={updateDate} />
-                </Fragment>
-            )}
+            {" at "}
+            <HourSelection date={date} updateDate={updateDate} />
+            {":"}
+            <MinuteSelection date={date} updateDate={updateDate} />
         </Fragment>
     );
 }

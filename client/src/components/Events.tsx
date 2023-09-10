@@ -7,7 +7,7 @@ import EventPopover from "./EventPopover";
 import { useEvents } from "../context/events";
 import { useStorePick } from "../store";
 import { WindowHelper } from "../services/windowHelper";
-import { clampToDayInterval, isWholeDayInterval } from "../services/dates";
+import { clampToDayInterval } from "../services/dates";
 import { filterEvents, viewDateFilter } from "../services/events";
 import { CalEvent } from "../types";
 
@@ -48,9 +48,10 @@ function Event({ event, viewDate, windowHelper }: EventProps) {
     const [isPopoverActive, setIsPopoverActive] = useState(false);
 
     const interval = pick(["start", "end"], event);
-    const dimensions = isWholeDayInterval(interval)
-        ? windowHelper.getDimensionsWholeDay()
-        : windowHelper.getDimensions(clampToDayInterval(interval, viewDate));
+
+    const dimensions = windowHelper.getDimensions(
+        clampToDayInterval(interval, viewDate)
+    );
 
     return (
         <Window dimensions={dimensions}>
