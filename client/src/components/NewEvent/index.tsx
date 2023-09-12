@@ -2,7 +2,6 @@ import React from "react";
 
 import { INTERVAL_MIN_RESIZE_STEP } from "../../constants";
 import { FromField, ToField } from "../IntervalFields";
-import { useModal } from "../../context/modal";
 import {
     useStorePick,
     useEventIntervalUpdateStart,
@@ -24,12 +23,14 @@ export default function NewEvent() {
 }
 
 function NewEventActive() {
-    const { eventInterval } = useStorePick("eventInterval");
+    const { eventInterval, openModal } = useStorePick(
+        "eventInterval",
+        "openModal"
+    );
 
     const { data: prevEvents = [] } = useGetPreviousEvents(eventInterval);
     const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 
-    const { setIsModalOpen, setModalDataMode } = useModal();
     const updateEventIntervalStart = useEventIntervalUpdateStart()(
         INTERVAL_MIN_RESIZE_STEP,
         prevEvents
@@ -43,8 +44,7 @@ function NewEventActive() {
         <div className="new-event">
             <button
                 onClick={() => {
-                    setModalDataMode("add");
-                    setIsModalOpen(true);
+                    openModal({ type: "Add" });
                 }}
                 className="new-event__btn"
             >

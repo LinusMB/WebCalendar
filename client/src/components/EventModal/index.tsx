@@ -4,7 +4,6 @@ import { pick } from "ramda";
 import { INTERVAL_MIN_RESIZE_STEP } from "../../constants";
 import { FromField, ToField } from "../IntervalFields";
 import Modal from "../shared/Modal";
-import { useModal } from "../../context/modal";
 import { useInput } from "../../hooks";
 import {
     useStorePick,
@@ -26,7 +25,7 @@ export default function EventModal() {
     const {
         eventInterval,
         setEventInterval,
-        isEventIntervalActive: isEventIntervalActive,
+        isEventIntervalActive,
         setIsEventIntervalActive,
         setEventFilter,
         resetEventFilter,
@@ -41,20 +40,17 @@ export default function EventModal() {
     const { mutateAsync: addEvent } = useAddEvent();
     const { mutateAsync: editEvent } = useEditEvent();
 
-    const { setIsModalOpen, modalDataMode, modalEditEvent } = useModal();
-
-    if (modalDataMode === "edit" && !modalEditEvent) {
-        throw new Error(
-            "modalEditEvent has to be set if modalDataMode is set to 'edit'"
-        );
-    }
+    const { modalOption, closeModal } = useStorePick(
+        "modalOption",
+        "closeModal"
+    );
 
     useEffect(() => {
-        if (modalDataMode === "edit") {
+        if (modalOption.type === "Edit") {
             setEventFilter({
-                uuid: (uuid: string) => uuid !== modalEditEvent!.uuid,
+                uuid: (uuid: string) => uuid !== modalOption.event.uuid,
             });
-            setEventInterval(pick(["start", "end"], modalEditEvent!));
+            setEventInterval(pick(["start", "end"], modalOption.event));
             setIsEventIntervalActive(true);
         }
     }, []);
@@ -65,12 +61,15 @@ export default function EventModal() {
         resetTitle();
         resetDescription();
         setIsEventIntervalActive(false);
-        setIsModalOpen(false);
+        closeModal();
     }
 
     async function onEditEvent() {
+        if (modalOption.type !== "Edit") {
+            throw new Error(`${onEditEvent.name}: Unexpected modalOption.type ${modalOption.type}`);
+        }
         await editEvent({
-            uuid: modalEditEvent!.uuid,
+            uuid: modalOption.event.uuid,
             title,
             description,
             eventInterval,
@@ -79,37 +78,39 @@ export default function EventModal() {
         resetTitle();
         resetDescription();
         setIsEventIntervalActive(false);
-        setIsModalOpen(false);
+        closeModal();
         resetEventFilter();
     }
 
     function onClose() {
         resetTitle();
         resetDescription();
-        if (modalDataMode === "edit") {
+        if (modalOption.type === "Edit") {
             setIsEventIntervalActive(false);
             resetEventFilter();
         }
-        setIsModalOpen(false);
+        closeModal();
     }
 
     let initialTitle: string,
         initialDescription: string,
         headerText: string,
         onClick: () => void;
-    switch (modalDataMode) {
-        case "edit":
-            initialTitle = modalEditEvent!.title;
-            initialDescription = modalEditEvent!.description;
+    switch (modalOption.type) {
+        case "Edit":
+            initialTitle = modalOption.event.title;
+            initialDescription = modalOption.event.description;
             headerText = "Edit Event";
             onClick = onEditEvent;
             break;
-        case "add":
+        case "Add":
             initialTitle = "";
             initialDescription = "";
             headerText = "Add Event";
             onClick = onAddEvent;
             break;
+        case "None":
+            throw new Error(`${onEditEvent.name}: Unexpected modalOption.type None`);
     }
 
     const [title, onTitleChange, resetTitle] = useInput(initialTitle);

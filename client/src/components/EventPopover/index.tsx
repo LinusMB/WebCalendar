@@ -2,9 +2,10 @@ import React from "react";
 import { pick } from "ramda";
 
 import Popover from "../shared/Popover";
-import { useModal } from "../../context/modal";
 import { useDeleteEvent } from "../../hooks/events";
 import { invalidateOnEventChange } from "../../react-query/invalidate";
+import { useStorePick } from "../../store";
+
 import { CalEvent } from "../../types";
 
 import "./Styles.css";
@@ -18,8 +19,8 @@ export default function EventPopover({
     event,
     setIsPopoverActive,
 }: EventPopoverProps) {
+    const { openModal } = useStorePick("openModal");
     const { mutateAsync: deleteEvent } = useDeleteEvent();
-    const { setIsModalOpen, setModalDataMode, setModalEditEvent } = useModal();
 
     async function onDeleteEvent() {
         await deleteEvent({ uuid: event.uuid });
@@ -28,9 +29,7 @@ export default function EventPopover({
     }
 
     function onClickEdit() {
-        setModalDataMode("edit");
-        setModalEditEvent(event);
-        setIsModalOpen(true);
+        openModal({ type: "Edit", event });
         setIsPopoverActive(false);
     }
 

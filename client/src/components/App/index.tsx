@@ -6,23 +6,21 @@ import Header from "../layout/Header";
 import Sidebar from "../layout/Sidebar";
 import Main from "../layout/Main";
 import EventModal from "../EventModal";
-import { ModalProvider, useModal } from "../../context/modal";
 import { queryClient } from "../../react-query";
+import { useStorePick } from "../../store";
 
 import "./Styles.css";
 
 function Wrapper({ children }: { children: React.ReactNode }) {
     return (
         <QueryClientProvider client={queryClient}>
-            <ModalProvider>
-                <BrowserRouter>{children}</BrowserRouter>
-            </ModalProvider>
+            <BrowserRouter>{children}</BrowserRouter>
         </QueryClientProvider>
     );
 }
 
 function App() {
-    const { isModalOpen } = useModal();
+    const { isModalOpen } = useStorePick("isModalOpen");
     return (
         <div className="app">
             {/* <Toast /> */}

@@ -7,13 +7,15 @@ import {
 	createEventIntervalSlice,
 } from "./event-interval-slice";
 import { ViewDateSlice, createViewDateSlice } from "./view-date-slice";
+import { ModalSlice, createModalSlice } from "./modal-slice";
 
-type Store = EventFilterSlice & EventIntervalSlice & ViewDateSlice;
+type Store = EventFilterSlice & EventIntervalSlice & ViewDateSlice & ModalSlice;
 
 export const useStore = create<Store>((...a) => ({
 	...createEventFilterSlice(...a),
 	...createEventIntervalSlice(...a),
 	...createViewDateSlice(...a),
+    ...createModalSlice(...a),
 }));
 
 export function useStorePick<T extends keyof Store>(...keys: T[]) {
