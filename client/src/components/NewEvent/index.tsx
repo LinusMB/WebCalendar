@@ -30,11 +30,11 @@ function NewEventActive() {
     const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 
     const { setIsModalOpen, setModalDataMode } = useModal();
-    const updateEventIntervalStart = useEventIntervalUpdateStart(
+    const updateEventIntervalStart = useEventIntervalUpdateStart()(
         INTERVAL_MIN_RESIZE_STEP,
         prevEvents
     );
-    const updateEventIntervalEnd = useEventIntervalUpdateEnd(
+    const updateEventIntervalEnd = useEventIntervalUpdateEnd()(
         INTERVAL_MIN_RESIZE_STEP,
         nextEvents
     );

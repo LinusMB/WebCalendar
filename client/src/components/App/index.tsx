@@ -25,6 +25,7 @@ function App() {
     const { isModalOpen } = useModal();
     return (
         <div className="app">
+            {/* <Toast /> */}
             {isModalOpen && <EventModal />}
             <Header />
             <Sidebar />

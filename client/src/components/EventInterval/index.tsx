@@ -33,16 +33,19 @@ export default function EventInterval({
     const { data: prevEvents = [] } = useGetPreviousEvents(eventInterval);
     const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 
-    const incStart = useEventIntervalIncStart(
+    const incStart = useEventIntervalIncStart()(
         getDayInterval(viewDate),
         INTERVAL_MIN_RESIZE_STEP
     );
-    const decStart = useEventIntervalDecStart(
+    const decStart = useEventIntervalDecStart()(
         getDayInterval(viewDate),
         prevEvents
     );
-    const incEnd = useEventIntervalIncEnd(getDayInterval(viewDate), nextEvents);
-    const decEnd = useEventIntervalDecEnd(
+    const incEnd = useEventIntervalIncEnd()(
+        getDayInterval(viewDate),
+        nextEvents
+    );
+    const decEnd = useEventIntervalDecEnd()(
         getDayInterval(viewDate),
         INTERVAL_MIN_RESIZE_STEP
     );
