@@ -1,0 +1,137 @@
+@font-face {
+    font-family: "Overpass";
+    src: local("Overpass"),
+        url(../../assets/fonts/Overpass/Overpass-Regular.ttf) format("truetype");
+}
+
+*,
+*:after,
+*:before {
+    box-sizing: border-box;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+}
+
+:root {
+    --primary-fg: #3c4043;
+    --secondary-fg: #70757a;
+
+    --bg-color-light: #f9f9f9;
+    --bg-color-dark: #f2f2f2;
+    --bg-color-darker: #dcdcdc;
+
+    --warning-color: #f0ad4e;
+    --danger-color: #d9534f;
+    --success-color: #5cb85c;
+    --info-color: #5bc0de;
+    --link-default: #337ab7;
+    --link-hover: #23527c;
+    --link-active: #cc8548;
+
+    --highlight-bg-color: #6082b6;
+    --default-border-color: #8b8a8b;
+    --light-border-color: rgba(0, 0, 0, 0.2);
+
+    --table-border-size: 1px;
+
+    --window-bg-color: #039be5ee;
+    --window-text-color: #fff;
+    --window-bar-size: 1em;
+    --window-border-color: none;
+    --window-border-size: 1px;
+    --window-border-radius: 0.1em;
+
+    --modal-z-index: 2;
+
+    --button-bg-color: var(--bg-color-dark);
+    --button-bg-color--hover: var(--bg-color-darker);
+    --button-bg-color--active: #eee;
+    --button-border-color: var(--default-border-color);
+    --button-border-radius: 0.3em;
+}
+
+input[type="submit"],
+button {
+    background-color: var(--button-bg-color);
+    border: 1px solid var(--button-border-color);
+    border-radius: var(--button-border-radius);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    padding: 0.5em 1em;
+    outline: 0;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: var(--button-bg-color--hover);
+}
+
+input[type="submit"]:active,
+button:active {
+    background-color: var(--button-bg-color--active);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+textarea {
+    resize: none;
+}
+
+button,
+input,
+textarea {
+    font-family: inherit;
+    color: inherit;
+}
+
+ol,
+ul,
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.text--future {
+    color: var(--primary-fg);
+}
+
+.text--present {
+    color: var(--primary-fg);
+    background: var(--bg-color-darker);
+    border-radius: 5%;
+}
+
+.text--past {
+    color: var(--secondary-fg);
+}
+
+.relative {
+    position: relative;
+}
+
+body {
+    font-family: "Overpass", sans-serif;
+    font-size: 18px;
+    color: var(--primary-fg);
+    background: var(--default-bg-color);
+}
+
+.app {
+    display: grid;
+    height: 100vh;
+    width: 100vw;
+    grid-template-columns: 270px repeat(5, 1fr);
+    grid-template-rows: 50px auto;
+    grid-template-areas:
+        "header  header header header header header"
+        "sidebar main   main   main   main   main";
+}
