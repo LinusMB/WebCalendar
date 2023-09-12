@@ -13,9 +13,11 @@ import { useGetPreviousEvents, useGetNextEvents } from "../hooks/events";
 import "./NewEvent.css";
 
 export default function NewEvent() {
-    const { isEventIntervalVisible } = useStorePick("isEventIntervalVisible");
+    const { isEventIntervalActive: isEventIntervalActive } = useStorePick(
+        "isEventIntervalActive"
+    );
 
-    if (isEventIntervalVisible) {
+    if (isEventIntervalActive) {
         return <NewEventActive />;
     }
     return <NewEventInactive />;

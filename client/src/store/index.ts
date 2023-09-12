@@ -18,12 +18,12 @@ import { CalEvent, CalInterval } from "../types";
 export interface Store {
     viewDate: Date;
     eventInterval: CalInterval;
-    isEventIntervalVisible: boolean;
+    isEventIntervalActive: boolean;
     isEventIntervalStartResizable: boolean;
     isEventIntervalEndResizable: boolean;
     setEventInterval: (interval: CalInterval) => void;
     updateEventInterval: (update: (arg: CalInterval) => CalInterval) => void;
-    setIsEventIntervalVisible: (active: boolean) => void;
+    setIsEventIntervalActive: (active: boolean) => void;
     setIsEventIntervalStartResizable: (resizable: boolean) => void;
     setIsEventIntervalEndResizable: (resizable: boolean) => void;
     eventFilter: { [P in keyof CalEvent]: (arg: CalEvent[P]) => boolean };
@@ -45,14 +45,14 @@ const eventFilterInitial = {
 export const useStore = create<Store>((set) => ({
     viewDate: now(),
     eventInterval: zeroInterval,
-    isEventIntervalVisible: false,
+    isEventIntervalActive: false,
     isEventIntervalStartResizable: false,
     isEventIntervalEndResizable: false,
     setEventInterval: (interval) => set({ eventInterval: interval }),
     updateEventInterval: (update) =>
         set((state) => ({ eventInterval: update(state.eventInterval) })),
-    setIsEventIntervalVisible: (active) =>
-        set({ isEventIntervalVisible: active }),
+    setIsEventIntervalActive: (active) =>
+        set({ isEventIntervalActive: active }),
     setIsEventIntervalStartResizable: (isResizable) =>
         set({ isEventIntervalStartResizable: isResizable }),
     setIsEventIntervalEndResizable: (isResizable) =>

@@ -66,11 +66,11 @@ function _DayViewHourRow(
     { hour }: { hour: number },
     ref: React.ForwardedRef<HTMLDivElement>
 ) {
-    const { viewDate, setEventInterval, setIsEventIntervalVisible } =
+    const { viewDate, setEventInterval, setIsEventIntervalActive } =
         useStorePick(
             "viewDate",
             "setEventInterval",
-            "setIsEventIntervalVisible"
+            "setIsEventIntervalActive"
         );
 
     function computeIsCurHour(hour: number) {
@@ -97,7 +97,7 @@ function _DayViewHourRow(
             <Table.Cell
                 onClick={function () {
                     setEventInterval(getHourInterval(setHours(viewDate, hour)));
-                    setIsEventIntervalVisible(true);
+                    setIsEventIntervalActive(true);
                     refetchPreviousEvents();
                     refetchNextEvents();
                 }}
@@ -115,14 +115,14 @@ function EventWindowContainer({
 }: {
     windowHelper: WindowHelper | null;
 }) {
-    const { viewDate, eventInterval, isEventIntervalVisible } = useStorePick(
-        "viewDate",
-        "eventInterval",
-        "isEventIntervalVisible"
-    );
+    const {
+        viewDate,
+        eventInterval,
+        isEventIntervalActive: isEventIntervalActive,
+    } = useStorePick("viewDate", "eventInterval", "isEventIntervalActive");
 
     const isShowEventInterval =
-        isEventIntervalVisible &&
+        isEventIntervalActive &&
         areIntervalsOverlapping(eventInterval, getDayInterval(viewDate));
 
     return (

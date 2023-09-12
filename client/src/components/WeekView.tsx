@@ -102,9 +102,9 @@ function _WeekViewHourRow(
     { hour, eachDay }: { hour: number; eachDay: Date[] },
     ref: React.ForwardedRef<HTMLDivElement[]>
 ) {
-    const { setEventInterval, setIsEventIntervalVisible } = useStorePick(
+    const { setEventInterval, setIsEventIntervalActive } = useStorePick(
         "setEventInterval",
-        "setIsEventIntervalVisible"
+        "setIsEventIntervalActive"
     );
 
     function computeIsCurHour(hour: number, eachDay: Date[]) {
@@ -133,7 +133,7 @@ function _WeekViewHourRow(
                     key={i}
                     onClick={function () {
                         setEventInterval(getHourInterval(setHours(d, hour)));
-                        setIsEventIntervalVisible(true);
+                        setIsEventIntervalActive(true);
                         refetchPreviousEvents();
                         refetchNextEvents();
                     }}
@@ -163,13 +163,11 @@ function WeekViewEventWindowsOnDay({
     viewDate: Date;
     windowHelper: WindowHelper;
 }) {
-    const { eventInterval, isEventIntervalVisible } = useStorePick(
-        "eventInterval",
-        "isEventIntervalVisible"
-    );
+    const { eventInterval, isEventIntervalActive: isEventIntervalActive } =
+        useStorePick("eventInterval", "isEventIntervalActive");
 
     const isShowEventInterval =
-        isEventIntervalVisible &&
+        isEventIntervalActive &&
         areIntervalsOverlapping(eventInterval, getDayInterval(viewDate));
 
     return (

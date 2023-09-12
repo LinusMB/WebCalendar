@@ -26,15 +26,15 @@ export default function EventModal() {
     const {
         eventInterval,
         setEventInterval,
-        isEventIntervalVisible,
-        setIsEventIntervalVisible,
+        isEventIntervalActive: isEventIntervalActive,
+        setIsEventIntervalActive,
         setEventFilter,
         resetEventFilter,
     } = useStorePick(
         "eventInterval",
         "setEventInterval",
-        "isEventIntervalVisible",
-        "setIsEventIntervalVisible",
+        "isEventIntervalActive",
+        "setIsEventIntervalActive",
         "setEventFilter",
         "resetEventFilter"
     );
@@ -55,7 +55,7 @@ export default function EventModal() {
                 uuid: (uuid: string) => uuid !== modalEditEvent!.uuid,
             });
             setEventInterval(pick(["start", "end"], modalEditEvent!));
-            setIsEventIntervalVisible(true);
+            setIsEventIntervalActive(true);
         }
     }, []);
 
@@ -64,7 +64,7 @@ export default function EventModal() {
         invalidateOnEventChange(eventInterval);
         resetTitle();
         resetDescription();
-        setIsEventIntervalVisible(false);
+        setIsEventIntervalActive(false);
         setIsModalOpen(false);
     }
 
@@ -78,7 +78,7 @@ export default function EventModal() {
         invalidateOnEventChange(eventInterval);
         resetTitle();
         resetDescription();
-        setIsEventIntervalVisible(false);
+        setIsEventIntervalActive(false);
         setIsModalOpen(false);
         resetEventFilter();
     }
@@ -87,7 +87,7 @@ export default function EventModal() {
         resetTitle();
         resetDescription();
         if (modalDataMode === "edit") {
-            setIsEventIntervalVisible(false);
+            setIsEventIntervalActive(false);
             resetEventFilter();
         }
         setIsModalOpen(false);
@@ -130,26 +130,12 @@ export default function EventModal() {
                     placeholder="Enter Title"
                     value={title}
                 />
-                {isEventIntervalVisible ? (
-                    <WithAdjustableInterval eventInterval={eventInterval}>
-                        {({
-                            updateEventIntervalStart,
-                            updateEventIntervalEnd,
-                        }) => (
-                            <IntervalFields
-                                eventInterval={eventInterval}
-                                isEventIntervalVisible={isEventIntervalVisible}
-                                updateEventIntervalStart={
-                                    updateEventIntervalStart
-                                }
-                                updateEventIntervalEnd={updateEventIntervalEnd}
-                            />
-                        )}
-                    </WithAdjustableInterval>
+                {isEventIntervalActive ? (
+                    <IntervalFieldsActive eventInterval={eventInterval} />
                 ) : (
                     <IntervalFields
                         eventInterval={eventInterval}
-                        isEventIntervalVisible={isEventIntervalVisible}
+                        isEventIntervalActive={false}
                     />
                 )}
                 <textarea
@@ -160,7 +146,7 @@ export default function EventModal() {
                 />
             </Modal.Body>
             <Modal.Footer>
-                <button onClick={onClick} disabled={!isEventIntervalVisible}>
+                <button onClick={onClick} disabled={!isEventIntervalActive}>
                     Save changes
                 </button>
             </Modal.Footer>
@@ -170,14 +156,14 @@ export default function EventModal() {
 
 interface IntervalFieldsProps {
     eventInterval: CalInterval;
-    isEventIntervalVisible: boolean;
+    isEventIntervalActive: boolean;
     updateEventIntervalStart?: (update: (newValue: Date) => Date) => void;
     updateEventIntervalEnd?: (update: (newValue: Date) => Date) => void;
 }
 
 function IntervalFields({
     eventInterval,
-    isEventIntervalVisible,
+    isEventIntervalActive,
     updateEventIntervalStart = () => {},
     updateEventIntervalEnd = () => {},
 }: IntervalFieldsProps) {
@@ -186,29 +172,22 @@ function IntervalFields({
             <FromField
                 date={eventInterval.start}
                 updateDate={updateEventIntervalStart}
-                isEventIntervalActive={isEventIntervalVisible}
+                isEventIntervalActive={isEventIntervalActive}
             />
             <ToField
                 date={eventInterval.end}
                 updateDate={updateEventIntervalEnd}
-                isEventIntervalActive={isEventIntervalVisible}
+                isEventIntervalActive={isEventIntervalActive}
             />
         </Fragment>
     );
 }
 
-interface WithAdjustableIntervalProps {
-    eventInterval: CalInterval;
-    children: (props: {
-        updateEventIntervalStart: (update: (newValue: Date) => Date) => void;
-        updateEventIntervalEnd: (update: (newValue: Date) => Date) => void;
-    }) => React.ReactNode;
-}
-
-function WithAdjustableInterval({
+function IntervalFieldsActive({
     eventInterval,
-    children,
-}: WithAdjustableIntervalProps) {
+}: {
+    eventInterval: CalInterval;
+}) {
     const { data: prevEvents = [] } = useGetPreviousEvents(eventInterval);
     const { data: nextEvents = [] } = useGetNextEvents(eventInterval);
 
@@ -220,10 +199,12 @@ function WithAdjustableInterval({
         INTERVAL_MIN_RESIZE_STEP,
         nextEvents
     );
-
     return (
-        <Fragment>
-            {children({ updateEventIntervalStart, updateEventIntervalEnd })}
-        </Fragment>
+        <IntervalFields
+            eventInterval={eventInterval}
+            isEventIntervalActive={true}
+            updateEventIntervalStart={updateEventIntervalStart}
+            updateEventIntervalEnd={updateEventIntervalEnd}
+        />
     );
 }
