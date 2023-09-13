@@ -37,8 +37,8 @@ export default function EventModal() {
         "setEventFilter",
         "resetEventFilter"
     );
-    const { mutateAsync: addEvent } = useAddEvent();
-    const { mutateAsync: editEvent } = useEditEvent();
+    const addMutation = useAddEvent();
+    const editMutation = useEditEvent();
 
     const { modalOption, closeModal } = useStorePick(
         "modalOption",
@@ -55,31 +55,49 @@ export default function EventModal() {
         }
     }, []);
 
-    async function onAddEvent() {
-        await addEvent({ title, description, eventInterval });
-        invalidateOnEventChange(eventInterval);
-        resetTitle();
-        resetDescription();
-        setIsEventIntervalActive(false);
-        closeModal();
+    function onAddEvent() {
+        addMutation.mutate(
+            { title, description, eventInterval },
+            {
+                onSettled: () => {
+                    resetTitle();
+                    resetDescription();
+                    setIsEventIntervalActive(false);
+                    closeModal();
+                },
+                onSuccess: () => {
+                    invalidateOnEventChange(eventInterval);
+                },
+            }
+        );
     }
 
-    async function onEditEvent() {
+    function onEditEvent() {
         if (modalOption.type !== "Edit") {
-            throw new Error(`${onEditEvent.name}: Unexpected modalOption.type ${modalOption.type}`);
+            throw new Error(
+                `${onEditEvent.name}: Unexpected modalOption.type ${modalOption.type}`
+            );
         }
-        await editEvent({
-            uuid: modalOption.event.uuid,
-            title,
-            description,
-            eventInterval,
-        });
-        invalidateOnEventChange(eventInterval);
-        resetTitle();
-        resetDescription();
-        setIsEventIntervalActive(false);
-        closeModal();
-        resetEventFilter();
+        editMutation.mutate(
+            {
+                uuid: modalOption.event.uuid,
+                title,
+                description,
+                eventInterval,
+            },
+            {
+                onSettled: () => {
+                    resetTitle();
+                    resetDescription();
+                    setIsEventIntervalActive(false);
+                    closeModal();
+                    resetEventFilter();
+                },
+                onSuccess: () => {
+                    invalidateOnEventChange(eventInterval);
+                },
+            }
+        );
     }
 
     function onClose() {
@@ -110,7 +128,9 @@ export default function EventModal() {
             onClick = onAddEvent;
             break;
         case "None":
-            throw new Error(`${onEditEvent.name}: Unexpected modalOption.type None`);
+            throw new Error(
+                `${onEditEvent.name}: Unexpected modalOption.type None`
+            );
     }
 
     const [title, onTitleChange, resetTitle] = useInput(initialTitle);

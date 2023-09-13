@@ -44,6 +44,8 @@
 
     --modal-z-index: 2;
 
+    --toast-z-index: calc(var(--modal-z-index) + 1);
+
     --button-bg-color: var(--bg-color-dark);
     --button-bg-color--hover: var(--bg-color-darker);
     --button-bg-color--active: #eee;

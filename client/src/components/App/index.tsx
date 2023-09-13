@@ -6,6 +6,7 @@ import Header from "../layout/Header";
 import Sidebar from "../layout/Sidebar";
 import Main from "../layout/Main";
 import EventModal from "../EventModal";
+import Toast from "../Toast";
 import { queryClient } from "../../react-query";
 import { useStorePick } from "../../store";
 
@@ -23,7 +24,7 @@ function App() {
     const { isModalOpen } = useStorePick("isModalOpen");
     return (
         <div className="app">
-            {/* <Toast /> */}
+            <Toast />
             {isModalOpen && <EventModal />}
             <Header />
             <Sidebar />

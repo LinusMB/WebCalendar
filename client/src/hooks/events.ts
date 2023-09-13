@@ -22,6 +22,7 @@ import {
 import { api } from "../constants";
 import { queryClient, queryKeys } from "../react-query";
 import { filterEvents } from "../services/events";
+import { useStorePick } from "../store";
 import { CalEvent, CalInterval, isArrayOfCalEvents } from "../types";
 
 const adaptor = {
@@ -247,8 +248,9 @@ export function useGetNextEvents(interval: CalInterval) {
     return useQuery(queryKeys.events.getNext(), () => getNextEvents(interval));
 }
 
-// TODO: invalidate in `onSettled`
 export function useAddEvent() {
+    const { addToast } = useStorePick("addToast");
+
     const mutationFn = async ({
         title,
         description,
@@ -272,10 +274,29 @@ export function useAddEvent() {
         });
         return res.json();
     };
-    return useMutation(mutationFn);
+    return useMutation(mutationFn, {
+        onSuccess: () => {
+            addToast("Success", "Add Event", "Successfully added event");
+        },
+        onError: (err) => {
+            let message = "";
+            if (err instanceof Error) {
+                message = err.message;
+            }
+            addToast(
+                "Error",
+                "Add Event",
+                "Adding event was unsuccessful" + message
+                    ? "Failure reason: " + message
+                    : ""
+            );
+        },
+    });
 }
 
 export function useEditEvent() {
+    const { addToast } = useStorePick("addToast");
+
     const mutationFn = async ({
         uuid,
         title,
@@ -301,15 +322,51 @@ export function useEditEvent() {
         });
         return res.json();
     };
-    return useMutation(mutationFn);
+    return useMutation(mutationFn, {
+        onSuccess: () => {
+            addToast("Success", "Update Event", "Successfully updated event");
+        },
+        onError: (err) => {
+            let message = "";
+            if (err instanceof Error) {
+                message = err.message;
+            }
+            addToast(
+                "Error",
+                "Update Event",
+                "Updating event was unsuccessful" + message
+                    ? "Failure reason: " + message
+                    : ""
+            );
+        },
+    });
 }
 
 export function useDeleteEvent() {
+    const { addToast } = useStorePick("addToast");
+
     const mutationFn = async ({ uuid }: { uuid: string }) => {
         const res = await fetch(api.ROUTES.DELETE(uuid), {
             method: "DELETE",
         });
         return res.json();
     };
-    return useMutation(mutationFn);
+    return useMutation(mutationFn, {
+        onSuccess: () => {
+            addToast("Success", "Delete Event", "Successfully deleted event");
+        },
+        onError: (err) => {
+            let message = "";
+            if (err instanceof Error) {
+                message = err.message;
+            }
+            addToast(
+                "Error",
+                "Delete Event",
+                "Deleting event was unsuccessful" + message
+                    ? "Failure reason: " + message
+                    : ""
+            );
+        },
+    });
 }

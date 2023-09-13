@@ -20,12 +20,21 @@ export default function EventPopover({
     setIsPopoverActive,
 }: EventPopoverProps) {
     const { openModal } = useStorePick("openModal");
-    const { mutateAsync: deleteEvent } = useDeleteEvent();
+    const deleteMutation = useDeleteEvent();
 
-    async function onDeleteEvent() {
-        await deleteEvent({ uuid: event.uuid });
-        invalidateOnEventChange(pick(["start", "end"], event));
-        setIsPopoverActive(false);
+    function onDeleteEvent(e: React.MouseEvent) {
+        deleteMutation.mutate(
+            { uuid: event.uuid },
+            {
+                onSettled: () => {
+                    setIsPopoverActive(false);
+                },
+                onSuccess: () => {
+                    invalidateOnEventChange(pick(["start", "end"], event));
+                },
+            }
+        );
+        e.stopPropagation();  // otherwise event would bubble up to parent which unmounts component and interrupts mutation callbacks
     }
 
     function onClickEdit() {

@@ -3,48 +3,54 @@ import { pick } from "ramda";
 
 import { EventFilterSlice, createEventFilterSlice } from "./event-filter-slice";
 import {
-	EventIntervalSlice,
-	createEventIntervalSlice,
+    EventIntervalSlice,
+    createEventIntervalSlice,
 } from "./event-interval-slice";
 import { ViewDateSlice, createViewDateSlice } from "./view-date-slice";
 import { ModalSlice, createModalSlice } from "./modal-slice";
+import { ToastSlice, createToastSlice } from "./toast-slice";
 
-type Store = EventFilterSlice & EventIntervalSlice & ViewDateSlice & ModalSlice;
+type Store = EventFilterSlice &
+    EventIntervalSlice &
+    ViewDateSlice &
+    ModalSlice &
+    ToastSlice;
 
 export const useStore = create<Store>((...a) => ({
-	...createEventFilterSlice(...a),
-	...createEventIntervalSlice(...a),
-	...createViewDateSlice(...a),
+    ...createEventFilterSlice(...a),
+    ...createEventIntervalSlice(...a),
+    ...createViewDateSlice(...a),
     ...createModalSlice(...a),
+    ...createToastSlice(...a),
 }));
 
 export function useStorePick<T extends keyof Store>(...keys: T[]) {
-	return useStore((state) => pick(keys, state));
+    return useStore((state) => pick(keys, state));
 }
 
 export const useIsEventIntervalStartResizable = () =>
-	useStore<[boolean, (resizable: boolean) => void]>((state) => [
-		state.isEventIntervalStartResizable,
-		state.setIsEventIntervalStartResizable,
-	]);
+    useStore<[boolean, (resizable: boolean) => void]>((state) => [
+        state.isEventIntervalStartResizable,
+        state.setIsEventIntervalStartResizable,
+    ]);
 
 export const useIsEventIntervalEndResizable = () =>
-	useStore<[boolean, (resizable: boolean) => void]>((state) => [
-		state.isEventIntervalEndResizable,
-		state.setIsEventIntervalEndResizable,
-	]);
+    useStore<[boolean, (resizable: boolean) => void]>((state) => [
+        state.isEventIntervalEndResizable,
+        state.setIsEventIntervalEndResizable,
+    ]);
 
 export const useEventIntervalIncStart = () =>
-	useStore((state) => state.incEventIntervalStart);
+    useStore((state) => state.incEventIntervalStart);
 export const useEventIntervalDecStart = () =>
-	useStore((state) => state.decEventIntervalStart);
+    useStore((state) => state.decEventIntervalStart);
 export const useEventIntervalIncEnd = () =>
-	useStore((state) => state.incEventIntervalEnd);
+    useStore((state) => state.incEventIntervalEnd);
 export const useEventIntervalDecEnd = () =>
-	useStore((state) => state.decEventIntervalEnd);
+    useStore((state) => state.decEventIntervalEnd);
 
 export const useEventIntervalUpdateStart = () =>
-	useStore((state) => state.updateEventIntervalStart);
+    useStore((state) => state.updateEventIntervalStart);
 
 export const useEventIntervalUpdateEnd = () =>
-	useStore((state) => state.updateEventIntervalEnd);
+    useStore((state) => state.updateEventIntervalEnd);

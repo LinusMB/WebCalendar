@@ -1,0 +1,27 @@
+.toast-container {
+    position: fixed;
+    z-index: var(--toast-z-index);
+    right: 30px;
+    top: 50px;
+}
+
+.toast {
+    color: #fff;
+    margin-bottom: 5px;
+    width: 300px;
+    border-radius: 0.3em;
+    padding: 1em 2em;
+    cursor: pointer;
+}
+
+.toast--success {
+    background: var(--success-color);
+}
+
+.toast--warning {
+    background: var(--warning-color);
+}
+
+.toast--error {
+    background: var(--danger-color);
+}
