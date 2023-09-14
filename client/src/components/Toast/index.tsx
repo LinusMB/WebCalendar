@@ -6,7 +6,7 @@ import { useStorePick } from "../../store";
 import "./Styles.css";
 
 export default function Toast() {
-    const { toasts } = useStorePick("toasts");
+    const { toasts, removeToast } = useStorePick("toasts", "removeToast");
 
     return (
         <div className="toast-container">
@@ -16,6 +16,7 @@ export default function Toast() {
                         "toast",
                         `toast--${toast.status.toLowerCase()}`
                     )}
+                    onClick={() => removeToast(toast.id)}
                 >
                     <div className="toast-title">{toast.title}</div>
                     <div className="toast-description">{toast.description}</div>
