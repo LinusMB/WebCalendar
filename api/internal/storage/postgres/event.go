@@ -84,10 +84,10 @@ func (ea *eventAccess) GetByFilter(startDate, endDate time.Time, sortField model
 		b.WriteString("\nWHERE ($1, $2) OVERLAPS (date_from, date_to)")
 		queryArgs = append(queryArgs, startDate, endDate)
 	} else if !startDate.IsZero() {
-		b.WriteString("\nWHERE date_from >= $1")
+		b.WriteString("\nWHERE date_to > $1")
 		queryArgs = append(queryArgs, startDate)
 	} else if !endDate.IsZero() {
-		b.WriteString("\nWHERE date_to < $1")
+		b.WriteString("\nWHERE date_from < $1")
 		queryArgs = append(queryArgs, endDate)
 	}
 	b.WriteString(fmt.Sprintf("\nORDER BY %s %s", sortFieldName, sortOrderName))
