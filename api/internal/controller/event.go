@@ -150,7 +150,12 @@ func (c *Controller) GetEventsByWeek(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t := time.Date(year, 1, 1, 0, 0, 0, 0, location)
-	for t.Weekday() != time.Monday {
+
+	for {
+		y, w := t.ISOWeek()
+		if y == year && w == 1 {
+			break
+		}
 		t = t.AddDate(0, 0, 1)
 	}
 	startDateUTC := t.Add(time.Duration(week-1) * 7 * 24 * time.Hour).UTC()
