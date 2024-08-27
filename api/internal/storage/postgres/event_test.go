@@ -19,31 +19,40 @@ func TestGetAll(t *testing.T) {
 	assert.NotEmpty(t, events)
 }
 
-func TestGetByDate(t *testing.T) {
+func TestGetByFilter(t *testing.T) {
 	reloadTestDatabase()
 
 	t.Run("Contains 2", func(t *testing.T) {
-		events, err := ea.GetByDate(
-			time.Date(2022, time.February, 1, 0, 0, 0, 0, time.UTC),
-			time.Date(2022, time.February, 28, 0, 0, 0, 0, time.UTC),
+		events, err := ea.GetByFilter(
+			time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2023, time.October, 5, 15, 0, 0, 0, time.UTC),
+			models.DateFrom,
+			models.Asc,
+			0,
 		)
 		assert.NoError(t, err)
 		assert.Len(t, events, 2)
 	})
 
 	t.Run("Contains 2", func(t *testing.T) {
-		events, err := ea.GetByDate(
-			time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC),
-			time.Date(2022, time.January, 3, 0, 0, 0, 0, time.UTC),
+		events, err := ea.GetByFilter(
+			time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2023, time.October, 10, 9, 0, 0, 0, time.UTC),
+			models.DateFrom,
+			models.Asc,
+			0,
 		)
 		assert.NoError(t, err)
 		assert.Len(t, events, 2)
 	})
 
 	t.Run("Contains None", func(t *testing.T) {
-		events, err := ea.GetByDate(
-			time.Date(2022, time.December, 1, 0, 0, 0, 0, time.UTC),
-			time.Date(2022, time.December, 31, 0, 0, 0, 0, time.UTC),
+		events, err := ea.GetByFilter(
+			time.Date(2023, time.December, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2023, time.December, 31, 0, 0, 0, 0, time.UTC),
+			models.DateFrom,
+			models.Asc,
+			0,
 		)
 		assert.NoError(t, err)
 		assert.Empty(t, events)
@@ -56,8 +65,8 @@ func TestCreate(t *testing.T) {
 	evtBefore := &models.Event{
 		Title:       "New Event Title",
 		Description: "New Event Description",
-		DateFrom:    time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC),
-		DateTo:      time.Date(2022, time.January, 2, 0, 0, 0, 0, time.UTC),
+		DateFrom:    time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC),
+		DateTo:      time.Date(2023, time.January, 2, 0, 0, 0, 0, time.UTC),
 	}
 
 	uuid, err := ea.Create(evtBefore)
@@ -76,7 +85,7 @@ func TestGetByUUID(t *testing.T) {
 	reloadTestDatabase()
 
 	t.Run("Event Found", func(t *testing.T) {
-		uuid := "AA"
+		uuid := "123e4567-e89b-12d3-a456-426614174003"
 		evt, err := ea.GetByUUID(uuid)
 		assert.NoError(t, err)
 		assert.Equal(t, evt.UUID, uuid)
@@ -92,12 +101,12 @@ func TestGetByUUID(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	reloadTestDatabase()
 
-	uuid := "AA"
+	uuid := "123e4567-e89b-12d3-a456-426614174004"
 	evt := &models.Event{
 		Title:       "New Event Title",
 		Description: "New Event Description",
-		DateFrom:    time.Date(2022, time.January, 3, 0, 0, 0, 0, time.UTC),
-		DateTo:      time.Date(2022, time.January, 4, 0, 0, 0, 0, time.UTC),
+		DateFrom:    time.Date(2023, time.January, 3, 0, 0, 0, 0, time.UTC),
+		DateTo:      time.Date(2023, time.January, 4, 0, 0, 0, 0, time.UTC),
 		UUID:        uuid,
 	}
 
@@ -123,7 +132,7 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	reloadTestDatabase()
 
-	uuid := "AA"
+	uuid := "123e4567-e89b-12d3-a456-426614174004"
 	evt, err := ea.GetByUUID(uuid)
 	assert.NoError(t, err)
 	assert.NotZero(t, evt)

@@ -1,31 +1,39 @@
 - id: 1
-  uuid: AA
-  title: Fly Fishing
-  description: Go fly fishing
-  date_from: 2022-01-01 22:00:00
-  date_to: 2022-01-01 23:00:00
-  created_at: 2021-01-01 10:00:00
+  uuid: 123e4567-e89b-12d3-a456-426614174000
+  title: Event One
+  description: This is the first test event.
+  date_from: 2023-10-01T10:00:00Z
+  date_to: 2023-10-01T12:00:00Z
+  created_at: 2023-09-01T09:00:00Z
 
 - id: 2
-  uuid: AB
-  title: Baking
-  description: Help my neighbor bake a cake
-  date_from: 2022-02-01 22:00:00
-  date_to: 2022-02-01 23:00:00
-  created_at: 2021-01-01 11:00:00
+  uuid: 123e4567-e89b-12d3-a456-426614174001
+  title: Event Two
+  description: This is the second test event.
+  date_from: 2023-10-05T14:00:00Z
+  date_to: 2023-10-05T16:00:00Z
+  created_at: 2023-09-02T09:00:00Z
 
 - id: 3
-  uuid: AC
-  title: Marathon
-  description: Run Marathon 
-  date_from: 2022-02-02 22:00:00
-  date_to: 2022-02-03 10:00:00
-  created_at: 2021-01-02 11:00:00
+  uuid: 123e4567-e89b-12d3-a456-426614174002
+  title: Event Three
+  description: This is the third test event.
+  date_from: 2023-10-10T09:00:00Z
+  date_to: 2023-10-10T11:00:00Z
+  created_at: 2023-09-03T09:00:00Z
 
 - id: 4
-  uuid: AD
-  title: Karaoke
-  description: Karaoke contest
-  date_from: 2022-01-02 20:00:00
-  date_to: 2022-01-03 10:00:00
-  created_at: 2021-02-02 11:00:00
+  uuid: 123e4567-e89b-12d3-a456-426614174003
+  title: Event Four
+  description: This is the fourth test event.
+  date_from: 2023-10-15T13:00:00Z
+  date_to: 2023-10-15T15:00:00Z
+  created_at: 2023-09-04T09:00:00Z
+
+- id: 5
+  uuid: 123e4567-e89b-12d3-a456-426614174004
+  title: Event Five
+  description: This is the fifth test event.
+  date_from: 2023-10-20T08:00:00Z
+  date_to: 2023-10-20T10:00:00Z
+  created_at: 2023-09-05T09:00:00Z
