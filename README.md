@@ -31,4 +31,4 @@ $ npm run dev
 
 Quick demo showing create, delete and update operations
 
-[Demo](demo.mkv)
+https://github.com/user-attachments/assets/aee3a390-fb18-4256-bce4-502237858ae8
