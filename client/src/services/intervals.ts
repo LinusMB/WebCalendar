@@ -109,7 +109,7 @@ export const constraints = {
             const event = findOverlap(events, newInterval);
             if (event == null) {
                 throw new Error(
-                    `${constraints.noEventOverlap.name} Unexpect result: No overlapping event found.`
+                    `${constraints.noEventOverlap.name} Unexpected result: No overlapping event found.`
                 );
             }
             return keepStart
