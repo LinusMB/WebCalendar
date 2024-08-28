@@ -4,7 +4,7 @@ This is a WIP and mostly an exercise on my part in writing reactive SPAs.
 
 ## Getting Started
 
-### Backend (API)
+### Backend
 
 Start the server
 
@@ -26,3 +26,9 @@ $ npm build
 # or start dev server...
 $ npm run dev
 ```
+
+## Demo
+
+Quick demo showing create, delete and update operations
+
+[Demo](demo.mkv)
