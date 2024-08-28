@@ -58,8 +58,11 @@ export function useEventsForDay(viewDate: Date) {
     const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_DAY(isoDate));
-        const events = await res.json();
-        return events?.map(adaptor.event) || [];
+        const json = await res.json();
+        if (res.status !== 200) {
+            throw Error(json?.message || `Non-200 status code: ${res.status}`);
+        }
+        return json?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByDay(isoDate);
     return useQuery(queryKey, queryFn, {
@@ -105,8 +108,11 @@ export function useEventsForWeek(viewDate: Date) {
     const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_WEEK(year, week));
-        const events = await res.json();
-        return events?.map(adaptor.event) || [];
+        const json = await res.json();
+        if (res.status !== 200) {
+            throw Error(json?.message || `Non-200 status code: ${res.status}`);
+        }
+        return json?.map(adaptor.event) || [];
     };
 
     const queryKey = queryKeys.events.getByWeek(year, week);
@@ -146,8 +152,11 @@ export function useEventsForMonth(viewDate: Date) {
     const queryClient = useQueryClient();
     const queryFn = async () => {
         const res = await fetch(api.ROUTES.GET_BY_MONTH(year, month));
-        const events = await res.json();
-        return events?.map(adaptor.event) || [];
+        const json = await res.json();
+        if (res.status !== 200) {
+            throw Error(json?.message || `Non-200 status code: ${res.status}`);
+        }
+        return json?.map(adaptor.event) || [];
     };
     const queryKey = queryKeys.events.getByMonth(year, month);
     return useQuery(queryKey, queryFn, {
@@ -206,8 +215,11 @@ export async function getPreviousEvents(interval: CalInterval) {
             limit: 1,
         })
     );
-    const events = await res.json();
-    return events?.map(adaptor.event) || [];
+    const json = await res.json();
+    if (res.status !== 200) {
+        throw Error(json?.message || `Non-200 status code: ${res.status}`);
+    }
+    return json?.map(adaptor.event) || [];
 }
 
 export async function getNextEvents(interval: CalInterval) {
@@ -234,8 +246,11 @@ export async function getNextEvents(interval: CalInterval) {
             limit: 1,
         })
     );
-    const events = await res.json();
-    return events?.map(adaptor.event) || [];
+    const json = await res.json();
+    if (res.status !== 200) {
+        throw Error(json?.message || `Non-200 status code: ${res.status}`);
+    }
+    return json?.map(adaptor.event) || [];
 }
 
 export function useGetPreviousEvents(interval: CalInterval) {
@@ -272,7 +287,11 @@ export function useAddEvent() {
                 date_to: formatRFC3339(eventInterval.end),
             }),
         });
-        return res.json();
+        const json = await res.json();
+        if (res.status !== 200) {
+            throw Error(json?.message || `Non-200 status code: ${res.status}`);
+        }
+        return json;
     };
     return useMutation(mutationFn, {
         onSuccess: () => {
@@ -320,7 +339,11 @@ export function useEditEvent() {
                 date_to: formatRFC3339(eventInterval.end),
             }),
         });
-        return res.json();
+        const json = await res.json();
+        if (res.status !== 200) {
+            throw Error(json?.message || `Non-200 status code: ${res.status}`);
+        }
+        return json;
     };
     return useMutation(mutationFn, {
         onSuccess: () => {
@@ -349,7 +372,11 @@ export function useDeleteEvent() {
         const res = await fetch(api.ROUTES.DELETE(uuid), {
             method: "DELETE",
         });
-        return res.json();
+        const json = await res.json();
+        if (res.status !== 200) {
+            throw Error(json?.message || `Non-200 status code: ${res.status}`);
+        }
+        return json;
     };
     return useMutation(mutationFn, {
         onSuccess: () => {
